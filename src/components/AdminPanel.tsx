@@ -2,7 +2,9 @@
 
 import { useState, useEffect, ChangeEvent, FormEvent, useMemo } from 'react';
 import Link from 'next/link';
-import { fetchImages, createImage, uploadImageToDB, updateImageVisibility, downloadGroupImage, deleteImage as deleteImageApi, fetchCertificates, updateCertificateDisplay, bulkDeleteCertificates, deleteCertificate, updateCertificate } from '@/lib/api';
+import Image from 'next/image';
+import { fetchImages, uploadImageToDB, updateImageVisibility, downloadGroupImage, deleteImage as deleteImageApi, fetchCertificates, updateCertificateDisplay, bulkDeleteCertificates, deleteCertificate, updateCertificate } from '@/lib/api';
+import { imagePreviewSrc } from '@/lib/image-urls';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +14,6 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { ImagePlus, Trash2, Eye, EyeOff, Loader2, ExternalLink, Search, Download, FileText } from 'lucide-react';
 import { EventImage, CertificateRecord } from '@/types';
-
-const imagePreviewSrc = (id: string) => `/api/images/${encodeURIComponent(id)}/download?inline=1`;
 
 export default function AdminPanel() {
   const [images, setImages] = useState<EventImage[]>([]);
@@ -72,51 +72,6 @@ export default function AdminPanel() {
     reader.readAsDataURL(file);
   };
 
-  const compressAndConvertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1024;
-          const MAX_HEIGHT = 768;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Canvas context not available'));
-            return;
-          }
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Compress to JPEG with 0.7 quality to keep document under 1MB limit
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-          resolve(compressedBase64);
-        };
-        img.onerror = (err) => reject(err);
-      };
-      reader.onerror = (err) => reject(err);
-    });
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!selectedFile || !groupName) {
@@ -126,22 +81,7 @@ export default function AdminPanel() {
 
     setIsUploading(true);
     try {
-      let newImage: EventImage;
-      try {
-        // First try direct file upload + DB save
-        newImage = await uploadImageToDB(selectedFile, groupName.trim());
-      } catch (uploadErr) {
-        console.warn('Direct upload to DB failed, attempting compressed base64 upload:', uploadErr);
-        const base64Url = await compressAndConvertToBase64(selectedFile);
-        if (base64Url.length >= 1000000) {
-          throw new Error('Image size is too large even after compression. Please choose a smaller image.');
-        }
-        newImage = await createImage({
-          url: base64Url,
-          groupName: groupName.trim(),
-          timestamp: Date.now(),
-        });
-      }
+      const newImage = await uploadImageToDB(selectedFile, groupName.trim());
 
       setImages(prev => [newImage, ...prev]);
       setSelectedFile(null);
@@ -403,8 +343,15 @@ export default function AdminPanel() {
                     <Label htmlFor="image-file">Image File</Label>
                     <div className="flex items-center gap-3">
                       {previewUrl && (
-                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md border bg-muted">
-                          <img src={previewUrl} alt="Selected image preview" className="h-full w-full object-cover" />
+                        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md border bg-muted">
+                          <Image
+                            src={previewUrl}
+                            alt="Selected image preview"
+                            fill
+                            unoptimized
+                            sizes="56px"
+                            className="object-cover"
+                          />
                         </div>
                       )}
                       <div className="min-w-0 flex-1">
@@ -446,7 +393,16 @@ export default function AdminPanel() {
                   ) : (
                     images.map((img) => (
                       <div key={img.id} className="flex flex-col gap-3 rounded-lg border p-3 transition-shadow hover:shadow-sm sm:flex-row sm:items-center sm:gap-4">
-                        <img src={imagePreviewSrc(img.id)} className="h-40 w-full rounded object-cover sm:h-14 sm:w-20" alt={img.groupName} />
+                        <div className="relative h-40 w-full overflow-hidden rounded sm:h-14 sm:w-20 sm:shrink-0">
+                          <Image
+                            src={imagePreviewSrc(img.id)}
+                            alt={img.groupName}
+                            fill
+                            unoptimized
+                            sizes="(min-width: 640px) 80px, 100vw"
+                            className="object-cover"
+                          />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold truncate">{img.groupName}</p>
                           <p className="text-xs text-muted-foreground">{new Date(img.timestamp).toLocaleString()}</p>
