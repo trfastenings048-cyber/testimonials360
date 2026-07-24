@@ -90,19 +90,21 @@ export default function BigScreen() {
   }, []);
 
   useEffect(() => {
-    const loadImages = async (focusLatest = false) => {
+    const loadImages = async (focusImageId?: string) => {
       try {
         const fetchedImages = await fetchImages(true);
         setImages(fetchedImages);
-        if (focusLatest && fetchedImages[0]) {
+        const focusImage =
+          (focusImageId && fetchedImages.find((image) => image.id === focusImageId)) || fetchedImages[0];
+        if (focusImage) {
           const nextGroupImages = getDisplayGroupImages(fetchedImages);
-          const newestGroupKey = normalizeGroupName(fetchedImages[0].groupName);
-          const newestGroupIndex = nextGroupImages.findIndex(
-            (image) => normalizeGroupName(image.groupName) === newestGroupKey
+          const focusGroupKey = normalizeGroupName(focusImage.groupName);
+          const focusGroupIndex = nextGroupImages.findIndex(
+            (image) => normalizeGroupName(image.groupName) === focusGroupKey
           );
-          if (newestGroupIndex >= 0) {
+          if (focusGroupIndex >= 0) {
             setDirection('forward');
-            setCurrentImageIndex(newestGroupIndex);
+            setCurrentImageIndex(focusGroupIndex);
             setProgress(0);
           }
         }
@@ -113,7 +115,7 @@ export default function BigScreen() {
       }
     };
 
-    const loadTestimonials = async (focusLatest = false) => {
+    const loadTestimonials = async (focusCertificateId?: string) => {
       try {
         const certificates = await fetchCertificates(true);
         const nextTestimonials = certificates.filter(
@@ -122,8 +124,11 @@ export default function BigScreen() {
             Boolean(certificate.feedback?.trim())
         );
         setTestimonials(nextTestimonials);
-        if (focusLatest && nextTestimonials.length > 0) {
-          setCurrentTestimonialIndex(0);
+        if (nextTestimonials.length > 0) {
+          const focusIndex = focusCertificateId
+            ? nextTestimonials.findIndex((certificate) => certificate.id === focusCertificateId)
+            : 0;
+          setCurrentTestimonialIndex(focusIndex >= 0 ? focusIndex : 0);
         }
       } catch (error) {
         console.error('Error loading testimonials:', error);
@@ -139,19 +144,23 @@ export default function BigScreen() {
     try {
       eventSource = new EventSource('/api/stream');
       eventSource.addEventListener('update', (message) => {
-        let event: { type?: string };
+        let event: { type?: string; imageId?: string; certificateId?: string };
         try {
-          event = JSON.parse(message.data || '{}') as { type?: string };
+          event = JSON.parse(message.data || '{}') as {
+            type?: string;
+            imageId?: string;
+            certificateId?: string;
+          };
         } catch {
           return;
         }
         if (event.type === 'certificate-submitted') {
-          void loadTestimonials(true);
+          void loadTestimonials(event.certificateId);
           return;
         }
         if (event.type === 'content-updated') {
-          void loadImages(true);
-          void loadTestimonials(true);
+          void loadImages(event.imageId);
+          void loadTestimonials();
         }
       });
       eventSource.onerror = (err) => {
@@ -165,10 +174,10 @@ export default function BigScreen() {
     const channel = new BroadcastChannel('gates360-events');
     channel.addEventListener('message', (event) => {
       if (event.data?.type === 'certificate-submitted') {
-        void loadTestimonials(true);
+        void loadTestimonials(event.data?.certificateId);
       } else if (event.data?.type === 'content-updated') {
-        void loadImages(true);
-        void loadTestimonials(true);
+        void loadImages(event.data?.imageId);
+        void loadTestimonials();
       }
     });
 

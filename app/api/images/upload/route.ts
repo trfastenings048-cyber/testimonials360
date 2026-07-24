@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       data: { url, groupName, timestamp: Date.now(), isVisible: true },
     });
 
-    broadcastUpdate('content-updated', { action: 'image-created' });
+    broadcastUpdate('content-updated', { action: 'image-created', imageId: image.id });
     return NextResponse.json(image, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to save image to database';
