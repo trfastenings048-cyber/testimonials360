@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { fetchImages, createCertificate, uploadFile } from '@/lib/api';
+import { downloadGroupImage, fetchImages, createCertificate, downloadCertificateFile, uploadFile } from '@/lib/api';
 import { imagePreviewSrc } from '@/lib/image-urls';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,7 @@ export default function CertificateSystem() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false);
   const [currentCertUrl, setCurrentCertUrl] = useState('');
+  const [currentCertificateId, setCurrentCertificateId] = useState('');
   const [currentCertName, setCurrentCertName] = useState('');
   const [backgroundUploading, setBackgroundUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -166,7 +167,7 @@ export default function CertificateSystem() {
         }
 
         try {
-          await createCertificate({
+          const savedCertificate = await createCertificate({
             userName,
             userEmail,
             teamName,
@@ -178,6 +179,7 @@ export default function CertificateSystem() {
             showOnDisplay: true,
             createdAt: Date.now()
           });
+          setCurrentCertificateId(savedCertificate.id);
 
           // Notify BigScreen to refresh — no polling needed.
           try {
@@ -258,9 +260,24 @@ export default function CertificateSystem() {
 
     const filename = currentCertName || `Certificate_${userName.replace(/\s+/g, '_')}.pdf`;
 
-    // If we have a stored URL (remote or object URL), try to download that first
-    if (currentCertUrl) {
-      // If same-origin or object URL, use direct download
+    if (currentCertificateId) {
+      try {
+        const { blob, filename: storedFilename } = await downloadCertificateFile(currentCertificateId);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = storedFilename || filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        return;
+      } catch (e) {
+        console.warn('Stored certificate download failed, falling back to local PDF:', e);
+      }
+    }
+
+    if (currentCertUrl?.startsWith('blob:')) {
       try {
         const a = document.createElement('a');
         a.href = currentCertUrl;
@@ -270,7 +287,6 @@ export default function CertificateSystem() {
         a.remove();
         return;
       } catch (e) {
-        // fallback to regenerating PDF
         console.warn('Direct download failed, regenerating PDF', e);
       }
     }
@@ -283,13 +299,11 @@ export default function CertificateSystem() {
     const selectedImage = images.find(img => img.id === selectedGroupId);
     if (!selectedImage) return;
     try {
-      const res = await fetch(selectedImage.url);
-      const blob = await res.blob();
+      const { blob, filename } = await downloadGroupImage(selectedImage.id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      const name = `${(userName || 'photo').replace(/\s+/g, '_')}_${selectedImage.id}.jpg`;
-      a.download = name;
+      a.download = filename || `${(userName || 'photo').replace(/\s+/g, '_')}_${selectedImage.id}.jpg`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -302,7 +316,12 @@ export default function CertificateSystem() {
   const shareViaEmail = () => {
     const selectedImage = images.find(img => img.id === selectedGroupId);
     const subject = `Event Certificate: ${userName}`;
-    const body = `Hi,\n\nHere is the certificate for ${userName} from ${teamName || 'N/A'} (${designation || 'N/A'}).\n\nGroup: ${selectedImage?.groupName}\nView Photo: ${selectedImage?.url}\n\nDownload Certificate: ${currentCertUrl}`;
+    const origin = window.location.origin;
+    const photoUrl = selectedImage ? `${origin}/api/images/${encodeURIComponent(selectedImage.id)}/download` : '';
+    const certificateUrl = currentCertificateId
+      ? `${origin}/api/certificates/${encodeURIComponent(currentCertificateId)}/download`
+      : currentCertUrl;
+    const body = `Hi,\n\nHere is the certificate for ${userName} from ${teamName || 'N/A'} (${designation || 'N/A'}).\n\nGroup: ${selectedImage?.groupName}\nView Photo: ${photoUrl}\n\nDownload Certificate: ${certificateUrl}`;
     window.location.href = `mailto:nabeel@redsxp.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
