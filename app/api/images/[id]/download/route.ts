@@ -52,7 +52,9 @@ export async function GET(_request: NextRequest, { params }: Params) {
           '; filename="' +
           safeDownloadName(image.groupName, mimeType) +
           '"',
-        'Cache-Control': isInline ? 'private, max-age=60' : 'private, no-store',
+        'Cache-Control': isInline
+          ? 'public, max-age=31536000, s-maxage=31536000, immutable'
+          : 'private, no-store',
       },
     });
   } catch (error) {
