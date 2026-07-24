@@ -60,7 +60,6 @@ export function broadcastUpdate(type: string, payload: Record<string, unknown> =
     void notifyPool.query('select pg_notify($1, $2)', [channelName, eventPayload]).catch((error) => {
       console.error('Failed to publish realtime update:', error);
     });
-    return;
   }
 
   const message = encoder.encode(`event: update\ndata: ${eventPayload}\n\n`);
