@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { fetchImages, createCertificate, uploadFile } from '@/lib/api';
+import { imagePreviewSrc } from '@/lib/image-urls';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +20,6 @@ import { motion, AnimatePresence } from 'motion/react';
 // To link your Google Sheet automatically, paste the Web App URL from Extensions -> Apps Script here:
 const GOOGLE_SHEETS_WEBHOOK_URL = '';
 const PLEDGE_TEMPLATE_URL = '/sanitation-sandbox-pledge-template.png';
-const imagePreviewSrc = (id: string) => `/api/images/${encodeURIComponent(id)}/download?inline=1`;
 
 let pledgeTemplateDataUrlPromise: Promise<string> | null = null;
 
@@ -319,10 +320,13 @@ export default function CertificateSystem() {
           </CardHeader>
           <CardContent className="space-y-6 pb-8">
             <div className="relative mx-auto aspect-[595.5/842.25] w-full max-w-sm overflow-hidden rounded-xl border-4 border-white bg-[#07513f] shadow-xl">
-              <img
+              <Image
                 src={PLEDGE_TEMPLATE_URL}
-                className="h-full w-full object-cover"
                 alt="Sanitation Sandbox pledge preview"
+                fill
+                priority
+                sizes="384px"
+                className="object-cover"
               />
               <div className="absolute left-[6.8%] top-[62.55%] flex w-[43.5%] -translate-y-1/2 items-end justify-center px-1 text-center">
                 <span className="max-w-full truncate text-[clamp(8px,2.3vw,15px)] font-normal leading-none text-white">
@@ -389,7 +393,15 @@ export default function CertificateSystem() {
               className="w-full overflow-hidden rounded-2xl border border-white/80 bg-white/90 p-1.5 shadow-[0_24px_70px_-28px_rgba(15,23,42,0.35)] backdrop-blur sm:rounded-[28px] sm:p-2"
             >
               <div className="relative h-[clamp(190px,58vw,260px)] w-full overflow-hidden rounded-xl sm:h-[340px] sm:rounded-[20px] md:h-[416px]">
-                <img src={selectedImage.url} alt={selectedImage.groupName} className="w-full h-full object-cover" />
+                <Image
+                  src={imagePreviewSrc(selectedImage.id)}
+                  alt={selectedImage.groupName}
+                  fill
+                  priority
+                  unoptimized
+                  sizes="(min-width: 768px) 896px, 100vw"
+                  className="object-cover"
+                />
                 <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/75 via-black/5 to-transparent p-3 sm:p-6">
                   <span className="max-w-full truncate rounded-full border border-white/20 bg-black/45 px-3 py-1.5 text-xs font-bold tracking-tight text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-sm">
                     Group: {selectedImage.groupName}
@@ -487,7 +499,16 @@ export default function CertificateSystem() {
                       images.map((img) => (
                         <SelectItem key={img.id} value={img.id} className="py-2.5">
                           <div className="flex items-center gap-2">
-                            <img src={imagePreviewSrc(img.id)} className="w-6 h-4 rounded object-cover" alt="" />
+                            <span className="relative block h-4 w-6 shrink-0 overflow-hidden rounded">
+                              <Image
+                                src={imagePreviewSrc(img.id)}
+                                alt=""
+                                fill
+                                unoptimized
+                                sizes="24px"
+                                className="object-cover"
+                              />
+                            </span>
                             {img.groupName}
                           </div>
                         </SelectItem>
