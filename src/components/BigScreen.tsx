@@ -24,6 +24,24 @@ const PROGRESS_STEP = 50;
 
 const normalizeGroupName = (groupName?: string) => groupName?.trim().toLowerCase() || '';
 
+const getDisplayGroupImages = (images: EventImage[]) => {
+  const newestImageByGroup = new Map<string, EventImage>();
+
+  images.forEach((image) => {
+    const groupKey = normalizeGroupName(image.groupName);
+    if (groupKey && !newestImageByGroup.has(groupKey)) {
+      newestImageByGroup.set(groupKey, image);
+    }
+  });
+
+  return Array.from(newestImageByGroup.values()).sort((a, b) =>
+    a.groupName.localeCompare(b.groupName, undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    })
+  );
+};
+
 const slideVariants = {
   enter: (direction: 'forward' | 'backward') => ({
     x: direction === 'forward' ? '100%' : '-100%',
@@ -72,10 +90,22 @@ export default function BigScreen() {
   }, []);
 
   useEffect(() => {
-    const loadImages = async () => {
+    const loadImages = async (focusLatest = false) => {
       try {
         const fetchedImages = await fetchImages(true);
         setImages(fetchedImages);
+        if (focusLatest && fetchedImages[0]) {
+          const nextGroupImages = getDisplayGroupImages(fetchedImages);
+          const newestGroupKey = normalizeGroupName(fetchedImages[0].groupName);
+          const newestGroupIndex = nextGroupImages.findIndex(
+            (image) => normalizeGroupName(image.groupName) === newestGroupKey
+          );
+          if (newestGroupIndex >= 0) {
+            setDirection('forward');
+            setCurrentImageIndex(newestGroupIndex);
+            setProgress(0);
+          }
+        }
       } catch (error) {
         console.error('Error loading group images:', error);
       } finally {
@@ -83,16 +113,18 @@ export default function BigScreen() {
       }
     };
 
-    const loadTestimonials = async () => {
+    const loadTestimonials = async (focusLatest = false) => {
       try {
         const certificates = await fetchCertificates(true);
-        setTestimonials(
-          certificates.filter(
-            (certificate) =>
-              certificate.userEmail !== 'system-intro@gates.com' &&
-              Boolean(certificate.feedback?.trim())
-          )
+        const nextTestimonials = certificates.filter(
+          (certificate) =>
+            certificate.userEmail !== 'system-intro@gates.com' &&
+            Boolean(certificate.feedback?.trim())
         );
+        setTestimonials(nextTestimonials);
+        if (focusLatest && nextTestimonials.length > 0) {
+          setCurrentTestimonialIndex(0);
+        }
       } catch (error) {
         console.error('Error loading testimonials:', error);
       }
@@ -106,9 +138,21 @@ export default function BigScreen() {
     let eventSource: EventSource | null = null;
     try {
       eventSource = new EventSource('/api/stream');
-      eventSource.addEventListener('update', () => {
-        void loadImages();
-        void loadTestimonials();
+      eventSource.addEventListener('update', (message) => {
+        let event: { type?: string };
+        try {
+          event = JSON.parse(message.data || '{}') as { type?: string };
+        } catch {
+          return;
+        }
+        if (event.type === 'certificate-submitted') {
+          void loadTestimonials(true);
+          return;
+        }
+        if (event.type === 'content-updated') {
+          void loadImages(true);
+          void loadTestimonials(true);
+        }
       });
       eventSource.onerror = (err) => {
         console.warn('SSE stream error, EventSource will automatically reconnect:', err);
@@ -120,47 +164,24 @@ export default function BigScreen() {
     // 2. Local tab notification channel (instant same-device sync)
     const channel = new BroadcastChannel('gates360-events');
     channel.addEventListener('message', (event) => {
-      if (event.data?.type === 'certificate-submitted' || event.data?.type === 'content-updated') {
-        void loadImages();
-        void loadTestimonials();
+      if (event.data?.type === 'certificate-submitted') {
+        void loadTestimonials(true);
+      } else if (event.data?.type === 'content-updated') {
+        void loadImages(true);
+        void loadTestimonials(true);
       }
     });
-
-    // 3. Tab visibility sync (refresh when window is brought back into focus)
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        void loadImages();
-        void loadTestimonials();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       if (eventSource) {
         eventSource.close();
       }
       channel.close();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
   const groupImages = useMemo(() => {
-    const newestImageByGroup = new Map<string, EventImage>();
-
-    // The API returns newest first, so the first image for a group is retained.
-    images.forEach((image) => {
-      const groupKey = normalizeGroupName(image.groupName);
-      if (groupKey && !newestImageByGroup.has(groupKey)) {
-        newestImageByGroup.set(groupKey, image);
-      }
-    });
-
-    return Array.from(newestImageByGroup.values()).sort((a, b) =>
-      a.groupName.localeCompare(b.groupName, undefined, {
-        numeric: true,
-        sensitivity: 'base',
-      })
-    );
+    return getDisplayGroupImages(images);
   }, [images]);
 
   useEffect(() => {
