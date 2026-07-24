@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, ChangeEvent, FormEvent, useMemo } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent, useMemo, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetchImages, uploadImageToDB, updateImageVisibility, downloadGroupImage, deleteImage as deleteImageApi, fetchCertificates, updateCertificateDisplay, bulkDeleteCertificates, deleteCertificate, updateCertificate } from '@/lib/api';
@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
-import { ImagePlus, Trash2, Eye, EyeOff, Loader2, ExternalLink, Search, Download, FileText } from 'lucide-react';
+import { ImagePlus, Trash2, Eye, EyeOff, Loader2, ExternalLink, Search, Download, FileText, X, User, Mail, Building2, BadgeCheck, MessageSquareText, CalendarClock, Image as ImageIcon } from 'lucide-react';
 import { EventImage, CertificateRecord } from '@/types';
 
 type DeleteConfirmation =
@@ -32,6 +32,144 @@ const notifyDisplay = (payload: Record<string, unknown>) => {
   }
 };
 
+const certificateDownloadSrc = (id: string) => `/api/certificates/${encodeURIComponent(id)}/download`;
+const normalizeGroupName = (name?: string) => name?.trim().toLowerCase() || '';
+
+type CertificateDetailsDialogProps = {
+  certificate: CertificateRecord | null;
+  groupImage: EventImage | null;
+  onClose: () => void;
+};
+
+function DetailField({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-muted/20 p-3">
+      <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {icon}
+        {label}
+      </div>
+      <div className="break-words text-sm font-medium text-foreground">{value || '—'}</div>
+    </div>
+  );
+}
+
+function CertificateDetailsDialog({ certificate, groupImage, onClose }: CertificateDetailsDialogProps) {
+  if (!certificate) return null;
+
+  const submittedAt = new Date(certificate.createdAt);
+
+  return (
+    <div
+      className="fixed inset-0 z-[190] flex items-center justify-center bg-black/55 p-3 backdrop-blur-sm sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="certificate-details-title"
+    >
+      <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b bg-muted/30 p-4 sm:p-5">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Certificate Submission</p>
+            <h2 id="certificate-details-title" className="mt-1 truncate text-xl font-black tracking-tight sm:text-2xl">
+              {certificate.userName}
+            </h2>
+            <p className="mt-1 break-all text-sm text-muted-foreground">{certificate.userEmail}</p>
+          </div>
+          <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Close details">
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="overflow-y-auto p-4 sm:p-5">
+          {groupImage && (
+            <div className="relative mb-4 h-44 overflow-hidden rounded-lg border border-border bg-muted sm:h-56">
+              <Image
+                src={imagePreviewSrc(groupImage.id)}
+                alt={groupImage.groupName}
+                fill
+                unoptimized
+                sizes="(min-width: 640px) 768px, 100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-3">
+                <p className="truncate text-sm font-bold text-white">{groupImage.groupName}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-emerald-800">
+              <p className="text-xs font-bold uppercase tracking-wider">Display Status</p>
+              <p className="mt-1 text-lg font-black">{certificate.showOnDisplay ? 'Visible' : 'Hidden'}</p>
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800">
+              <p className="text-xs font-bold uppercase tracking-wider">Event Group</p>
+              <p className="mt-1 truncate text-lg font-black">{certificate.groupName}</p>
+            </div>
+            <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sky-800">
+              <p className="text-xs font-bold uppercase tracking-wider">Certificate</p>
+              <p className="mt-1 text-lg font-black">{certificate.certificateUrl ? 'Ready' : 'Pending'}</p>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <DetailField icon={<User className="h-3.5 w-3.5" />} label="Name" value={certificate.userName} />
+            <DetailField icon={<Mail className="h-3.5 w-3.5" />} label="Email" value={certificate.userEmail} />
+            <DetailField icon={<Building2 className="h-3.5 w-3.5" />} label="Organisation" value={certificate.teamName || '—'} />
+            <DetailField icon={<BadgeCheck className="h-3.5 w-3.5" />} label="Designation" value={certificate.designation || '—'} />
+            <DetailField
+              icon={<CalendarClock className="h-3.5 w-3.5" />}
+              label="Submitted"
+              value={`${submittedAt.toLocaleDateString()} ${submittedAt.toLocaleTimeString()}`}
+            />
+            <DetailField icon={<ImageIcon className="h-3.5 w-3.5" />} label="Group Image" value={certificate.groupName} />
+          </div>
+
+          <div className="mt-3 rounded-lg border border-border bg-muted/20 p-3">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <MessageSquareText className="h-3.5 w-3.5" />
+              Feedback
+            </div>
+            <p className="whitespace-pre-wrap text-sm leading-6 text-foreground">
+              {certificate.feedback || 'No feedback provided.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 border-t bg-background p-4 sm:flex-row sm:items-center sm:justify-end">
+          {certificate.certificateUrl ? (
+            <Button
+              type="button"
+              className="h-10 gap-2"
+              onClick={() => {
+                window.location.href = certificateDownloadSrc(certificate.id);
+              }}
+            >
+              <Download className="h-4 w-4" />
+              Download Certificate
+            </Button>
+          ) : (
+            <Button className="h-10 gap-2" disabled>
+              <FileText className="h-4 w-4" />
+              Certificate Pending
+            </Button>
+          )}
+          <Button type="button" variant="outline" className="h-10" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPanel() {
   const [images, setImages] = useState<EventImage[]>([]);
   const [groupName, setGroupName] = useState('');
@@ -47,6 +185,7 @@ export default function AdminPanel() {
   const [selectedCertIds, setSelectedCertIds] = useState<Set<string>>(new Set());
   const [isDeletingCerts, setIsDeletingCerts] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmation | null>(null);
+  const [viewingCertificate, setViewingCertificate] = useState<CertificateRecord | null>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'content' | 'certificates'>('content');
@@ -372,6 +511,15 @@ export default function AdminPanel() {
         isLoading={isConfirmingDelete || isDeletingCerts}
         onConfirm={() => void confirmDelete()}
         onCancel={() => setDeleteConfirmation(null)}
+      />
+      <CertificateDetailsDialog
+        certificate={viewingCertificate}
+        groupImage={
+          viewingCertificate
+            ? images.find((image) => normalizeGroupName(image.groupName) === normalizeGroupName(viewingCertificate.groupName)) || null
+            : null
+        }
+        onClose={() => setViewingCertificate(null)}
       />
       <header className="flex flex-col gap-4 border-b pb-5 sm:pb-6 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
@@ -703,9 +851,19 @@ export default function AdminPanel() {
                           On display
                         </div>
                         <div className="flex items-center gap-2">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-9 w-9 text-sky-600 hover:bg-sky-50 hover:text-sky-700"
+                            onClick={() => setViewingCertificate(cert)}
+                            title="View submission details"
+                            aria-label={`View details for ${cert.userName}`}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           {cert.certificateUrl && (
                             <a
-                              href={cert.certificateUrl}
+                              href={certificateDownloadSrc(cert.id)}
                               target="_blank"
                               rel="noreferrer"
                               className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100"
@@ -749,7 +907,7 @@ export default function AdminPanel() {
                       <th className="text-left font-semibold py-3.5 px-4 text-muted-foreground whitespace-nowrap">Feedback</th>
                       <th className="text-center font-semibold py-3.5 px-4 text-muted-foreground whitespace-nowrap w-28">On Display</th>
                       <th className="text-center font-semibold py-3.5 px-4 text-muted-foreground whitespace-nowrap w-24">Certificate</th>
-                      <th className="text-center font-semibold py-3.5 px-4 text-muted-foreground whitespace-nowrap w-16">Action</th>
+                      <th className="text-center font-semibold py-3.5 px-4 text-muted-foreground whitespace-nowrap w-24">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -816,7 +974,7 @@ export default function AdminPanel() {
                           <td className="py-3 px-4 text-center">
                             {cert.certificateUrl ? (
                               <a
-                                href={cert.certificateUrl}
+                                href={certificateDownloadSrc(cert.id)}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center justify-center p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
@@ -829,14 +987,26 @@ export default function AdminPanel() {
                             )}
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                              onClick={() => setDeleteConfirmation({ type: 'certificate', id: cert.id, name: cert.userName })}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <div className="flex items-center justify-center gap-1">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-sky-600 hover:bg-sky-50 hover:text-sky-700"
+                                onClick={() => setViewingCertificate(cert)}
+                                title="View submission details"
+                                aria-label={`View details for ${cert.userName}`}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                                onClick={() => setDeleteConfirmation({ type: 'certificate', id: cert.id, name: cert.userName })}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))
