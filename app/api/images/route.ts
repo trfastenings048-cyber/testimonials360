@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
       take: limit ? Number.parseInt(limit, 10) : undefined,
     });
 
-    return NextResponse.json(images);
+    return NextResponse.json(images, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to fetch images';
     return NextResponse.json({ error: message }, { status: 500 });
