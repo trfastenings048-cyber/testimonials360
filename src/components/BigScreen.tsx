@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import { fetchCertificates, fetchImages, CertificateRecord } from '@/lib/api';
+import { imagePreviewSrc } from '@/lib/image-urls';
 import { AnimatePresence, motion } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { EventImage } from '@/types';
@@ -21,7 +23,6 @@ const TESTIMONIAL_DURATION = 5000;
 const PROGRESS_STEP = 50;
 
 const normalizeGroupName = (groupName?: string) => groupName?.trim().toLowerCase() || '';
-const displayImageSrc = (id: string) => `/api/images/${encodeURIComponent(id)}/download?inline=1`;
 
 const slideVariants = {
   enter: (direction: 'forward' | 'backward') => ({
@@ -280,16 +281,25 @@ export default function BigScreen() {
                 transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <img
-                  src={displayImageSrc(currentImage.id)}
-                  className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-xl"
+                <Image
+                  src={imagePreviewSrc(currentImage.id)}
                   alt=""
+                  fill
+                  priority
+                  unoptimized
+                  sizes="100vw"
+                  className="pointer-events-none absolute inset-0 scale-110 object-cover opacity-40 blur-xl"
                 />
                 <div className="relative z-10 flex h-[82%] max-w-[90%] items-center justify-center rounded-2xl border border-white/25 bg-white/10 p-2 shadow-2xl backdrop-blur-md">
-                  <img
-                    src={displayImageSrc(currentImage.id)}
-                    className="h-full max-w-full rounded-xl object-contain shadow-md"
+                  <Image
+                    src={imagePreviewSrc(currentImage.id)}
                     alt={`${currentImage.groupName} group`}
+                    width={1600}
+                    height={900}
+                    priority
+                    unoptimized
+                    sizes="90vw"
+                    className="h-full max-w-full rounded-xl object-contain shadow-md"
                   />
                 </div>
               </motion.div>
