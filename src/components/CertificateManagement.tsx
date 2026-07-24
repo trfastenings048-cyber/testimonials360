@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
 import { Loader2, Trash2, Download } from 'lucide-react';
 
@@ -20,11 +21,17 @@ interface Certificate {
   createdAt: number;
 }
 
+type DeleteConfirmation =
+  | { type: 'certificate'; id: string; name: string }
+  | { type: 'selected'; count: number }
+  | { type: 'all'; count: number };
+
 export default function CertificateManagement() {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmation | null>(null);
 
   useEffect(() => {
     const loadCertificates = async () => {
@@ -76,7 +83,6 @@ export default function CertificateManagement() {
       toast.error('No entries selected');
       return;
     }
-    if (!confirm(`Delete ${selectedIds.size} certificate(s)? This cannot be undone.`)) return;
 
     setIsDeleting(true);
     try {
@@ -96,7 +102,6 @@ export default function CertificateManagement() {
       toast.error('No certificates to clear');
       return;
     }
-    if (!confirm(`Delete ALL ${certificates.length} certificate(s)? This cannot be undone.`)) return;
 
     setIsDeleting(true);
     try {
@@ -109,6 +114,59 @@ export default function CertificateManagement() {
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const deleteSingleCertificate = async (id: string) => {
+    try {
+      await deleteCertificate(id);
+      setCertificates(prev => prev.filter(item => item.id !== id));
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      toast.success('Deleted');
+    } catch (e) {
+      console.error('Failed to delete certificate:', e);
+      toast.error('Failed to delete');
+    }
+  };
+
+  const getDeleteDialogCopy = () => {
+    if (!deleteConfirmation) return { title: '', description: '' };
+
+    if (deleteConfirmation.type === 'certificate') {
+      return {
+        title: 'Delete certificate?',
+        description: `Are you sure you want to delete the certificate for "${deleteConfirmation.name}"?`,
+      };
+    }
+
+    if (deleteConfirmation.type === 'selected') {
+      return {
+        title: 'Delete selected certificates?',
+        description: `Are you sure you want to delete ${deleteConfirmation.count} selected certificate(s)? This cannot be undone.`,
+      };
+    }
+
+    return {
+      title: 'Delete all certificates?',
+      description: `Are you sure you want to delete all ${deleteConfirmation.count} certificate(s)? This cannot be undone.`,
+    };
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation) return;
+
+    if (deleteConfirmation.type === 'certificate') {
+      await deleteSingleCertificate(deleteConfirmation.id);
+    } else if (deleteConfirmation.type === 'selected') {
+      await deleteSelected();
+    } else {
+      await clearAll();
+    }
+
+    setDeleteConfirmation(null);
   };
 
   const exportCSV = () => {
@@ -146,6 +204,16 @@ export default function CertificateManagement() {
 
   return (
     <div className="min-h-screen bg-background p-6">
+      <ConfirmDialog
+        open={Boolean(deleteConfirmation)}
+        title={getDeleteDialogCopy().title}
+        description={getDeleteDialogCopy().description}
+        confirmLabel="Yes, delete"
+        cancelLabel="No, keep it"
+        isLoading={isDeleting}
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => setDeleteConfirmation(null)}
+      />
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div>
@@ -193,7 +261,7 @@ export default function CertificateManagement() {
           </Button>
           {selectedIds.size > 0 && (
             <Button
-              onClick={deleteSelected}
+              onClick={() => setDeleteConfirmation({ type: 'selected', count: selectedIds.size })}
               variant="destructive"
               disabled={isDeleting}
               className="gap-2"
@@ -201,7 +269,11 @@ export default function CertificateManagement() {
               <Trash2 className="w-4 h-4" /> Delete Selected ({selectedIds.size})
             </Button>
           )}
-          <Button onClick={clearAll} variant="destructive" disabled={isDeleting || certificates.length === 0}>
+          <Button
+            onClick={() => setDeleteConfirmation({ type: 'all', count: certificates.length })}
+            variant="destructive"
+            disabled={isDeleting || certificates.length === 0}
+          >
             Clear All
           </Button>
         </div>
@@ -270,23 +342,7 @@ export default function CertificateManagement() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={async () => {
-                                if (confirm('Delete this certificate?')) {
-                                  try {
-                                    await deleteCertificate(cert.id);
-                                    setCertificates(prev => prev.filter(item => item.id !== cert.id));
-                                    setSelectedIds(prev => {
-                                      const next = new Set(prev);
-                                      next.delete(cert.id);
-                                      return next;
-                                    });
-                                    toast.success('Deleted');
-                                  } catch (e) {
-                                    console.error('Failed to delete certificate:', e);
-                                    toast.error('Failed to delete');
-                                  }
-                                }
-                              }}
+                              onClick={() => setDeleteConfirmation({ type: 'certificate', id: cert.id, name: cert.userName })}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
