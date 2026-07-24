@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { fetchSummary, type SummaryRecord } from '@/lib/api';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
@@ -47,7 +48,12 @@ export default function ServerDetails() {
             <div key={r.id} className="border-b pb-2">
               <p className="font-medium">{r.name} ({r.email})</p>
               <p className="text-sm text-muted-foreground">Team: {r.team}</p>
-              <p className="text-sm">Image: <a href={r.imageUrl} target="_blank" rel="noopener noreferrer" className="underline">view</a></p>
+              <p className="text-sm">
+                Image:{' '}
+                <Link href={r.imageUrl} target="_blank" rel="noopener noreferrer" className="underline">
+                  view
+                </Link>
+              </p>
               <p className="text-sm">Certificate: {r.certificateGenerated ? '✅ generated' : '❌ not generated'}</p>
             </div>
           ))}

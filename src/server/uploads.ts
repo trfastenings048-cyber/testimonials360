@@ -1,8 +1,5 @@
 import fs from 'fs';
-import path from 'path';
 import { GoogleAuth } from 'google-auth-library';
-
-export const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
 type UploadFolder = 'content' | 'certificates' | string;
 
@@ -186,21 +183,4 @@ export async function saveUploadedFile(file: File, folder: UploadFolder = 'uploa
     contentType,
     size: bytes.length,
   };
-}
-
-export async function saveUploadedFileWithStorageClient(
-  file: File,
-  folder: UploadFolder = 'uploads',
-  uid?: string
-) {
-  return saveUploadedFile(file, folder, uid);
-}
-
-export function mimeTypeFromPath(filePath: string) {
-  const extension = path.extname(filePath).toLowerCase();
-  if (extension === '.png') return 'image/png';
-  if (extension === '.webp') return 'image/webp';
-  if (extension === '.gif') return 'image/gif';
-  if (extension === '.svg') return 'image/svg+xml';
-  return 'image/jpeg';
 }
