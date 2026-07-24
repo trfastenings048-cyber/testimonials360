@@ -22,6 +22,16 @@ type DeleteConfirmation =
   | { type: 'selected-certificates'; count: number }
   | { type: 'all-certificates'; count: number };
 
+const notifyDisplay = (payload: Record<string, unknown>) => {
+  try {
+    const channel = new BroadcastChannel('gates360-events');
+    channel.postMessage(payload);
+    channel.close();
+  } catch {
+    // BroadcastChannel is only a same-device fast path; SSE handles cross-device updates.
+  }
+};
+
 export default function AdminPanel() {
   const [images, setImages] = useState<EventImage[]>([]);
   const [groupName, setGroupName] = useState('');
@@ -96,6 +106,7 @@ export default function AdminPanel() {
       setSelectedFile(null);
       setPreviewUrl('');
       setGroupName('');
+      notifyDisplay({ type: 'content-updated', imageId: newImage.id });
       toast.success('Image saved to database successfully!');
     } catch (error: any) {
       console.error(error);
@@ -110,6 +121,7 @@ export default function AdminPanel() {
     try {
       await updateImageVisibility(id, !current);
       setImages(prev => prev.map(img => img.id === id ? { ...img, isVisible: !current } : img));
+      notifyDisplay({ type: 'content-updated', imageId: id });
       toast.success(`Image ${!current ? 'visible' : 'hidden'}`);
     } catch (error) {
       toast.error('Failed to update visibility');
@@ -141,6 +153,7 @@ export default function AdminPanel() {
     try {
       await deleteImageApi(id);
       setImages(prev => prev.filter(img => img.id !== id));
+      notifyDisplay({ type: 'content-updated' });
       toast.success('Image deleted');
     } catch (error) {
       toast.error('Failed to delete image');
@@ -180,6 +193,7 @@ export default function AdminPanel() {
     try {
       await bulkDeleteCertificates(Array.from(selectedCertIds));
       setCertificates(prev => prev.filter(c => !selectedCertIds.has(c.id)));
+      notifyDisplay({ type: 'content-updated' });
       toast.success(`Successfully deleted ${selectedCertIds.size} certificate(s)`);
       setSelectedCertIds(new Set());
     } catch (err: any) {
@@ -200,6 +214,7 @@ export default function AdminPanel() {
     try {
       await bulkDeleteCertificates();
       setCertificates([]);
+      notifyDisplay({ type: 'content-updated' });
       toast.success(`Successfully deleted all ${certificates.length} certificate(s)`);
       setSelectedCertIds(new Set());
     } catch (err: any) {
@@ -219,6 +234,7 @@ export default function AdminPanel() {
         next.delete(id);
         return next;
       });
+      notifyDisplay({ type: 'content-updated' });
       toast.success('Submission deleted');
     } catch (e) {
       console.error('Failed to delete submission:', e);
