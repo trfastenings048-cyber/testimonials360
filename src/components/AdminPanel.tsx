@@ -11,9 +11,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
 import { ImagePlus, Trash2, Eye, EyeOff, Loader2, ExternalLink, Search, Download, FileText } from 'lucide-react';
 import { EventImage, CertificateRecord } from '@/types';
+
+type DeleteConfirmation =
+  | { type: 'image'; id: string; name: string }
+  | { type: 'certificate'; id: string; name: string }
+  | { type: 'selected-certificates'; count: number }
+  | { type: 'all-certificates'; count: number };
 
 export default function AdminPanel() {
   const [images, setImages] = useState<EventImage[]>([]);
@@ -29,6 +36,8 @@ export default function AdminPanel() {
   const [isCertsLoading, setIsCertsLoading] = useState(true);
   const [selectedCertIds, setSelectedCertIds] = useState<Set<string>>(new Set());
   const [isDeletingCerts, setIsDeletingCerts] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmation | null>(null);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'content' | 'certificates'>('content');
 
@@ -129,7 +138,6 @@ export default function AdminPanel() {
   };
 
   const deleteImage = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this image?')) return;
     try {
       await deleteImageApi(id);
       setImages(prev => prev.filter(img => img.id !== id));
@@ -167,7 +175,6 @@ export default function AdminPanel() {
       toast.error('No certificates selected');
       return;
     }
-    if (!window.confirm(`Are you sure you want to delete the selected ${selectedCertIds.size} certificate(s)?`)) return;
 
     setIsDeletingCerts(true);
     try {
@@ -188,7 +195,6 @@ export default function AdminPanel() {
       toast.error('No certificates to delete');
       return;
     }
-    if (!window.confirm(`Are you sure you want to delete ALL ${certificates.length} certificate(s)? This cannot be undone.`)) return;
 
     setIsDeletingCerts(true);
     try {
@@ -201,6 +207,74 @@ export default function AdminPanel() {
       toast.error("Failed to clear certificates");
     } finally {
       setIsDeletingCerts(false);
+    }
+  };
+
+  const deleteSingleCertificate = async (id: string) => {
+    try {
+      await deleteCertificate(id);
+      setCertificates(prev => prev.filter(item => item.id !== id));
+      setSelectedCertIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      toast.success('Submission deleted');
+    } catch (e) {
+      console.error('Failed to delete submission:', e);
+      toast.error('Failed to delete submission');
+    }
+  };
+
+  const getDeleteDialogCopy = () => {
+    if (!deleteConfirmation) {
+      return { title: '', description: '' };
+    }
+
+    if (deleteConfirmation.type === 'image') {
+      return {
+        title: 'Delete content?',
+        description: `Are you sure you want to delete "${deleteConfirmation.name}" from the Content Library?`,
+      };
+    }
+
+    if (deleteConfirmation.type === 'certificate') {
+      return {
+        title: 'Delete certificate submission?',
+        description: `Are you sure you want to delete the certificate submission for "${deleteConfirmation.name}"?`,
+      };
+    }
+
+    if (deleteConfirmation.type === 'selected-certificates') {
+      return {
+        title: 'Delete selected submissions?',
+        description: `Are you sure you want to delete ${deleteConfirmation.count} selected certificate submission(s)?`,
+      };
+    }
+
+    return {
+      title: 'Delete all certificate submissions?',
+      description: `Are you sure you want to delete all ${deleteConfirmation.count} certificate submission(s)? This cannot be undone.`,
+    };
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation) return;
+
+    setIsConfirmingDelete(true);
+    try {
+      if (deleteConfirmation.type === 'image') {
+        await deleteImage(deleteConfirmation.id);
+      } else if (deleteConfirmation.type === 'certificate') {
+        await deleteSingleCertificate(deleteConfirmation.id);
+      } else if (deleteConfirmation.type === 'selected-certificates') {
+        await deleteSelectedCerts();
+      } else {
+        await clearAllCerts();
+      }
+      setDeleteConfirmation(null);
+    } finally {
+      setIsConfirmingDelete(false);
     }
   };
 
@@ -273,6 +347,16 @@ export default function AdminPanel() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-3 py-4 sm:space-y-8 sm:px-6 sm:py-6">
+      <ConfirmDialog
+        open={Boolean(deleteConfirmation)}
+        title={getDeleteDialogCopy().title}
+        description={getDeleteDialogCopy().description}
+        confirmLabel="Yes, delete"
+        cancelLabel="No, keep it"
+        isLoading={isConfirmingDelete || isDeletingCerts}
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => setDeleteConfirmation(null)}
+      />
       <header className="flex flex-col gap-4 border-b pb-5 sm:pb-6 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
           <h1 className="text-3xl font-black uppercase tracking-tight sm:text-4xl">Controller</h1>
@@ -430,7 +514,12 @@ export default function AdminPanel() {
                               <Download className="w-4 h-4" />
                             )}
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => deleteImage(img.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteConfirmation({ type: 'image', id: img.id, name: img.groupName })}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -503,7 +592,7 @@ export default function AdminPanel() {
               </Button>
               {selectedCertIds.size > 0 && (
                 <Button
-                  onClick={deleteSelectedCerts}
+                  onClick={() => setDeleteConfirmation({ type: 'selected-certificates', count: selectedCertIds.size })}
                   variant="destructive"
                   size="sm"
                   className="col-span-2 h-10 gap-2 sm:col-span-1"
@@ -513,7 +602,7 @@ export default function AdminPanel() {
                 </Button>
               )}
               <Button
-                onClick={clearAllCerts}
+                onClick={() => setDeleteConfirmation({ type: 'all-certificates', count: certificates.length })}
                 variant="destructive"
                 size="sm"
                 className="h-10"
@@ -613,23 +702,7 @@ export default function AdminPanel() {
                             size="icon"
                             variant="ghost"
                             className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            onClick={async () => {
-                              if (confirm('Are you sure you want to delete this submission?')) {
-                                try {
-                                  await deleteCertificate(cert.id);
-                                  setCertificates(prev => prev.filter(item => item.id !== cert.id));
-                                  setSelectedCertIds(prev => {
-                                    const next = new Set(prev);
-                                    next.delete(cert.id);
-                                    return next;
-                                  });
-                                  toast.success('Submission deleted');
-                                } catch (e) {
-                                  console.error('Failed to delete submission:', e);
-                                  toast.error('Failed to delete submission');
-                                }
-                              }
-                            }}
+                            onClick={() => setDeleteConfirmation({ type: 'certificate', id: cert.id, name: cert.userName })}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -744,23 +817,7 @@ export default function AdminPanel() {
                               size="icon"
                               variant="ghost"
                               className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                              onClick={async () => {
-                                if (confirm('Are you sure you want to delete this submission?')) {
-                                  try {
-                                    await deleteCertificate(cert.id);
-                                    setCertificates(prev => prev.filter(item => item.id !== cert.id));
-                                    setSelectedCertIds(prev => {
-                                      const next = new Set(prev);
-                                      next.delete(cert.id);
-                                      return next;
-                                    });
-                                    toast.success('Submission deleted');
-                                  } catch (e) {
-                                    console.error('Failed to delete submission:', e);
-                                    toast.error('Failed to delete submission');
-                                  }
-                                }
-                              }}
+                              onClick={() => setDeleteConfirmation({ type: 'certificate', id: cert.id, name: cert.userName })}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
