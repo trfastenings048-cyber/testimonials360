@@ -202,6 +202,22 @@ export const createCertificate = async (data: Omit<CertificateRecord, 'id'>): Pr
   return await resp.json();
 };
 
+export const downloadCertificateFile = async (id: string): Promise<{ blob: Blob; filename: string }> => {
+  const resp = await fetch(`/api/certificates/${encodeURIComponent(id)}/download`);
+  if (!resp.ok) {
+    const result = await resp.json().catch(() => null);
+    throw new Error(result?.error || 'Failed to download certificate');
+  }
+
+  const disposition = resp.headers.get('content-disposition') || '';
+  const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
+
+  return {
+    blob: await resp.blob(),
+    filename: filenameMatch?.[1] || 'certificate.pdf',
+  };
+};
+
 // Update certificate fields (like display status or group name)
 export const updateCertificate = async (id: string, data: { showOnDisplay?: boolean; groupName?: string }): Promise<CertificateRecord> => {
   const resp = await fetch(`/api/certificates/${id}`, {
