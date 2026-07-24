@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    broadcastUpdate('certificate-submitted', { action: 'cert-created' });
+    broadcastUpdate('certificate-submitted', { action: 'cert-created', certificateId: certificate.id });
     return NextResponse.json(certificate, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create certificate';
