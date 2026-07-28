@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
 import { broadcastUpdate } from '@/server/realtime';
+import { deleteStoredObject } from '@/server/uploads';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -30,7 +31,22 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Certificate id is required' }, { status: 400 });
     }
 
-    const deleted = await prisma.certificate.deleteMany({ where: { id: id.trim() } });
+    const trimmedId = id.trim();
+    const certificate = await prisma.certificate.findUnique({ where: { id: trimmedId } });
+    if (certificate) {
+      if (certificate.certificateUrl) {
+        await deleteStoredObject(certificate.certificateUrl).catch((err) =>
+          console.error('Failed to delete certificate PDF from Cloudinary:', err)
+        );
+      }
+      if (certificate.imageUrl) {
+        await deleteStoredObject(certificate.imageUrl).catch((err) =>
+          console.error('Failed to delete certificate image from Cloudinary:', err)
+        );
+      }
+    }
+
+    const deleted = await prisma.certificate.deleteMany({ where: { id: trimmedId } });
     broadcastUpdate('content-updated', { action: 'cert-deleted' });
     return NextResponse.json({ success: true, deleted: deleted.count > 0, count: deleted.count });
   } catch (error) {
