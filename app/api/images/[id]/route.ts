@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
 import { broadcastUpdate } from '@/server/realtime';
+import { deleteStoredObject } from '@/server/uploads';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -24,6 +25,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 export async function DELETE(_request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
+    const image = await prisma.eventImage.findUnique({ where: { id } });
+    if (image?.url) {
+      await deleteStoredObject(image.url).catch((err) =>
+        console.error('Failed to delete image from Cloudinary:', err)
+      );
+    }
     await prisma.eventImage.delete({ where: { id } });
     broadcastUpdate('content-updated', { action: 'image-deleted' });
     return NextResponse.json({ success: true });
