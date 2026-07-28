@@ -51,4 +51,31 @@ export async function deleteFromCloudinary(
   }
 }
 
+/**
+ * Extracts the public ID from a Cloudinary URL.
+ * @param url - The Cloudinary secure or standard URL.
+ */
+export function getPublicIdFromUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname.includes('cloudinary.com')) return null;
+
+    const parts = parsed.pathname.split('/').filter(Boolean);
+    const uploadIndex = parts.indexOf('upload');
+    if (uploadIndex === -1 || uploadIndex + 1 >= parts.length) return null;
+
+    let startIndex = uploadIndex + 1;
+    // Skip version tag (e.g. v12345678)
+    if (parts[startIndex].startsWith('v') && /^\d+$/.test(parts[startIndex].slice(1))) {
+      startIndex += 1;
+    }
+
+    const remainingPath = parts.slice(startIndex).join('/');
+    // Remove the file extension (e.g. .jpg)
+    return remainingPath.replace(/\.[^/.]+$/, '');
+  } catch {
+    return null;
+  }
+}
+
 export { cloudinary };
