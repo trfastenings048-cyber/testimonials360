@@ -501,22 +501,28 @@ export default function AdminPanel() {
   });
 
   return (
-    <div className="theme-tr min-h-screen bg-background text-foreground">
-      <header className="relative overflow-hidden bg-[#032b69] text-white">
-        {/* Diagonal white shape that cuts across the right side of the brand block. */}
-        <div
-          className="pointer-events-none absolute inset-y-0 right-0 hidden w-[38%] bg-white md:block"
-          style={{ clipPath: 'polygon(28% 0, 100% 0, 100% 100%, 0 100%)' }}
-        />
-        <div
-          className="pointer-events-none absolute inset-y-0 right-0 hidden w-[40%] bg-[#00a9b7] md:block"
-          style={{ clipPath: 'polygon(26% 0, 28% 0, 3% 100%, 0 100%)' }}
-        />
+    // Full-screen page background: dark navy at the top → sky blue → white at the bottom. Fixed so it spans the viewport while scrolling.
+    <div className="theme-tr min-h-screen w-full bg-gradient-to-b from-[#032b69] via-[#4fc3e8] via-45% to-white to-85% bg-fixed text-foreground">
+      {/* Transparent navbar over the page gradient, separated by a shadow. */}
+      <header className="relative overflow-hidden bg-transparent text-white shadow-[0_8px_24px_-6px_rgba(3,43,105,0.55)]">
         <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-4 px-3 py-6 sm:px-6 sm:py-8 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00a9b7]">Admin</p>
-            <h1 className="mt-1 text-3xl font-black uppercase tracking-tight sm:text-4xl">Controller</h1>
-            <p className="mt-1 text-white/75">Real-time event content management</p>
+          <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+            {/* Logo is navy on a white background, so it sits on a white tile over the navy header. */}
+            <div className="shrink-0 rounded-md bg-white p-1.5 shadow-md">
+              <Image
+                src="/tr-fastenings-logo.jpg"
+                alt="TR Fastenings, part of the Trifast plc Group"
+                width={140}
+                height={134}
+                priority
+                className="h-14 w-auto sm:h-16"
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00a9b7]">Admin</p>
+              <h1 className="mt-1 text-3xl font-black uppercase tracking-tight sm:text-4xl">Controller</h1>
+              <p className="mt-1 text-white/75">Real-time event content management</p>
+            </div>
           </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:flex md:shrink-0">
             <Link href="/display" target="_blank" className="w-full md:w-auto">
@@ -554,7 +560,7 @@ export default function AdminPanel() {
         onClose={() => setViewingCertificate(null)}
       />
       {/* Tab Switcher */}
-      <div className="flex overflow-x-auto border-b border-border">
+      <div className="flex overflow-x-auto overflow-y-hidden rounded-lg border border-white/60 bg-white/90 px-2 shadow-md backdrop-blur-sm">
         <button
           onClick={() => setActiveTab('content')}
           className={`-mb-[2px] shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors sm:px-6 ${
