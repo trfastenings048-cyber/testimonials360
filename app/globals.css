@@ -120,6 +120,28 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Navy / teal corporate theme, scoped to screens that opt in (admin). */
+.theme-tr {
+    --background: #ffffff;
+    --foreground: #111111;
+    --card: #ffffff;
+    --card-foreground: #111111;
+    --popover: #ffffff;
+    --popover-foreground: #111111;
+    --primary: #032b69;
+    --primary-foreground: #ffffff;
+    --secondary: #00a9b7;
+    --secondary-foreground: #ffffff;
+    --muted: #f2f5f9;
+    --muted-foreground: #5b6474;
+    --accent: #e6f6f8;
+    --accent-foreground: #032b69;
+    --border: #dfe4ec;
+    --input: #d3dae5;
+    --ring: #00a9b7;
+    --radius: 0.375rem;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
