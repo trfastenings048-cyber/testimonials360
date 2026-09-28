@@ -240,19 +240,22 @@ export default function BigScreen() {
     if (isPaused || groupImages.length <= 1) return;
 
     const interval = window.setInterval(() => {
-      setProgress((currentProgress) => {
-        const nextProgress = currentProgress + (PROGRESS_STEP / GROUP_DURATION) * 100;
-        if (nextProgress >= 100) {
-          setDirection('forward');
-          setCurrentImageIndex((index) => (index + 1) % groupImages.length);
-          return 0;
-        }
-        return nextProgress;
-      });
+      setProgress((currentProgress) =>
+        Math.min(100, currentProgress + (PROGRESS_STEP / GROUP_DURATION) * 100)
+      );
     }, PROGRESS_STEP);
 
     return () => window.clearInterval(interval);
   }, [groupImages.length, isPaused]);
+
+  // Advance once the progress bar fills. Kept out of the setProgress updater, which React
+  // may call twice (Strict Mode) and would skip a slide — with 2 groups it never moved.
+  useEffect(() => {
+    if (progress < 100 || groupImages.length <= 1) return;
+    setDirection('forward');
+    setCurrentImageIndex((index) => (index + 1) % groupImages.length);
+    setProgress(0);
+  }, [progress, groupImages.length]);
 
   useEffect(() => {
     const syncFullscreenState = () => setIsFullscreen(Boolean(document.fullscreenElement));
