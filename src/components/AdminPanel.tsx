@@ -105,15 +105,15 @@ function CertificateDetailsDialog({ certificate, groupImage, onClose }: Certific
           )}
 
           <div className="mb-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-emerald-800">
+            <div className="rounded-lg border border-[#032b69] bg-[#032b69] p-3 text-white">
               <p className="text-xs font-bold uppercase tracking-wider">Display Status</p>
               <p className="mt-1 text-lg font-black">{certificate.showOnDisplay ? 'Visible' : 'Hidden'}</p>
             </div>
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800">
+            <div className="rounded-lg border border-[#00a9b7]/30 bg-[#e6f6f8] p-3 text-[#032b69]">
               <p className="text-xs font-bold uppercase tracking-wider">Event Group</p>
               <p className="mt-1 truncate text-lg font-black">{certificate.groupName}</p>
             </div>
-            <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sky-800">
+            <div className="rounded-lg border border-[#032b69]/20 bg-[#032b69]/5 p-3 text-[#032b69]">
               <p className="text-xs font-bold uppercase tracking-wider">Certificate</p>
               <p className="mt-1 text-lg font-black">{certificate.certificateUrl ? 'Ready' : 'Pending'}</p>
             </div>
@@ -501,6 +501,38 @@ export default function AdminPanel() {
   });
 
   return (
+    <div className="theme-tr min-h-screen bg-background text-foreground">
+      <header className="relative overflow-hidden bg-[#032b69] text-white">
+        {/* Diagonal white shape that cuts across the right side of the brand block. */}
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 hidden w-[38%] bg-white md:block"
+          style={{ clipPath: 'polygon(28% 0, 100% 0, 100% 100%, 0 100%)' }}
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 hidden w-[40%] bg-[#00a9b7] md:block"
+          style={{ clipPath: 'polygon(26% 0, 28% 0, 3% 100%, 0 100%)' }}
+        />
+        <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-4 px-3 py-6 sm:px-6 sm:py-8 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00a9b7]">Admin</p>
+            <h1 className="mt-1 text-3xl font-black uppercase tracking-tight sm:text-4xl">Controller</h1>
+            <p className="mt-1 text-white/75">Real-time event content management</p>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:flex md:shrink-0">
+            <Link href="/display" target="_blank" className="w-full md:w-auto">
+              <Button className="w-full gap-2 bg-[#00a9b7] text-white hover:bg-[#0094a1] md:w-auto">
+                Display Screen <ExternalLink className="w-4 h-4" />
+              </Button>
+            </Link>
+            <Link href="/certificate" target="_blank" className="w-full md:w-auto">
+              <Button variant="outline" className="w-full gap-2 border-[#032b69] bg-white text-[#032b69] hover:bg-[#032b69] hover:text-white md:w-auto">
+                User Portal <ExternalLink className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
     <div className="mx-auto w-full max-w-7xl space-y-6 px-3 py-4 sm:space-y-8 sm:px-6 sm:py-6">
       <ConfirmDialog
         open={Boolean(deleteConfirmation)}
@@ -521,32 +553,13 @@ export default function AdminPanel() {
         }
         onClose={() => setViewingCertificate(null)}
       />
-      <header className="flex flex-col gap-4 border-b pb-5 sm:pb-6 md:flex-row md:items-center md:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-3xl font-black uppercase tracking-tight sm:text-4xl">Controller</h1>
-          <p className="text-muted-foreground">Real-time event content management</p>
-        </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:flex md:shrink-0">
-          <Link href="/display" target="_blank" className="w-full md:w-auto">
-            <Button variant="outline" className="w-full gap-2 md:w-auto">
-              Display Screen <ExternalLink className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link href="/certificate" target="_blank" className="w-full md:w-auto">
-            <Button variant="outline" className="w-full gap-2 md:w-auto">
-              User Portal <ExternalLink className="w-4 h-4" />
-            </Button>
-          </Link>
-        </div>
-      </header>
-
       {/* Tab Switcher */}
       <div className="flex overflow-x-auto border-b border-border">
         <button
           onClick={() => setActiveTab('content')}
           className={`-mb-[2px] shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors sm:px-6 ${
             activeTab === 'content'
-              ? 'border-primary text-primary font-bold'
+              ? 'border-[#00a9b7] text-primary font-bold'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -556,7 +569,7 @@ export default function AdminPanel() {
           onClick={() => setActiveTab('certificates')}
           className={`-mb-[2px] shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors sm:px-6 ${
             activeTab === 'certificates'
-              ? 'border-primary text-primary font-bold'
+              ? 'border-[#00a9b7] text-primary font-bold'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -618,7 +631,7 @@ export default function AdminPanel() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={isUploading || !selectedFile}>
+                <Button type="submit" className="w-full bg-[#00a9b7] text-white hover:bg-[#0094a1]" disabled={isUploading || !selectedFile}>
                   {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                   Submit Content
                 </Button>
@@ -657,7 +670,7 @@ export default function AdminPanel() {
                         </div>
                         <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
                           <div className="flex items-center gap-2 sm:mr-4">
-                            {img.isVisible ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
+                            {img.isVisible ? <Eye className="w-4 h-4 text-[#00a9b7]" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
                             <Switch
                               checked={img.isVisible}
                               onCheckedChange={() => toggleVisibility(img.id, img.isVisible)}
@@ -668,7 +681,7 @@ export default function AdminPanel() {
                             size="icon"
                             onClick={() => void handleDownloadImage(img)}
                             disabled={downloadingImageId === img.id}
-                            className="text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                            className="text-[#00a9b7] hover:bg-[#e6f6f8] hover:text-[#0094a1]"
                             title={`Download ${img.groupName} image`}
                             aria-label={`Download ${img.groupName} image`}
                           >
@@ -724,7 +737,7 @@ export default function AdminPanel() {
                 <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selected Records</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-extrabold tracking-tight text-amber-500">{selectedCertIds.size}</p>
+                <p className="text-3xl font-extrabold tracking-tight text-[#00a9b7]">{selectedCertIds.size}</p>
               </CardContent>
             </Card>
           </div>
@@ -854,7 +867,7 @@ export default function AdminPanel() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-9 w-9 text-sky-600 hover:bg-sky-50 hover:text-sky-700"
+                            className="h-9 w-9 text-[#032b69] hover:bg-[#e6f6f8] hover:text-[#032b69]"
                             onClick={() => setViewingCertificate(cert)}
                             title="View submission details"
                             aria-label={`View details for ${cert.userName}`}
@@ -866,7 +879,7 @@ export default function AdminPanel() {
                               href={certificateDownloadSrc(cert.id)}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100"
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#e6f6f8] text-[#00a9b7] transition-colors hover:bg-[#cdeef1]"
                               title="Download / View Certificate PDF"
                             >
                               <FileText className="h-4 w-4" />
@@ -977,7 +990,7 @@ export default function AdminPanel() {
                                 href={certificateDownloadSrc(cert.id)}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center justify-center p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                                className="inline-flex items-center justify-center p-2 rounded-lg bg-[#e6f6f8] text-[#00a9b7] hover:bg-[#cdeef1] transition-colors"
                                 title="Download / View Certificate PDF"
                               >
                                 <FileText className="w-4 h-4" />
@@ -991,7 +1004,7 @@ export default function AdminPanel() {
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-8 w-8 text-sky-600 hover:bg-sky-50 hover:text-sky-700"
+                                className="h-8 w-8 text-[#032b69] hover:bg-[#e6f6f8] hover:text-[#032b69]"
                                 onClick={() => setViewingCertificate(cert)}
                                 title="View submission details"
                                 aria-label={`View details for ${cert.userName}`}
@@ -1018,6 +1031,7 @@ export default function AdminPanel() {
           </Card>
         </div>
       )}
+    </div>
     </div>
   );
 }
