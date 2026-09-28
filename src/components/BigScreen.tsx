@@ -58,12 +58,12 @@ function QrCard({ certificateUrl }: { certificateUrl: string }) {
   return (
     <div
       data-testid="qr-card"
-      className="qr-card flex w-[clamp(7rem,13vw,15rem)] shrink-0 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-xl border-2 border-amber-400 bg-white/95 p-2 shadow-2xl backdrop-blur-sm transition-transform duration-300 hover:scale-[1.02] sm:gap-2 md:rounded-2xl md:p-3 xl:p-4 2xl:rounded-3xl 2xl:border-4 2xl:p-5"
+      className="qr-card flex w-[clamp(7rem,13vw,15rem)] shrink-0 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-md border-2 border-[#00a9b7] bg-white p-2 shadow-2xl backdrop-blur-sm transition-transform duration-300 hover:scale-[1.02] sm:gap-2  md:p-3 xl:p-4  2xl:border-4 2xl:p-5"
     >
       <div className="qr-card-copy shrink-0 text-center">
-        <p className="text-xs font-black leading-tight text-neutral-800 xl:text-sm 2xl:text-lg">GET YOUR</p>
-        <p className="mb-1 text-xs font-black leading-tight text-amber-500 xl:text-sm 2xl:text-lg">PHOTOGRAPH</p>
-        <p className="text-[8px] uppercase tracking-wider text-neutral-400 xl:text-[10px] 2xl:text-xs">Scan to Claim</p>
+        <p className="text-xs font-black leading-tight text-[#111111] xl:text-sm 2xl:text-lg">GET YOUR</p>
+        <p className="mb-1 text-xs font-black leading-tight text-[#00a9b7] xl:text-sm 2xl:text-lg">PHOTOGRAPH</p>
+        <p className="text-[8px] uppercase tracking-wider text-[#111111]/60 xl:text-[10px] 2xl:text-xs">Scan to Claim</p>
       </div>
       <div className="aspect-square w-full rounded-lg bg-white p-1">
         <QRCodeSVG value={certificateUrl} className="h-full w-full" level="H" />
@@ -275,18 +275,18 @@ export default function BigScreen() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#181816] text-white">
-        <Loader2 className="mb-4 h-12 w-12 animate-spin text-amber-400" />
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#032b69] text-white">
+        <Loader2 className="mb-4 h-12 w-12 animate-spin text-[#00a9b7]" />
         <p className="text-xl font-medium uppercase tracking-widest">Initializing Display...</p>
       </div>
     );
   }
   return (
-    <div className="relative h-screen w-full select-none overflow-hidden bg-[#181816] font-sans text-white">
+    <div className="relative h-screen w-full select-none overflow-hidden bg-[#032b69] font-sans text-white">
       <button
         type="button"
         onClick={() => void toggleFullscreen()}
-        className="absolute right-3 top-3 z-[100] flex items-center justify-center rounded-full border border-white/30 bg-black/70 p-2.5 text-white shadow-xl backdrop-blur-sm transition hover:bg-black/90 active:scale-95 sm:right-4 sm:top-4"
+        className="absolute right-3 top-3 z-[100] flex items-center justify-center rounded-full border border-white/30 bg-[#032b69]/80 p-2.5 text-white shadow-xl backdrop-blur-sm transition hover:bg-[#00a9b7] active:scale-95 sm:right-4 sm:top-4"
         aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
         title={isFullscreen ? 'Exit Fullscreen (Esc)' : 'Enter Fullscreen'}
       >
@@ -294,7 +294,7 @@ export default function BigScreen() {
       </button>
 
       {/* Full-screen group slideshow; testimonial and QR are overlaid on top of it. */}
-      <div className="absolute inset-0 overflow-hidden bg-neutral-950">
+      <div className="absolute inset-0 overflow-hidden bg-[#032b69]">
         <AnimatePresence mode="wait" custom={direction}>
           {currentImage ? (
             <motion.div
@@ -330,29 +330,29 @@ export default function BigScreen() {
               </div>
             </motion.div>
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-neutral-400">
-              <Award className="h-16 w-16 text-neutral-300" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/70">
+              <Award className="h-16 w-16 text-[#00a9b7]" />
               <span className="text-sm font-semibold uppercase tracking-wider">Waiting for group images...</span>
             </div>
           )}
         </AnimatePresence>
 
         {/* Bottom scrim keeps the overlaid text readable on bright photos. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1/2 bg-gradient-to-t from-[#032b69]/90 via-[#032b69]/30 to-transparent" />
 
         <div className="absolute left-3 top-3 z-30 flex items-center gap-2 sm:left-4 sm:top-4">
           <button
             type="button"
             onClick={() => setIsPaused((paused) => !paused)}
-            className="flex items-center justify-center rounded-full border border-white/25 bg-black/60 p-2 text-white shadow-lg transition hover:bg-black/80 active:scale-95"
+            className="flex items-center justify-center rounded-full border border-white/30 bg-[#032b69]/80 p-2 text-white shadow-lg transition hover:bg-[#00a9b7] active:scale-95"
             title={isPaused ? 'Play group images' : 'Pause group images'}
           >
             {isPaused ? <Play className="h-4 w-4 fill-white" /> : <Pause className="h-4 w-4 fill-white" />}
           </button>
           {currentImage && (
-            <div className="rounded-full border border-neutral-200 bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-neutral-800 shadow-sm backdrop-blur-sm">
+            <div className="rounded-full border border-white bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#111111] shadow-sm backdrop-blur-sm">
               📷 {currentImage.groupName}
-              <span className="ml-2 text-neutral-400">
+              <span className="ml-2 text-[#00a9b7]">
                 {currentImageIndex + 1}/{groupImages.length}
               </span>
             </div>
@@ -362,7 +362,7 @@ export default function BigScreen() {
         <button
           type="button"
           onClick={showPreviousGroup}
-          className="absolute left-3 top-1/2 z-30 flex -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/60 p-2 text-white shadow-lg transition hover:bg-black/80 active:scale-95 sm:left-4 sm:p-3 md:left-6"
+          className="absolute left-3 top-1/2 z-30 flex -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-[#032b69]/80 p-2 text-white shadow-lg transition hover:bg-[#00a9b7] active:scale-95 sm:left-4 sm:p-3 md:left-6"
           title="Previous group image"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -371,22 +371,26 @@ export default function BigScreen() {
         <button
           type="button"
           onClick={showNextGroup}
-          className="absolute right-3 top-1/2 z-30 flex -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/60 p-2 text-white shadow-lg transition hover:bg-black/80 active:scale-95 sm:right-4 sm:p-3 md:right-6"
+          className="absolute right-3 top-1/2 z-30 flex -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-[#032b69]/80 p-2 text-white shadow-lg transition hover:bg-[#00a9b7] active:scale-95 sm:right-4 sm:p-3 md:right-6"
           title="Next group image"
         >
           <ChevronRight className="h-5 w-5" />
         </button>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-1 bg-white/15 md:h-1.5">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-1 bg-white/20 md:h-1.5">
           <div
             style={{ width: `${progress}%` }}
-            className="h-full bg-gradient-to-r from-amber-400 to-amber-600 transition-all duration-75 ease-linear"
+            className="h-full bg-[#00a9b7] transition-all duration-75 ease-linear"
           />
         </div>
 
         {/* Overlay row: testimonial on the left, QR on the right. */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8">
-          <div className="pointer-events-auto relative min-w-0 max-w-[min(60%,56rem)] overflow-hidden rounded-xl border border-white/15 bg-black/45 px-5 py-4 shadow-2xl backdrop-blur-md sm:px-8 sm:py-6">
+          {/* White panel with a diagonal right edge. */}
+          <div
+            className="pointer-events-auto relative min-w-0 max-w-[min(60%,56rem)] overflow-hidden border-l-[6px] border-[#00a9b7] bg-white py-4 pl-5 pr-14 text-[#111111] shadow-2xl sm:py-6 sm:pl-8 sm:pr-20"
+            style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 3rem) 100%, 0 100%)' }}
+          >
             <AnimatePresence mode="wait">
               {currentTestimonial ? (
                 <motion.div
@@ -396,21 +400,21 @@ export default function BigScreen() {
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.45 }}
                 >
-                  <p className="text-sm font-medium italic leading-relaxed text-white sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl">
+                  <p className="text-sm font-medium italic leading-relaxed text-[#111111] sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl">
                     “{currentTestimonial.feedback}”
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:mt-4 sm:gap-2">
-                    <span className="text-xs font-bold uppercase text-amber-400 sm:text-sm md:text-base lg:text-lg xl:text-xl">
+                    <span className="text-xs font-bold uppercase text-[#032b69] sm:text-sm md:text-base lg:text-lg xl:text-xl">
                       {currentTestimonial.userName || 'Anonymous'}
                     </span>
-                    <span className="text-xs text-white/40">|</span>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-white/70 md:text-sm lg:text-base xl:text-lg">
+                    <span className="text-xs text-[#111111]/30">|</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-[#111111]/70 md:text-sm lg:text-base xl:text-lg">
                       {[currentTestimonial.designation, currentTestimonial.teamName]
                         .filter(Boolean)
                         .join(' at ') || 'Participant'}
                     </span>
                     {testimonials.length > 1 && (
-                      <span className="ml-auto pl-3 text-[10px] font-semibold tabular-nums text-white/50">
+                      <span className="ml-auto pl-3 text-[10px] font-semibold tabular-nums text-[#111111]/50">
                         {currentTestimonialIndex + 1} / {testimonials.length}
                       </span>
                     )}
@@ -418,10 +422,10 @@ export default function BigScreen() {
                 </motion.div>
               ) : (
                 <motion.div key="no-testimonial" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <p className="text-base font-bold uppercase tracking-wide text-white sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
+                  <p className="text-base font-bold uppercase tracking-wide text-[#111111] sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
                     {currentImage?.groupName || 'Sanitation Sandbox'}
                   </p>
-                  <p className="mt-2 text-xs font-medium text-white/75 sm:text-sm md:text-base lg:text-lg">
+                  <p className="mt-2 text-xs font-medium text-[#111111]/70 sm:text-sm md:text-base lg:text-lg">
                     Group capture from the Sanitation Sandbox experience.
                   </p>
                 </motion.div>
