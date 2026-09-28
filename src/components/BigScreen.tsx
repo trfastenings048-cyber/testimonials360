@@ -285,7 +285,7 @@ export default function BigScreen() {
     );
   }
   return (
-    <div className="relative h-screen w-full select-none overflow-hidden bg-[#032b69] font-sans text-white">
+    <div className="relative h-screen w-full select-none overflow-hidden bg-white font-sans text-white">
       <button
         type="button"
         onClick={() => void toggleFullscreen()}
@@ -297,8 +297,10 @@ export default function BigScreen() {
       </button>
 
       {/* Full-screen group slideshow; testimonial and QR are overlaid on top of it. */}
-      <div className="absolute inset-0 overflow-hidden bg-[#032b69]">
-        <AnimatePresence mode="wait" custom={direction}>
+      {/* Background gradient: white at the top fading to navy at the bottom. */}
+      <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-white from-30% to-[#032b69]">
+        {/* Default (sync) mode: the next slide enters while the previous one exits, so there is no empty gap. */}
+        <AnimatePresence initial={false} custom={direction}>
           {currentImage ? (
             <motion.div
               key={currentImage.id}
@@ -308,40 +310,30 @@ export default function BigScreen() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-0 flex items-center justify-center"
+              className="absolute inset-0"
             >
+              {/* Slide fills the full screen; the gradient shows around the photo. */}
               <Image
                 src={imagePreviewSrc(currentImage.id)}
-                alt=""
+                alt={`${currentImage.groupName} group`}
                 fill
                 priority
                 unoptimized
                 sizes="100vw"
-                className="pointer-events-none absolute inset-0 scale-110 object-cover opacity-40 blur-xl"
+                className="pointer-events-none object-contain"
               />
-              <div className="relative z-10 flex h-[82%] max-w-[90%] items-center justify-center rounded-2xl border border-white/25 bg-white/10 p-2 shadow-2xl backdrop-blur-md">
-                <Image
-                  src={imagePreviewSrc(currentImage.id)}
-                  alt={`${currentImage.groupName} group`}
-                  width={1600}
-                  height={900}
-                  priority
-                  unoptimized
-                  sizes="90vw"
-                  className="h-full max-w-full rounded-xl object-contain shadow-md"
-                />
-              </div>
             </motion.div>
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/70">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#111111]/60">
               <Award className="h-16 w-16 text-[#00a9b7]" />
               <span className="text-sm font-semibold uppercase tracking-wider">Waiting for group images...</span>
             </div>
           )}
         </AnimatePresence>
 
-        {/* Bottom scrim keeps the overlaid text readable on bright photos. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1/2 bg-gradient-to-t from-[#032b69]/90 via-[#032b69]/30 to-transparent" />
+        {/* Gradient over the full-screen slide: clear/white at the top, navy at the bottom. */}
+        <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-b from-transparent from-45% via-[#032b69]/55 via-75% to-[#032b69]" />
+
 
         <div className="absolute left-3 top-3 z-30 flex items-center gap-2 sm:left-4 sm:top-4">
           <button
@@ -353,7 +345,7 @@ export default function BigScreen() {
             {isPaused ? <Play className="h-4 w-4 fill-white" /> : <Pause className="h-4 w-4 fill-white" />}
           </button>
           {currentImage && (
-            <div className="rounded-full border border-white bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#111111] shadow-sm backdrop-blur-sm">
+            <div className="rounded-full border border-[#032b69]/15 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#111111] shadow-sm backdrop-blur-sm">
               📷 {currentImage.groupName}
               <span className="ml-2 text-[#00a9b7]">
                 {currentImageIndex + 1}/{groupImages.length}
@@ -389,11 +381,8 @@ export default function BigScreen() {
 
         {/* Overlay row: testimonial on the left, QR on the right. */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8">
-          {/* White panel with a diagonal right edge. */}
-          <div
-            className="pointer-events-auto relative min-w-0 max-w-[min(60%,56rem)] overflow-hidden border-l-[6px] border-[#00a9b7] bg-white py-4 pl-5 pr-14 text-[#111111] shadow-2xl sm:py-6 sm:pl-8 sm:pr-20"
-            style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 3rem) 100%, 0 100%)' }}
-          >
+          {/* Frosted white review card, 40% wide, text aligned left. */}
+          <div className="pointer-events-auto relative w-[40%] min-w-0 overflow-hidden rounded-xl border border-white/60 border-l-[6px] border-l-[#00a9b7] bg-white/60 px-5 py-4 text-left text-[#111111] shadow-2xl backdrop-blur-xl sm:px-8 sm:py-6">
             <AnimatePresence mode="wait">
               {currentTestimonial ? (
                 <motion.div
@@ -425,10 +414,10 @@ export default function BigScreen() {
                 </motion.div>
               ) : (
                 <motion.div key="no-testimonial" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <p className="text-base font-bold uppercase tracking-wide text-[#111111] sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
+                  <p className="text-base font-bold uppercase tracking-wide text-[#032b69] sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
                     {currentImage?.groupName || 'Sanitation Sandbox'}
                   </p>
-                  <p className="mt-2 text-xs font-medium text-[#111111]/70 sm:text-sm md:text-base lg:text-lg">
+                  <p className="mt-2 text-xs font-medium text-[#111111]/75 sm:text-sm md:text-base lg:text-lg">
                     Group capture from the Sanitation Sandbox experience.
                   </p>
                 </motion.div>
