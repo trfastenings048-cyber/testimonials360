@@ -35,7 +35,8 @@ export async function saveUploadedFile(file: File, folder: UploadFolder = 'uploa
         resource_type: 'auto',
       },
       (error, result) => {
-        if (error) return reject(error);
+        // Cloudinary rejects with a plain object, not an Error, so wrap it to keep its message
+        if (error) return reject(new Error(`Cloudinary upload failed: ${error.message}`));
         resolve(result);
       }
     );

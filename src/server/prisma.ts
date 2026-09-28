@@ -2,14 +2,19 @@ import { PrismaClient } from '@/generated/prisma';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 
+const connectionString =
+  process.env.DATABASE_URL || 'postgresql://postgres:example@localhost:5432/postgres?schema=public';
+
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
   prismaPool?: pg.Pool;
 };
 
-const pool = globalForPrisma.prismaPool ?? new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+const pool =
+  globalForPrisma.prismaPool ??
+  new pg.Pool({
+    connectionString,
+  });
 
 const adapter = new PrismaPg(pool);
 

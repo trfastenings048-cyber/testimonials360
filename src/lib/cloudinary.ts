@@ -2,9 +2,9 @@ import { v2 as cloudinary, UploadApiResponse, UploadApiOptions } from 'cloudinar
 
 // Configure Cloudinary using environment variables
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME || 'kn5bw2jw',
-  api_key: process.env.CLOUDINARY_API_KEY || '883472345481137',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'cKAYrNG6FeENxvNFAtoBHowsq9I',
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 /**
