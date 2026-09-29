@@ -4,7 +4,7 @@ import "@fontsource-variable/geist";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GATES 360 Camera",
+  title: "TR FASTENING 360 Camera",
   description: "Event display, certificate, and admin dashboard",
 };
 
