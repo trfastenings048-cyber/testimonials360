@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, useRef, FormEvent } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { downloadGroupImage, fetchImages, createCertificate, downloadCertificateFile, uploadFile } from '@/lib/api';
@@ -19,27 +19,110 @@ import { motion, AnimatePresence } from 'motion/react';
 
 // To link your Google Sheet automatically, paste the Web App URL from Extensions -> Apps Script here:
 const GOOGLE_SHEETS_WEBHOOK_URL = '';
-const PLEDGE_TEMPLATE_URL = '/sanitation-sandbox-pledge-template.png';
+const LOGO_URL = '/tr-fastenings-logo.jpg';
+const LOGO_RATIO = 140 / 134; // width / height
 
-let pledgeTemplateDataUrlPromise: Promise<string> | null = null;
+const NAVY: [number, number, number] = [3, 43, 105];
+const TEAL: [number, number, number] = [0, 169, 183];
 
-const loadPledgeTemplate = () => {
-  if (!pledgeTemplateDataUrlPromise) {
-    pledgeTemplateDataUrlPromise = fetch(PLEDGE_TEMPLATE_URL)
+const PLEDGE_INTRO =
+  'Today, you explored the hidden journey of water beyond the tap and beyond the drain, discovering how innovation, infrastructure, and collective action can transform wastewater into a resource that protects public health, strengthens communities, and secures our shared future.';
+const PLEDGE_COMMITMENT =
+  'As you leave, you are invited to carry this awareness beyond these walls and make a personal commitment towards a more water-secure future.';
+const PLEDGE_ITEMS = [
+  'Value every drop of water and use it responsibly.',
+  'Think beyond the flush and recognise the journey water continues to take.',
+  'Encourage conversations and actions that build healthier, more water-secure communities.',
+  'Carry this awareness into my everyday choices and inspire others to do the same.',
+];
+
+let logoDataUrlPromise: Promise<string> | null = null;
+
+const loadLogo = () => {
+  if (!logoDataUrlPromise) {
+    logoDataUrlPromise = fetch(LOGO_URL)
       .then((response) => {
-        if (!response.ok) throw new Error('Unable to load the pledge template');
+        if (!response.ok) throw new Error('Unable to load the logo');
         return response.blob();
       })
       .then((blob) => new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result));
-        reader.onerror = () => reject(new Error('Unable to read the pledge template'));
+        reader.onerror = () => reject(new Error('Unable to read the logo'));
         reader.readAsDataURL(blob);
       }));
   }
 
-  return pledgeTemplateDataUrlPromise;
+  return logoDataUrlPromise;
 };
+
+interface PledgeDetails {
+  name: string;
+  designation?: string;
+  organisation?: string;
+}
+
+// On-screen preview that mirrors the generated PDF (A4 at 595x842 units, scaled to fit).
+function CertificatePreview({ name, designation, organisation }: PledgeDetails) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.6);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const update = () => setScale(el.clientWidth / 595);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const role = [designation, organisation].filter(Boolean).join(' · ');
+  const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  return (
+    <div
+      ref={wrapRef}
+      className="relative mx-auto w-full max-w-sm overflow-hidden rounded-lg shadow-xl ring-1 ring-black/10"
+      style={{ aspectRatio: '595 / 842' }}
+    >
+      <div
+        className="absolute left-0 top-0 origin-top-left bg-white text-left"
+        style={{ width: 595, height: 842, transform: `scale(${scale})` }}
+      >
+        <div className="absolute inset-[18px] border-2 border-[#032b69]" />
+        <div className="absolute inset-[26px] border border-[#00a9b7]" />
+        <div className="absolute inset-x-[27px] top-[27px] h-[150px] bg-[#032b69]" />
+        <div className="absolute left-1/2 top-[48px] -translate-x-1/2 rounded-md bg-white p-1.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={LOGO_URL} alt="TR Fastenings" style={{ height: 78, width: 78 * LOGO_RATIO }} />
+        </div>
+        <p className="absolute inset-x-0 top-[148px] text-center text-[10px] font-bold uppercase tracking-[0.3em] text-[#7fe3ec]">Sanitation Sandbox</p>
+        <h3 className="absolute inset-x-0 top-[200px] text-center text-[30px] font-black uppercase tracking-[0.08em] text-[#032b69]">Certificate of Pledge</h3>
+        <div className="absolute left-1/2 top-[246px] h-[3px] w-[70px] -translate-x-1/2 bg-[#00a9b7]" />
+        <p className="absolute inset-x-0 top-[268px] text-center text-[12px] uppercase tracking-[0.2em] text-neutral-500">This pledge is made by</p>
+        <p className="absolute inset-x-[60px] top-[292px] truncate text-center text-[34px] font-bold leading-tight text-[#032b69]">{name.trim()}</p>
+        <div className="absolute inset-x-[110px] top-[342px] h-px bg-[#00a9b7]" />
+        {role && <p className="absolute inset-x-[60px] top-[350px] truncate text-center text-[12px] text-neutral-500">{role}</p>}
+        <p className="absolute inset-x-[64px] top-[386px] text-[11.5px] leading-[17px] text-neutral-700">{PLEDGE_INTRO}</p>
+        <p className="absolute inset-x-[64px] top-[470px] text-[11.5px] leading-[17px] text-neutral-700">{PLEDGE_COMMITMENT}</p>
+        <p className="absolute inset-x-[64px] top-[522px] text-[13px] font-bold uppercase tracking-wider text-[#032b69]">I pledge to</p>
+        <ul className="absolute inset-x-[64px] top-[548px] space-y-[7px] text-[11.5px] leading-[16px] text-neutral-700">
+          {PLEDGE_ITEMS.map((item) => (
+            <li key={item} className="flex gap-2.5">
+              <span className="mt-[5px] h-[6px] w-[6px] shrink-0 rounded-full bg-[#00a9b7]" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="absolute inset-x-[27px] bottom-[27px] flex h-[56px] items-center justify-between bg-[#032b69] px-[38px] text-[10px] text-white">
+          <span className="font-semibold tracking-wider">TR FASTENINGS · A Trifast plc Group company</span>
+          <span className="text-[#7fe3ec]">{date}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function CertificateSystem() {
   const [images, setImages] = useState<EventImage[]>([]);
@@ -89,32 +172,115 @@ export default function CertificateSystem() {
     loadData();
   }, []);
 
-  const generatePDF = async (name: string) => {
-    const templateDataUrl = await loadPledgeTemplate();
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: 'a4',
-    });
+  const generatePDF = async ({ name, designation, organisation }: PledgeDetails) => {
+    const logoDataUrl = await loadLogo();
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const W = doc.internal.pageSize.getWidth();
+    const H = doc.internal.pageSize.getHeight();
+    const cx = W / 2;
+    const margin = 64;
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    doc.addImage(templateDataUrl, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
+    // Frame
+    doc.setDrawColor(...NAVY);
+    doc.setLineWidth(2);
+    doc.rect(18, 18, W - 36, H - 36);
+    doc.setDrawColor(...TEAL);
+    doc.setLineWidth(0.75);
+    doc.rect(26, 26, W - 52, H - 52);
 
-    // The participant name is the only personalised content on the pledge.
-    const nameLineCenterX = 169;
-    const maxNameWidth = 245;
-    let nameFontSize = 17;
+    // Header band with logo tile
+    doc.setFillColor(...NAVY);
+    doc.rect(27, 27, W - 54, 150, 'F');
+    const logoH = 78;
+    const logoW = logoH * LOGO_RATIO;
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(cx - logoW / 2 - 6, 48, logoW + 12, logoH + 12, 4, 4, 'F');
+    doc.addImage(logoDataUrl, 'JPEG', cx - logoW / 2, 54, logoW, logoH);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(127, 227, 236);
+    doc.text('SANITATION SANDBOX', cx, 158, { align: 'center', charSpace: 3 });
+
+    // Title
+    doc.setTextColor(...NAVY);
+    doc.setFontSize(28);
+    doc.text('CERTIFICATE OF PLEDGE', cx, 222, { align: 'center', charSpace: 2 });
+    doc.setFillColor(...TEAL);
+    doc.rect(cx - 35, 240, 70, 3, 'F');
+
+    // Name
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(nameFontSize);
+    doc.setFontSize(11);
+    doc.setTextColor(115, 115, 115);
+    doc.text('THIS PLEDGE IS MADE BY', cx, 276, { align: 'center', charSpace: 2 });
 
-    while (doc.getTextWidth(name.trim()) > maxNameWidth && nameFontSize > 10) {
-      nameFontSize -= 0.5;
+    let nameFontSize = 32;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(nameFontSize);
+    const maxNameWidth = W - 2 * margin;
+    while (doc.getTextWidth(name.trim()) > maxNameWidth && nameFontSize > 12) {
+      nameFontSize -= 1;
       doc.setFontSize(nameFontSize);
     }
+    doc.setTextColor(...NAVY);
+    doc.text(name.trim(), cx, 320, { align: 'center' });
+    doc.setDrawColor(...TEAL);
+    doc.setLineWidth(1);
+    doc.line(cx - 190, 336, cx + 190, 336);
 
+    const role = [designation, organisation].map((v) => v?.trim()).filter(Boolean).join('  ·  ');
+    if (role) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      doc.setTextColor(115, 115, 115);
+      doc.text(role, cx, 356, { align: 'center', maxWidth: W - 2 * margin });
+    }
+
+    // Body
+    const textWidth = W - 2 * margin;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11.5);
+    doc.setTextColor(64, 64, 64);
+    const intro = doc.splitTextToSize(PLEDGE_INTRO, textWidth) as string[];
+    doc.text(intro, margin, 396, { lineHeightFactor: 1.5 });
+    const commitY = 396 + intro.length * 17 + 14;
+    const commitment = doc.splitTextToSize(PLEDGE_COMMITMENT, textWidth) as string[];
+    doc.text(commitment, margin, commitY, { lineHeightFactor: 1.5 });
+
+    let y = commitY + commitment.length * 17 + 24;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(...NAVY);
+    doc.text('I PLEDGE TO', margin, y, { charSpace: 1 });
+    y += 24;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11.5);
+    doc.setTextColor(64, 64, 64);
+    PLEDGE_ITEMS.forEach((item) => {
+      const lines = doc.splitTextToSize(item, textWidth - 16) as string[];
+      doc.setFillColor(...TEAL);
+      doc.circle(margin + 3, y - 3.5, 3, 'F');
+      doc.text(lines, margin + 16, y, { lineHeightFactor: 1.4 });
+      y += lines.length * 16 + 7;
+    });
+
+    // Footer band
+    doc.setFillColor(...NAVY);
+    doc.rect(27, H - 83, W - 54, 56, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
-    doc.text(name.trim(), nameLineCenterX, 534, { align: 'center' });
+    doc.text('TR FASTENINGS · A Trifast plc Group company', 65, H - 51, { charSpace: 0.5 });
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(127, 227, 236);
+    doc.text(
+      new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+      W - 65,
+      H - 51,
+      { align: 'right' }
+    );
 
     return doc;
   };
@@ -137,7 +303,7 @@ export default function CertificateSystem() {
 
     try {
       // Generate the fixed pledge design with only the participant name personalised.
-      const pdfDoc = await generatePDF(userName);
+      const pdfDoc = await generatePDF({ name: userName, designation, organisation: teamName });
       const pdfBlob = pdfDoc.output('blob');
 
       // Build a named File and local object URL so the user can download immediately
@@ -291,7 +457,7 @@ export default function CertificateSystem() {
       }
     }
 
-    const doc = await generatePDF(userName);
+    const doc = await generatePDF({ name: userName, designation, organisation: teamName });
     doc.save(filename);
   };
 
@@ -357,21 +523,7 @@ export default function CertificateSystem() {
             <CardDescription className="text-lg">Your certificate is ready for your collection.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 pb-8">
-            <div className="relative mx-auto aspect-[595.5/842.25] w-full max-w-sm overflow-hidden rounded-xl border-4 border-white bg-[#032b69] shadow-xl">
-              <Image
-                src={PLEDGE_TEMPLATE_URL}
-                alt="Sanitation Sandbox pledge preview"
-                fill
-                priority
-                sizes="384px"
-                className="object-cover"
-              />
-              <div className="absolute left-[6.8%] top-[62.55%] flex w-[43.5%] -translate-y-1/2 items-end justify-center px-1 text-center">
-                <span className="max-w-full truncate text-[clamp(8px,2.3vw,15px)] font-normal leading-none text-white">
-                  {userName.trim()}
-                </span>
-              </div>
-            </div>
+            <CertificatePreview name={userName} designation={designation} organisation={teamName} />
 
             <div className="flex flex-col gap-3">
               <Button onClick={downloadCertificate} size="lg" className="w-full gap-2 text-lg h-14 bg-[#00a9b7] text-white hover:bg-[#0094a1]">
