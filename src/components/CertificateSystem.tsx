@@ -327,18 +327,37 @@ export default function CertificateSystem() {
 
   if (isGenerated) {
     return (
-      <div className="min-h-screen w-full bg-[#f2f5f3] flex flex-col items-center justify-center gap-6 p-6">
+      <div className="theme-tr min-h-screen w-full bg-gradient-to-b from-[#032b69] via-[#4fc3e8] via-45% to-white to-85% bg-fixed text-neutral-900">
+      <header className="relative overflow-hidden bg-transparent text-white shadow-[0_8px_24px_-6px_rgba(3,43,105,0.55)]">
+        <div className="relative mx-auto flex w-full max-w-4xl items-center gap-4 px-3 py-5 sm:px-6 sm:py-7">
+          <div className="shrink-0 rounded-md bg-white p-1.5 shadow-md">
+            <Image
+              src="/tr-fastenings-logo.jpg"
+              alt="TR Fastenings, part of the Trifast plc Group"
+              width={140}
+              height={134}
+              priority
+              className="h-12 w-auto sm:h-16"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00a9b7]">User Portal</p>
+            <h1 className="mt-1 text-2xl font-black uppercase tracking-tight sm:text-4xl">360 Camera</h1>
+          </div>
+        </div>
+      </header>
+      <div className="flex flex-col items-center gap-6 px-3 py-6 sm:p-6">
         <Card className="w-full max-w-2xl text-center border border-neutral-200 bg-white text-neutral-900 shadow-2xl overflow-hidden">
-          <div className="h-2 bg-primary" />
+          <div className="h-2 bg-[#00a9b7]" />
           <CardHeader className="pt-8">
-            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Award className="w-10 h-10 text-primary" />
+            <div className="w-20 h-20 bg-[#e6f6f8] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Award className="w-10 h-10 text-[#00a9b7]" />
             </div>
             <CardTitle className="text-3xl font-bold">Great Job, {userName}!</CardTitle>
             <CardDescription className="text-lg">Your certificate is ready for your collection.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 pb-8">
-            <div className="relative mx-auto aspect-[595.5/842.25] w-full max-w-sm overflow-hidden rounded-xl border-4 border-white bg-[#07513f] shadow-xl">
+            <div className="relative mx-auto aspect-[595.5/842.25] w-full max-w-sm overflow-hidden rounded-xl border-4 border-white bg-[#032b69] shadow-xl">
               <Image
                 src={PLEDGE_TEMPLATE_URL}
                 alt="Sanitation Sandbox pledge preview"
@@ -355,14 +374,14 @@ export default function CertificateSystem() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <Button onClick={downloadCertificate} size="lg" className="w-full gap-2 text-lg h-14">
+              <Button onClick={downloadCertificate} size="lg" className="w-full gap-2 text-lg h-14 bg-[#00a9b7] text-white hover:bg-[#0094a1]">
                 <Download className="w-5 h-5" /> Download PDF Certificate
               </Button>
-              <Button onClick={downloadPhoto} variant="outline" className="w-full gap-2 h-12">
+              <Button onClick={downloadPhoto} variant="outline" className="w-full gap-2 h-12 border-[#032b69] text-[#032b69] hover:bg-[#032b69] hover:text-white">
                 <Download className="w-4 h-4" /> Download Selected Photo
               </Button>
              
-              <Button variant="outline" onClick={() => setIsGenerated(false)} className="w-full h-12">
+              <Button variant="outline" onClick={() => setIsGenerated(false)} className="w-full h-12 border-[#032b69] text-[#032b69] hover:bg-[#032b69] hover:text-white">
                 Generate Another
               </Button>
               <Button variant="ghost" onClick={() => router.push('/certificate/thank-you')} className="w-full h-12">
@@ -378,17 +397,18 @@ export default function CertificateSystem() {
         {backgroundUploading && (
           <div className="w-full max-w-2xl bg-white border border-neutral-200 rounded-2xl p-6 shadow-lg space-y-3 text-center">
             <div className="flex items-center gap-3 justify-center text-neutral-800 text-sm font-semibold">
-              <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#00a9b7]" />
               <span>Uploading certificate to server... {uploadProgress}%</span>
             </div>
             <div className="w-full bg-neutral-100 rounded-full h-2 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-amber-400 to-amber-600 transition-all duration-300"
+                className="h-full bg-gradient-to-r from-[#4fc3e8] to-[#00a9b7] transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
           </div>
         )}
+      </div>
       </div>
     );
   }
@@ -396,11 +416,26 @@ export default function CertificateSystem() {
   const selectedImage = images.find(img => img.id === selectedGroupId);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#eef3ef] px-3 py-5 sm:px-6 sm:py-12 lg:py-16">
-      <div className="pointer-events-none absolute -left-32 top-24 hidden h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl sm:block" />
-      <div className="pointer-events-none absolute -right-32 top-96 hidden h-96 w-96 rounded-full bg-amber-200/35 blur-3xl sm:block" />
-
-      <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-4 sm:gap-8">
+    <div className="theme-tr min-h-screen w-full bg-gradient-to-b from-[#032b69] via-[#4fc3e8] via-45% to-white to-85% bg-fixed text-neutral-900">
+      <header className="relative overflow-hidden bg-transparent text-white shadow-[0_8px_24px_-6px_rgba(3,43,105,0.55)]">
+        <div className="relative mx-auto flex w-full max-w-4xl items-center gap-4 px-3 py-5 sm:px-6 sm:py-7">
+          <div className="shrink-0 rounded-md bg-white p-1.5 shadow-md">
+            <Image
+              src="/tr-fastenings-logo.jpg"
+              alt="TR Fastenings, part of the Trifast plc Group"
+              width={140}
+              height={134}
+              priority
+              className="h-12 w-auto sm:h-16"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00a9b7]">User Portal</p>
+            <h1 className="mt-1 text-2xl font-black uppercase tracking-tight sm:text-4xl">360 Camera</h1>
+          </div>
+        </div>
+      </header>
+      <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-4 px-3 py-5 sm:gap-8 sm:px-6 sm:py-10">
         {/* Group Image above Card */}
         <AnimatePresence>
           {selectedImage && (
@@ -432,11 +467,11 @@ export default function CertificateSystem() {
         </AnimatePresence>
 
         <Card className="w-full overflow-hidden rounded-2xl border border-white/80 bg-white text-neutral-900 shadow-[0_28px_80px_-32px_rgba(15,23,42,0.38)] sm:rounded-[28px]">
-          <div className="relative flex min-h-40 flex-col items-start justify-end overflow-hidden bg-gradient-to-br from-[#102d22] via-[#183f30] to-neutral-950 px-4 py-6 sm:min-h-52 sm:px-10 sm:py-9">
+          <div className="relative flex min-h-40 flex-col items-start justify-end overflow-hidden bg-gradient-to-br from-[#032b69] via-[#04408f] to-[#021d47] px-4 py-6 sm:min-h-52 sm:px-10 sm:py-9">
             <div className="absolute -right-12 -top-16 h-56 w-56 rounded-full border-[36px] border-white/5" />
             <Award className="absolute -bottom-10 right-1 h-36 w-36 rotate-12 text-white/10 sm:right-5 sm:h-52 sm:w-52" />
-            <span className="relative z-10 mb-3 rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-300 sm:mb-4 sm:text-[11px] sm:tracking-[0.22em]">
-              GATES · 360 Experience
+            <span className="relative z-10 mb-3 rounded-full border border-[#00a9b7]/40 bg-[#00a9b7]/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#7fe3ec] sm:mb-4 sm:text-[11px] sm:tracking-[0.22em]">
+              TR Fastenings · 360 Experience
             </span>
             <h2 className="relative z-10 text-2xl font-black tracking-tight text-white sm:text-4xl">Your moment. Your certificate.</h2>
             <p className="relative z-10 mt-2 max-w-xl text-sm leading-relaxed text-white/65 sm:text-base">
@@ -446,27 +481,27 @@ export default function CertificateSystem() {
           <CardHeader className="px-4 pt-6 sm:px-10 sm:pt-9">
             <CardTitle className="text-xl font-black tracking-tight text-neutral-950 sm:text-2xl">Claim your certificate</CardTitle>
             <CardDescription className="text-sm leading-relaxed text-neutral-500">
-              All fields marked with <span className="font-semibold text-amber-600">*</span> are required.
+              All fields marked with <span className="font-semibold text-[#00a9b7]">*</span> are required.
             </CardDescription>
           </CardHeader>
         <CardContent className="px-4 pb-6 sm:px-10 sm:pb-10">
           <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-7">
             <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2">
                <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-bold text-neutral-700">Full Name <span className="text-amber-600">*</span></Label>
+                <Label htmlFor="name" className="text-sm font-bold text-neutral-700">Full Name <span className="text-[#00a9b7]">*</span></Label>
                 <Input
                   id="name"
                   autoComplete="name"
                   placeholder="Enter your full name"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  className="h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 placeholder:text-neutral-400 focus-visible:border-emerald-700 focus-visible:ring-emerald-700/15"
+                  className="h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 placeholder:text-neutral-400 focus-visible:border-[#00a9b7] focus-visible:ring-[#00a9b7]/20"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-bold text-neutral-700">Email Address <span className="text-amber-600">*</span></Label>
+                <Label htmlFor="email" className="text-sm font-bold text-neutral-700">Email Address <span className="text-[#00a9b7]">*</span></Label>
                 <Input
                   id="email"
                   type="email"
@@ -474,41 +509,41 @@ export default function CertificateSystem() {
                   placeholder="you@company.com"
                   value={userEmail}
                   onChange={(e) => setUserEmail(e.target.value)}
-                  className="h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 placeholder:text-neutral-400 focus-visible:border-emerald-700 focus-visible:ring-emerald-700/15"
+                  className="h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 placeholder:text-neutral-400 focus-visible:border-[#00a9b7] focus-visible:ring-[#00a9b7]/20"
                   required
                 />
               </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="organisation" className="text-sm font-bold text-neutral-700">Organisation / Company <span className="text-amber-600">*</span></Label>
+                  <Label htmlFor="organisation" className="text-sm font-bold text-neutral-700">Organisation / Company <span className="text-[#00a9b7]">*</span></Label>
                   <Input
                     id="organisation"
                     autoComplete="organization"
                     placeholder="Where do you work?"
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
-                    className="h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 placeholder:text-neutral-400 focus-visible:border-emerald-700 focus-visible:ring-emerald-700/15"
+                    className="h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 placeholder:text-neutral-400 focus-visible:border-[#00a9b7] focus-visible:ring-[#00a9b7]/20"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="designation" className="text-sm font-bold text-neutral-700">Designation <span className="text-amber-600">*</span></Label>
+                  <Label htmlFor="designation" className="text-sm font-bold text-neutral-700">Designation <span className="text-[#00a9b7]">*</span></Label>
                   <Input
                     id="designation"
                     autoComplete="organization-title"
                     placeholder="Your role or title"
                     value={designation}
                     onChange={(e) => setDesignation(e.target.value)}
-                    className="h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 placeholder:text-neutral-400 focus-visible:border-emerald-700 focus-visible:ring-emerald-700/15"
+                    className="h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 placeholder:text-neutral-400 focus-visible:border-[#00a9b7] focus-visible:ring-[#00a9b7]/20"
                     required
                   />
                 </div>
 
                <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="group" className="text-sm font-bold text-neutral-700">Select Your Event Group <span className="text-amber-600">*</span></Label>
+                <Label htmlFor="group" className="text-sm font-bold text-neutral-700">Select Your Event Group <span className="text-[#00a9b7]">*</span></Label>
                 <Select value={selectedGroupId} onValueChange={(value) => setSelectedGroupId(value ?? '')} required>
-                  <SelectTrigger id="group" className="h-12 w-full rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 focus-visible:border-emerald-700 focus-visible:ring-emerald-700/15">
+                  <SelectTrigger id="group" className="h-12 w-full rounded-xl border-neutral-200 bg-neutral-50 px-4 text-[15px] text-neutral-950 focus-visible:border-[#00a9b7] focus-visible:ring-[#00a9b7]/20">
                     <SelectValue placeholder="Choose a group" />
                   </SelectTrigger>
                   <SelectContent className="group-select-scroll max-h-64 overflow-y-scroll overscroll-contain">
@@ -544,7 +579,7 @@ export default function CertificateSystem() {
                 </div>
                 <textarea
                   id="feedback"
-                  className="min-h-[132px] w-full resize-y rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-[15px] leading-relaxed text-neutral-950 caret-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="min-h-[132px] w-full resize-y rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-[15px] leading-relaxed text-neutral-950 caret-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-[#00a9b7] focus:ring-4 focus:ring-[#00a9b7]/15 disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Share a memorable takeaway from the Sanitation Sandbox..."
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
@@ -554,7 +589,7 @@ export default function CertificateSystem() {
               </div>
             </div>
 
-            <Button type="submit" className="h-14 w-full gap-2 rounded-xl bg-[#173c2e] text-base font-bold text-white shadow-lg shadow-emerald-950/15 transition hover:bg-[#102d22] hover:shadow-xl disabled:bg-neutral-300" disabled={isSubmitting || images.length === 0}>
+            <Button type="submit" className="h-14 w-full gap-2 rounded-xl bg-[#00a9b7] text-base font-bold text-white shadow-lg shadow-[#032b69]/20 transition hover:bg-[#0094a1] hover:shadow-xl disabled:bg-neutral-300" disabled={isSubmitting || images.length === 0}>
               {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
               Generate My Certificate
             </Button>
