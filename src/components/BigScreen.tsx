@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { fetchCertificates, fetchImages, CertificateRecord } from '@/lib/api';
 import { imagePreviewSrc } from '@/lib/image-urls';
 import { AnimatePresence, motion } from 'motion/react';
-import { QRCodeSVG } from 'qrcode.react';
 import { EventImage } from '@/types';
 import {
   Award,
@@ -54,24 +53,6 @@ const slideVariants = {
   }),
 };
 
-function QrCard({ certificateUrl }: { certificateUrl: string }) {
-  return (
-    <div
-      data-testid="qr-card"
-      className="qr-card flex w-[clamp(7rem,13vw,15rem)] shrink-0 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-md border-2 border-[#00a9b7] bg-white p-2 shadow-2xl backdrop-blur-sm transition-transform duration-300 hover:scale-[1.02] sm:gap-2  md:p-3 xl:p-4  2xl:border-4 2xl:p-5"
-    >
-      <div className="qr-card-copy shrink-0 text-center">
-        <p className="text-xs font-black leading-tight text-[#111111] xl:text-sm 2xl:text-lg">GET YOUR</p>
-        <p className="mb-1 text-xs font-black leading-tight text-[#00a9b7] xl:text-sm 2xl:text-lg">PHOTOGRAPH</p>
-        <p className="text-[8px] uppercase tracking-wider text-[#111111]/60 xl:text-[10px] 2xl:text-xs">Scan to Claim</p>
-      </div>
-      <div className="aspect-square w-full rounded-lg bg-white p-1">
-        <QRCodeSVG value={certificateUrl} className="h-full w-full" level="H" />
-      </div>
-    </div>
-  );
-}
-
 export default function BigScreen() {
   const [images, setImages] = useState<EventImage[]>([]);
   const [testimonials, setTestimonials] = useState<CertificateRecord[]>([]);
@@ -82,12 +63,6 @@ export default function BigScreen() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
-
-  const [certificateUrl, setCertificateUrl] = useState('/certificate');
-
-  useEffect(() => {
-    setCertificateUrl(`${window.location.origin}/certificate`);
-  }, []);
 
   useEffect(() => {
     const loadImages = async (focusImageId?: string) => {
@@ -296,7 +271,7 @@ export default function BigScreen() {
         {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
       </button>
 
-      {/* Full-screen group slideshow; testimonial and QR are overlaid on top of it. */}
+      {/* Full-screen group slideshow with the testimonial overlaid on top. */}
       {/* Background gradient: white at the top fading to navy at the bottom. */}
       <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-white from-30% to-[#032b69]">
         {/* Default (sync) mode: the next slide enters while the previous one exits, so there is no empty gap. */}
@@ -379,10 +354,10 @@ export default function BigScreen() {
           />
         </div>
 
-        {/* Overlay row: testimonial on the left, QR on the right. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8">
-          {/* Frosted white review card, 40% wide, text aligned left. */}
-          <div className="pointer-events-auto relative w-[40%] min-w-0 overflow-hidden rounded-xl border border-white/60 border-l-[6px] border-l-[#00a9b7] bg-white/60 px-5 py-4 text-left text-[#111111] shadow-2xl backdrop-blur-xl sm:px-8 sm:py-6">
+        {/* Overlay row: testimonial on the left. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-4 p-4 pb-[2%] sm:gap-6 sm:p-6 sm:pb-[2%] lg:p-8 lg:pb-[2%]">
+          {/* Full-width fixed-height frosted review card, text aligned left. */}
+          <div className="pointer-events-auto relative h-[180px] w-full overflow-hidden rounded-xl border border-white/60 border-l-[6px] border-l-[#00a9b7] bg-white/60 px-5 py-4 text-left text-[#111111] shadow-2xl backdrop-blur-xl sm:px-8 sm:py-6">
             <AnimatePresence mode="wait">
               {currentTestimonial ? (
                 <motion.div
@@ -391,16 +366,17 @@ export default function BigScreen() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.45 }}
+                  className="relative h-full"
                 >
-                  <p className="text-sm font-medium italic leading-relaxed text-[#111111] sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl">
+                  <p className="text-[0.6rem] font-medium italic leading-relaxed text-[#111111] sm:text-[0.7rem] md:text-[0.8rem] lg:text-[0.9rem] xl:text-[1rem] 2xl:text-[1.1rem]">
                     “{currentTestimonial.feedback}”
                   </p>
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:mt-4 sm:gap-2">
-                    <span className="text-xs font-bold uppercase text-[#032b69] sm:text-sm md:text-base lg:text-lg xl:text-xl">
+                  <div className="absolute bottom-0 left-0 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span className="text-[0.5rem] font-bold uppercase text-[#032b69] sm:text-[0.55rem] md:text-[0.6rem] lg:text-[0.7rem] xl:text-[0.8rem]">
                       {currentTestimonial.userName || 'Anonymous'}
                     </span>
                     <span className="text-xs text-[#111111]/30">|</span>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-[#111111]/70 md:text-sm lg:text-base xl:text-lg">
+                    <span className="text-[0.5rem] font-semibold uppercase tracking-wider text-[#111111]/70 md:text-[0.55rem] lg:text-[0.6rem] xl:text-[0.7rem]">
                       {[currentTestimonial.designation, currentTestimonial.teamName]
                         .filter(Boolean)
                         .join(' at ') || 'Participant'}
@@ -425,9 +401,6 @@ export default function BigScreen() {
             </AnimatePresence>
           </div>
 
-          <div className="pointer-events-auto">
-            <QrCard certificateUrl={certificateUrl} />
-          </div>
         </div>
       </div>
     </div>

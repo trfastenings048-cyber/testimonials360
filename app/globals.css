@@ -188,14 +188,3 @@
   background: #737373;
 }
 
-/* Preserve the QR code when the display has very little vertical space. */
-@media (max-height: 420px) {
-  .qr-card-copy {
-    display: none;
-  }
-
-  .qr-card {
-    gap: 0;
-    padding: 0.375rem;
-  }
-}
