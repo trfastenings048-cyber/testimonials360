@@ -1,74 +1,43 @@
-import pg from 'pg';
+import * as Ably from 'ably';
+import {
+  CHANNELS,
+  MODE_CHANGED,
+  type ContentEventName,
+  type ContentEvents,
+  type ModeChangedData,
+} from '@/lib/realtime/protocol';
 
-type Client = ReadableStreamDefaultController<Uint8Array>;
+// Server-side publishing over Ably REST. Each call is one HTTPS request made inside an
+// API request that is already running, so realtime adds no Vercel invocations of its own.
 
-const encoder = new TextEncoder();
-const clients = new Set<Client>();
-const channelName = 'gates360_events';
-const databaseUrl = process.env.DATABASE_URL;
-const notifyPool = databaseUrl ? new pg.Pool({ connectionString: databaseUrl }) : null;
+const globalForAbly = globalThis as unknown as { ablyRest?: Ably.Rest };
 
-export function addSseClient(controller: Client) {
-  clients.add(controller);
-  controller.enqueue(encoder.encode(': connected\n\n'));
-
-  let pgClient: pg.Client | null = null;
-  let pingTimer: ReturnType<typeof setInterval> | null = null;
-  let isClosed = false;
-
-  const enqueue = (message: Uint8Array) => {
-    try {
-      controller.enqueue(message);
-    } catch {
-      isClosed = true;
-    }
-  };
-
-  pingTimer = setInterval(() => {
-    enqueue(encoder.encode(': ping\n\n'));
-  }, 30000);
-
-  if (databaseUrl) {
-    pgClient = new pg.Client({ connectionString: databaseUrl });
-    pgClient.on('notification', (message) => {
-      if (isClosed || message.channel !== channelName || !message.payload) return;
-      enqueue(encoder.encode(`event: update\ndata: ${message.payload}\n\n`));
-    });
-    pgClient.on('error', (error) => {
-      console.error('Realtime notification listener error:', error);
-    });
-    void pgClient
-      .connect()
-      .then(() => pgClient?.query(`LISTEN ${channelName}`))
-      .catch((error) => {
-        console.error('Failed to initialize realtime notification listener:', error);
-      });
-  }
-
-  return () => {
-    isClosed = true;
-    clients.delete(controller);
-    if (pingTimer) clearInterval(pingTimer);
-    void pgClient?.end().catch(() => undefined);
-  };
+export function getAblyRest(): Ably.Rest | null {
+  const key = process.env.ABLY_ROOT_KEY;
+  if (!key) return null;
+  globalForAbly.ablyRest ??= new Ably.Rest({ key });
+  return globalForAbly.ablyRest;
 }
 
-export function broadcastUpdate(type: string, payload: Record<string, unknown> = {}) {
-  const eventPayload = JSON.stringify({ type, ...payload });
-
-  if (notifyPool) {
-    void notifyPool.query('select pg_notify($1, $2)', [channelName, eventPayload]).catch((error) => {
-      console.error('Failed to publish realtime update:', error);
-    });
+async function publish(channel: string, name: string, data: unknown) {
+  const rest = getAblyRest();
+  if (!rest) {
+    console.warn(`[realtime] ABLY_ROOT_KEY is not set; skipped "${name}" on ${channel}`);
+    return;
   }
-
-  const message = encoder.encode(`event: update\ndata: ${eventPayload}\n\n`);
-
-  for (const client of Array.from(clients)) {
-    try {
-      client.enqueue(message);
-    } catch {
-      clients.delete(client);
-    }
+  try {
+    // Awaited on purpose: serverless functions may freeze as soon as the response is sent.
+    await rest.channels.get(channel).publish(name, data);
+  } catch (error) {
+    // Never fail the user's save because realtime delivery failed.
+    console.error(`[realtime] Failed to publish "${name}":`, error);
   }
+}
+
+export function publishContent<Name extends ContentEventName>(name: Name, data: ContentEvents[Name]) {
+  return publish(CHANNELS.content, name, data);
+}
+
+export function publishModeChanged(data: ModeChangedData) {
+  return publish(CHANNELS.control, MODE_CHANGED, data);
 }
