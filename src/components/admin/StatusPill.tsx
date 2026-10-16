@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { Dot, Pill, type DotTone } from '@/components/shared/Pill';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAdminData, type ConnectionStatus } from './AdminDataProvider';
 
@@ -51,19 +51,20 @@ export function getLiveStatus(connection: ConnectionStatus, displayCount: number
 }
 
 export const toneDotClasses: Record<Tone, string> = {
-  muted: 'bg-muted-foreground',
-  success: 'bg-success',
-  warning: 'bg-warning',
+  muted: 'bg-ink-muted',
+  success: 'bg-live',
+  warning: 'bg-paused',
   danger: 'bg-destructive',
 };
 
-const tonePillClasses: Record<Tone, string> = {
-  muted: 'border-border bg-muted text-muted-foreground',
-  success: 'border-success/20 bg-success/10 text-success',
-  warning: 'border-warning/25 bg-warning/10 text-warning',
-  danger: 'border-destructive/25 bg-destructive/10 text-destructive',
+const toneDots: Record<Tone, DotTone> = {
+  muted: 'muted',
+  success: 'live',
+  warning: 'paused',
+  danger: 'danger',
 };
 
+/** Live-updates pill in the navbar: white with a coloured dot, the same pill the big screen shows. */
 export function StatusPill() {
   const { connection, screens } = useAdminData();
   const status = getLiveStatus(connection, screens.length);
@@ -71,18 +72,10 @@ export function StatusPill() {
   return (
     <Tooltip>
       <TooltipTrigger
-        render={<span tabIndex={0} />}
-        className={cn(
-          'inline-flex h-8 cursor-default items-center gap-2 rounded-full border px-3 text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          tonePillClasses[status.tone]
-        )}
+        render={<Pill tabIndex={0} />}
+        className="h-9 cursor-default px-3.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <span className="relative flex size-2" aria-hidden="true">
-          {status.tone === 'success' && (
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60" />
-          )}
-          <span className={cn('relative inline-flex size-2 rounded-full', toneDotClasses[status.tone])} />
-        </span>
+        <Dot tone={toneDots[status.tone]} pulse={status.tone === 'success'} className="size-2" />
         <span role="status" aria-live="polite">
           <span className="sm:hidden">{status.shortLabel}</span>
           <span className="hidden sm:inline">{status.label}</span>

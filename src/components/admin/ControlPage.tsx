@@ -18,6 +18,7 @@ import { fetchVideos, updateDisplaySettings, type DisplaySettings, type VideoRec
 import { CHANNELS, type CommandName, type ContentEvents } from '@/lib/realtime/protocol';
 import { useChannelMessages } from '@/lib/realtime/client';
 import { cn } from '@/lib/utils';
+import { CounterChip } from '@/components/shared/CounterChip';
 import { useAdminData } from './AdminDataProvider';
 
 /** Large, touch-friendly control: icon on top, label underneath. */
@@ -48,22 +49,21 @@ function ControlButton({
       aria-label={ariaLabel}
       aria-pressed={tone === 'primary' ? active : undefined}
       className={cn(
-        'flex h-28 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 px-2 text-base font-semibold shadow-sm outline-none transition-all active:scale-[0.97] focus-visible:ring-4 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-45 sm:h-32 sm:text-lg [&_svg]:size-9 sm:[&_svg]:size-10',
+        'flex h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl px-2 text-sm font-medium outline-none transition-all active:scale-[0.97] focus-visible:ring-4 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-45 sm:h-[76px] [&_svg]:size-5 sm:[&_svg]:size-6',
         tone === 'primary' &&
           (active
-            ? 'border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/25'
-            : 'border-border bg-background text-primary hover:border-primary/40 hover:bg-primary/5'),
-        tone === 'accent' &&
-          'border-secondary bg-secondary text-secondary-foreground shadow-lg shadow-secondary/25 hover:bg-brand-teal-hover',
+            ? 'bg-ink text-white shadow-lg shadow-ink/25'
+            : 'surface-shadow bg-card text-ink hover:bg-accent-blue-soft'),
+        tone === 'accent' && 'bg-ink text-white shadow-lg shadow-ink/25 hover:bg-ink/90',
         tone === 'neutral' &&
           (active
-            ? 'border-secondary bg-accent text-primary'
-            : 'border-border bg-background text-primary hover:border-secondary hover:bg-accent')
+            ? 'bg-accent-blue-soft text-ink ring-1 ring-accent-blue/40'
+            : 'surface-shadow bg-card text-ink hover:bg-accent-blue-soft')
       )}
     >
       {icon}
       <span>{label}</span>
-      {hint && <span className="max-w-full truncate text-xs font-medium opacity-70">{hint}</span>}
+      {hint && <span className="max-w-full truncate text-[11px] font-normal opacity-70">{hint}</span>}
     </button>
   );
 }
@@ -137,6 +137,7 @@ export function ControlPage() {
     pendingCommand === command ? <Loader2 className="animate-spin" /> : icon;
 
   const testimonialsPaused = screen?.testimonials.paused ?? false;
+
   const videoPlaying = screen?.video.playing ?? false;
   const playbackDisabled = !hasScreen || connection !== 'live';
 
@@ -166,6 +167,7 @@ export function ControlPage() {
     title,
     status,
     paused,
+    position,
     commands,
     noun,
     disabled,
@@ -174,18 +176,24 @@ export function ControlPage() {
     title: string;
     status: string | null;
     paused: boolean;
+    position: { index: number; count: number } | null;
     commands: { previous: CommandName; next: CommandName; play: CommandName; pause: CommandName };
     noun: string;
     disabled: boolean;
   }) => (
-    <section className="admin-card mt-6 w-full p-4 sm:p-6" aria-labelledby={`${id}-heading`}>
-      <h2 id={`${id}-heading`} className="text-eyebrow text-muted-foreground">
-        {title}
-      </h2>
-      <p className="mt-1 mb-4 min-h-5 truncate text-sm font-medium text-foreground" aria-live="polite">
+    <section className="admin-card mt-4 w-full p-4" aria-labelledby={`${id}-heading`}>
+      <div className="flex items-center justify-between gap-3">
+        <h2 id={`${id}-heading`} className="text-eyebrow text-muted-foreground">
+          {title}
+        </h2>
+        {position && position.count > 0 && (
+          <CounterChip index={position.index} count={position.count} className="text-[11px]" />
+        )}
+      </div>
+      <p className="mt-1 mb-3 min-h-5 truncate text-left text-sm font-medium text-ink" aria-live="polite">
         {status}
       </p>
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <ControlButton
           disabled={disabled}
           onClick={() => void send(commands.previous)}
@@ -213,21 +221,19 @@ export function ControlPage() {
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col items-center py-2 text-center sm:py-6">
-      <p className="text-eyebrow text-secondary">Live control</p>
-      <h1 className="mt-2 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-        Control the Testimonials Display page
-      </h1>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+    <div className="mx-auto flex w-full max-w-md flex-col items-center py-2 text-center sm:py-4">
+      <p className="text-eyebrow text-muted-foreground">Live control</p>
+      <h1 className="mt-1 text-xl font-normal tracking-tight text-ink sm:text-2xl">Control the Testimonials Display page</h1>
+      <p className="mt-1 max-w-sm text-xs text-muted-foreground">
         Choose what the big screen shows, then control playback. Changes reach every connected screen instantly.
       </p>
 
       {!hasScreen && (
-        <div className="mt-6 flex w-full items-start gap-3 rounded-xl border border-warning/25 bg-warning/10 p-4 text-left text-sm text-warning">
-          <MonitorOff className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+        <div className="mt-4 flex w-full items-start gap-3 rounded-2xl border border-warning/25 bg-warning/10 p-3 text-left text-xs text-warning">
+          <MonitorOff className="size-4 shrink-0" aria-hidden="true" />
           <p>
-            <span className="font-semibold">No big screen is connected.</span> Open{' '}
-            <Link href="/display" target="_blank" className="font-semibold underline underline-offset-2">
+            <span className="font-medium">No big screen is connected.</span> Open{' '}
+            <Link href="/display" target="_blank" className="font-medium underline underline-offset-2">
               /display
             </Link>{' '}
             on the screen; playback controls turn on as soon as it connects.
@@ -241,11 +247,11 @@ export function ControlPage() {
       )}
 
       {/* Mode */}
-      <section className="mt-8 w-full" aria-labelledby="mode-heading">
-        <h2 id="mode-heading" className="mb-3 text-eyebrow text-muted-foreground">
+      <section className="mt-6 w-full" aria-labelledby="mode-heading">
+        <h2 id="mode-heading" className="mb-2 text-eyebrow text-muted-foreground">
           Screen mode
         </h2>
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <ControlButton
             tone="primary"
             active={!isVideo}
@@ -265,8 +271,8 @@ export function ControlPage() {
           />
         </div>
         {videosLoaded && !latestVideo && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            <Link href="/admin/videos" className="font-semibold text-secondary underline underline-offset-2">
+          <p className="mt-2 text-xs text-muted-foreground">
+            <Link href="/admin/videos" className="font-medium text-accent-blue-strong underline underline-offset-2">
               Upload a video
             </Link>{' '}
             to use Video mode.
@@ -276,14 +282,14 @@ export function ControlPage() {
 
       {/* Playback */}
       {isVideo ? (
-        <section className="admin-card mt-6 w-full p-4 sm:p-6" aria-labelledby="video-playback-heading">
+        <section className="admin-card mt-4 w-full p-4" aria-labelledby="video-playback-heading">
           <h2 id="video-playback-heading" className="text-eyebrow text-muted-foreground">
             Video playback
           </h2>
-          <p className="mt-1 mb-4 min-h-5 truncate text-sm font-medium text-foreground" aria-live="polite">
+          <p className="mt-1 mb-3 min-h-5 truncate text-left text-sm font-medium text-ink" aria-live="polite">
             {currentVideoTitle ? `${videoPlaying ? 'Now playing' : 'Paused'}: ${currentVideoTitle}` : 'No video selected'}
           </p>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <ControlButton
               tone={videoPlaying ? 'neutral' : 'accent'}
               active={videoPlaying}
@@ -304,7 +310,7 @@ export function ControlPage() {
             />
           </div>
           {screen && !screen.audioUnlocked && (
-            <p className="mt-4 flex items-start gap-2 rounded-lg border border-warning/25 bg-warning/10 px-3 py-2 text-left text-sm text-warning">
+            <p className="mt-3 flex items-start gap-2 rounded-2xl border border-warning/25 bg-warning/10 px-3 py-2 text-left text-xs text-warning">
               <VolumeX className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               The screen plays muted until someone taps it once (a browser autoplay rule). Tap the big screen to turn on
               sound.
@@ -318,6 +324,7 @@ export function ControlPage() {
             title: 'Testimonial card',
             status: testimonialStatus,
             paused: testimonialsPaused,
+            position: screen ? { index: screen.testimonials.index, count: screen.testimonials.count } : null,
             commands: { previous: 'testimonials.previous', next: 'testimonials.next', play: 'testimonials.play', pause: 'testimonials.pause' },
             noun: 'testimonial',
             disabled: playbackDisabled,
@@ -327,6 +334,7 @@ export function ControlPage() {
             title: 'Group photo banner',
             status: bannerStatus,
             paused: bannerPaused,
+            position: banner ? { index: banner.index, count: banner.count } : null,
             commands: { previous: 'banner.previous', next: 'banner.next', play: 'banner.play', pause: 'banner.pause' },
             noun: 'group photo',
             // A screen still running an older build doesn't understand banner commands yet.

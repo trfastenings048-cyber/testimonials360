@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, Loader2, LockKeyhole } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Arches } from '@/components/shared/Arches';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -70,21 +71,28 @@ export function AdminLoginForm({ destination, bypassed, configured, pinLength }:
   const errorId = `${inputId}-error`;
 
   return (
-    <div className="theme-tr flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-brand-navy to-brand-navy-deep px-4 py-10">
-      <div className="w-full max-w-sm rounded-2xl bg-background p-6 shadow-2xl sm:p-8">
+    <div className="theme-tr theme-admin relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-surface-page px-4 py-10">
+      {/* The big screen's signature gradient panel behind the form. */}
+      <div
+        aria-hidden="true"
+        className="bg-signature absolute inset-x-4 top-4 bottom-[45%] overflow-hidden rounded-[32px] sm:inset-x-8 sm:top-8"
+      >
+        <Arches className="h-[90%] text-white/50" />
+      </div>
+      <div className="surface-card relative w-full max-w-sm p-6 sm:p-8">
         <div className="mb-6 flex items-center gap-3">
-          <span className="rounded-md bg-white p-1 shadow-sm ring-1 ring-border">
+          <span className="rounded-xl bg-white p-1 ring-1 ring-border">
             <Image src="/tr-fastenings-logo.jpg" alt="" width={140} height={134} priority className="h-10 w-auto" />
           </span>
           <div>
-            <p className="text-eyebrow text-secondary">TR Fastenings</p>
-            <h1 className="text-lg font-bold text-primary">360 Camera Admin</h1>
+            <p className="text-eyebrow text-muted-foreground">TR Fastenings</p>
+            <h1 className="text-lg font-medium text-ink">360 Camera Admin</h1>
           </div>
         </div>
 
         {bypassed ? (
           <div className="space-y-4">
-            <p className="rounded-lg border border-warning/25 bg-warning/10 px-3 py-2 text-sm text-warning">
+            <p className="rounded-2xl border border-warning/25 bg-warning/10 px-3 py-2 text-sm text-warning">
               Admin protection is off because <code className="font-mono">ADMIN_ACCESS_KEY</code> isn&apos;t set. This
               only works in development; production refuses admin access until it&apos;s set.
             </p>
@@ -93,7 +101,7 @@ export function AdminLoginForm({ destination, bypassed, configured, pinLength }:
             </Button>
           </div>
         ) : !configured ? (
-          <p className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p className="rounded-2xl border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             Admin access is disabled. Set <code className="font-mono">ADMIN_ACCESS_KEY</code> in the server environment.
           </p>
         ) : (
@@ -113,9 +121,9 @@ export function AdminLoginForm({ destination, bypassed, configured, pinLength }:
                         <div
                           key={index}
                           className={cn(
-                            'flex size-14 items-center justify-center rounded-xl border-2 bg-muted/40 text-2xl font-bold text-primary transition-colors',
-                            error ? 'border-destructive/60' : isCurrent ? 'border-secondary ring-4 ring-secondary/20' : 'border-input',
-                            filled && !error && 'border-primary/40 bg-background'
+                            'surface-shadow flex size-14 items-center justify-center rounded-2xl border-2 bg-card font-display-mono text-2xl text-ink transition-colors',
+                            error ? 'border-destructive/60' : isCurrent ? 'border-accent-blue ring-4 ring-accent-blue/20' : 'border-transparent',
+                            filled && !error && 'border-ink/20'
                           )}
                         >
                           {filled ? '•' : ''}

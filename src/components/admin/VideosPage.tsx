@@ -7,11 +7,6 @@ import { Dialog } from '@base-ui/react/dialog';
 import { toast } from 'sonner';
 import {
   AlertCircle,
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
   Copy,
   ExternalLink,
   Film,
@@ -37,6 +32,7 @@ import {
   type VideoSortField,
 } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { Dot, Pill } from '@/components/shared/Pill';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -56,12 +52,13 @@ import { useChannelMessages } from '@/lib/realtime/client';
 import { useAdminData } from './AdminDataProvider';
 import { PageHeader } from './PageHeader';
 import { EmptyState } from './EmptyState';
+import { PAGE_SIZES, Pagination } from './table/Pagination';
+import { SortableHeader } from './table/SortableHeader';
 
 // ---------------------------------------------------------------------------
 // Query state (kept in the URL so refresh and shared links keep the view)
 // ---------------------------------------------------------------------------
 
-const PAGE_SIZES = [10, 25, 50];
 const SORT_FIELDS: VideoSortField[] = ['title', 'createdAt', 'duration', 'bytes', 'format'];
 const DEFAULT_QUERY: VideoListQuery = { page: 1, pageSize: 10, sort: 'createdAt', order: 'desc', q: '' };
 
@@ -121,7 +118,7 @@ function VideoThumbnail({ video, onClick }: { video: VideoRecord; onClick: () =>
     <button
       type="button"
       onClick={onClick}
-      className="group relative flex aspect-video w-24 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary/90 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group relative flex aspect-video w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-ink outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label={`Preview ${video.title}`}
     >
       {failed ? (
@@ -141,137 +138,6 @@ function VideoThumbnail({ video, onClick }: { video: VideoRecord; onClick: () =>
         <Play className="size-5 fill-white text-white opacity-0 transition group-hover:opacity-100" />
       </span>
     </button>
-  );
-}
-
-function SortableHeader({
-  field,
-  label,
-  query,
-  onSort,
-  className,
-}: {
-  field: VideoSortField;
-  label: string;
-  query: VideoListQuery;
-  onSort: (field: VideoSortField) => void;
-  className?: string;
-}) {
-  const active = query.sort === field;
-  const Icon = !active ? ArrowUpDown : query.order === 'asc' ? ArrowUp : ArrowDown;
-  return (
-    <th
-      scope="col"
-      aria-sort={active ? (query.order === 'asc' ? 'ascending' : 'descending') : 'none'}
-      className={cn('px-4 py-3 whitespace-nowrap', className)}
-    >
-      <button
-        type="button"
-        onClick={() => onSort(field)}
-        className={cn(
-          '-mx-1.5 inline-flex items-center gap-1.5 rounded px-1.5 py-0.5 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring',
-          active && 'text-foreground'
-        )}
-      >
-        {label}
-        <Icon className={cn('size-3.5', !active && 'opacity-40')} aria-hidden="true" />
-      </button>
-    </th>
-  );
-}
-
-function pageNumbers(page: number, pageCount: number): (number | 'gap')[] {
-  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, i) => i + 1);
-  const pages = new Set([1, pageCount, page - 1, page, page + 1]);
-  const sorted = [...pages].filter((p) => p >= 1 && p <= pageCount).sort((a, b) => a - b);
-  const result: (number | 'gap')[] = [];
-  sorted.forEach((p, i) => {
-    if (i > 0 && p - sorted[i - 1] > 1) result.push('gap');
-    result.push(p);
-  });
-  return result;
-}
-
-function Pagination({
-  data,
-  onPage,
-  onPageSize,
-}: {
-  data: VideoListResponse;
-  onPage: (page: number) => void;
-  onPageSize: (size: number) => void;
-}) {
-  const sizeId = useId();
-  const first = data.total === 0 ? 0 : (data.page - 1) * data.pageSize + 1;
-  const last = Math.min(data.page * data.pageSize, data.total);
-
-  return (
-    <div className="flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-        <p aria-live="polite">
-          Showing <span className="font-medium text-foreground tabular-nums">{first}–{last}</span> of{' '}
-          <span className="font-medium text-foreground tabular-nums">{data.total}</span>
-        </p>
-        <div className="flex items-center gap-2">
-          <label htmlFor={sizeId} className="hidden sm:inline">
-            Rows
-          </label>
-          <select
-            id={sizeId}
-            value={data.pageSize}
-            onChange={(event) => onPageSize(Number(event.target.value))}
-            className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label="Rows per page"
-          >
-            {PAGE_SIZES.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <nav className="flex items-center gap-1" aria-label="Pagination">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => onPage(data.page - 1)}
-          disabled={data.page <= 1}
-          aria-label="Previous page"
-        >
-          <ChevronLeft />
-        </Button>
-        {pageNumbers(data.page, data.pageCount).map((item, index) =>
-          item === 'gap' ? (
-            <span key={`gap-${index}`} className="px-1 text-sm text-muted-foreground" aria-hidden="true">
-              …
-            </span>
-          ) : (
-            <Button
-              key={item}
-              variant={item === data.page ? 'default' : 'ghost'}
-              size="icon"
-              className="tabular-nums"
-              onClick={() => onPage(item)}
-              aria-label={`Page ${item}`}
-              aria-current={item === data.page ? 'page' : undefined}
-            >
-              {item}
-            </Button>
-          )
-        )}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => onPage(data.page + 1)}
-          disabled={data.page >= data.pageCount}
-          aria-label="Next page"
-        >
-          <ChevronRight />
-        </Button>
-      </nav>
-    </div>
   );
 }
 
@@ -379,22 +245,22 @@ function UploadVideoSheet({
             onDragLeave={() => setIsDragging(false)}
             onDrop={onDrop}
             className={cn(
-              'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors has-focus-visible:ring-2 has-focus-visible:ring-ring',
-              isDragging ? 'border-secondary bg-accent' : 'border-border hover:border-secondary/60 hover:bg-muted/40',
+              'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed bg-surface-page/50 px-4 py-8 text-center transition-colors has-focus-visible:ring-2 has-focus-visible:ring-ring',
+              isDragging ? 'border-accent-blue bg-accent-blue-soft' : 'border-border hover:border-accent-blue/60 hover:bg-accent-blue-soft/60',
               isUploading && 'pointer-events-none opacity-60'
             )}
           >
-            <UploadCloud className="size-9 text-secondary" aria-hidden="true" />
+            <UploadCloud className="size-9 text-accent-blue-strong" aria-hidden="true" />
             {file ? (
               <>
-                <span className="max-w-full truncate text-sm font-semibold">{file.name}</span>
+                <span className="max-w-full truncate text-sm font-medium">{file.name}</span>
                 <span className="text-xs text-muted-foreground">
                   {formatBytes(file.size)} · {file.type || 'video'} · click to change
                 </span>
               </>
             ) : (
               <>
-                <span className="text-sm font-semibold">Drop a video here, or click to choose</span>
+                <span className="text-sm font-medium">Drop a video here, or click to choose</span>
                 <span className="text-xs text-muted-foreground">MP4, MOV, WebM and other video formats</span>
               </>
             )}
@@ -429,20 +295,20 @@ function UploadVideoSheet({
                 <span className="tabular-nums text-muted-foreground">{progress}%</span>
               </div>
               <div
-                className="h-2 overflow-hidden rounded-full bg-muted"
+                className="h-[3px] overflow-hidden rounded-full bg-slate-200"
                 role="progressbar"
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={progress}
                 aria-label="Upload progress"
               >
-                <div className="h-full rounded-full bg-secondary transition-[width] duration-200" style={{ width: `${progress}%` }} />
+                <div className="h-full rounded-full bg-ink transition-[width] duration-200" style={{ width: `${progress}%` }} />
               </div>
             </div>
           )}
 
           {error && (
-            <p className="flex items-start gap-2 rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+            <p className="flex items-start gap-2 rounded-2xl border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
               <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               {error}
             </p>
@@ -460,7 +326,7 @@ function UploadVideoSheet({
             )}
             <Button
               type="submit"
-              className="h-10 flex-1 bg-secondary text-secondary-foreground hover:bg-brand-teal-hover"
+              className="h-10 flex-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={!file || isUploading}
             >
               {isUploading ? <Loader2 className="animate-spin" /> : <UploadCloud />}
@@ -480,7 +346,7 @@ function UploadVideoSheet({
 const dialogBackdrop =
   'fixed inset-0 z-[190] bg-black/60 backdrop-blur-sm transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0';
 const dialogPopup =
-  'fixed top-1/2 left-1/2 z-[191] w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background text-foreground shadow-2xl outline-none transition-all duration-150 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0';
+  'fixed top-1/2 left-1/2 z-[191] w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-card text-foreground shadow-2xl outline-none transition-all duration-150 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0';
 
 function PreviewDialog({ video, onClose }: { video: VideoRecord | null; onClose: () => void }) {
   return (
@@ -491,12 +357,12 @@ function PreviewDialog({ video, onClose }: { video: VideoRecord | null; onClose:
           {video && (
             <>
               <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
-                <Dialog.Title className="truncate text-base font-semibold">{video.title}</Dialog.Title>
+                <Dialog.Title className="truncate text-base font-medium">{video.title}</Dialog.Title>
                 <Dialog.Close render={<Button variant="ghost" size="icon-lg" aria-label="Close preview" />}>
                   <X />
                 </Dialog.Close>
               </div>
-              <video src={video.url} controls autoPlay playsInline className="aspect-video w-full bg-black" />
+              <video src={video.url} controls autoPlay playsInline className="aspect-video w-full bg-ink" />
               <Dialog.Description className="px-4 py-3 text-xs text-muted-foreground">
                 {video.format.toUpperCase()} · {formatResolution(video)} · {formatDuration(video.duration)} · {formatBytes(video.bytes)}
               </Dialog.Description>
@@ -551,7 +417,7 @@ function RenameDialog({
         <Dialog.Backdrop className={dialogBackdrop} />
         <Dialog.Popup className={cn(dialogPopup, 'max-w-md p-5')}>
           <form onSubmit={save} className="space-y-4">
-            <Dialog.Title className="text-base font-semibold">Rename video</Dialog.Title>
+            <Dialog.Title className="text-base font-medium">Rename video</Dialog.Title>
             <div className="space-y-2">
               <Label htmlFor={inputId}>Title</Label>
               <Input id={inputId} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} className="h-10" autoFocus />
@@ -760,9 +626,10 @@ export function VideosPage() {
 
   const statusBadge = (video: VideoRecord) =>
     isOnScreen(video) ? (
-      <Badge variant="success">
-        <MonitorPlay /> On screen
-      </Badge>
+      <Pill className="h-6 px-2.5 text-xs">
+        <Dot tone="live" pulse className="size-1.5" />
+        <MonitorPlay className="size-3" aria-hidden="true" /> On screen
+      </Pill>
     ) : isSelectedVideo(video) ? (
       <Badge variant="soft">Last played</Badge>
     ) : (
@@ -802,7 +669,7 @@ export function VideosPage() {
         description="Upload videos to Cloudinary and choose which one plays when the big screen is in Video mode."
         actions={
           <Button
-            className="h-10 gap-2 bg-secondary px-4 text-secondary-foreground hover:bg-brand-teal-hover"
+            className="h-10 gap-2 rounded-full bg-primary px-4 text-primary-foreground hover:bg-primary/90"
             onClick={() => setUploadOpen(true)}
           >
             <UploadCloud /> Upload video
@@ -885,11 +752,11 @@ export function VideosPage() {
               {items.map((video) => (
                 <li
                   key={video.id}
-                  className={cn('flex gap-3 p-3 transition-colors', highlightId === video.id && 'bg-accent')}
+                  className={cn('flex gap-3 p-3 transition-colors', highlightId === video.id && 'bg-accent-blue-soft')}
                 >
                   <VideoThumbnail video={video} onClick={() => setPreviewing(video)} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{video.title}</p>
+                    <p className="truncate text-sm font-medium">{video.title}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {formatDuration(video.duration)} · {formatBytes(video.bytes)} · {video.format.toUpperCase()}
                     </p>
@@ -909,8 +776,8 @@ export function VideosPage() {
                 <caption className="sr-only">
                   Uploaded videos, sorted by {query.sort} {query.order === 'asc' ? 'ascending' : 'descending'}
                 </caption>
-                <thead className="border-b bg-muted/50">
-                  <tr className="text-left text-xs font-semibold text-muted-foreground">
+                <thead className="border-b bg-surface-page/80">
+                  <tr className="text-left text-xs font-medium text-muted-foreground">
                     <SortableHeader field="title" label="Video" query={query} onSort={onSort} />
                     <SortableHeader field="format" label="Format" query={query} onSort={onSort} />
                     <SortableHeader field="duration" label="Duration" query={query} onSort={onSort} className="text-right" />
@@ -926,23 +793,23 @@ export function VideosPage() {
                   {items.map((video) => (
                     <tr
                       key={video.id}
-                      className={cn('transition-colors hover:bg-muted/30', highlightId === video.id && 'bg-accent')}
+                      className={cn('transition-colors hover:bg-surface-page/50', highlightId === video.id && 'bg-accent-blue-soft')}
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <VideoThumbnail video={video} onClick={() => setPreviewing(video)} />
                           <div className="min-w-0">
-                            <p className="max-w-56 truncate font-semibold text-foreground" title={video.title}>
+                            <p className="max-w-56 truncate font-medium text-foreground" title={video.title}>
                               {video.title}
                             </p>
-                            <p className="max-w-56 truncate font-mono text-xs text-muted-foreground" title={video.publicId}>
+                            <p className="max-w-56 truncate font-display-mono text-xs text-muted-foreground" title={video.publicId}>
                               {video.publicId}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <Badge variant="outline" className="font-mono uppercase">
+                        <Badge variant="outline" className="font-display-mono uppercase">
                           {video.format || '—'}
                         </Badge>
                         <p className="mt-1 text-xs whitespace-nowrap text-muted-foreground tabular-nums">{formatResolution(video)}</p>

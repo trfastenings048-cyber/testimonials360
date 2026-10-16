@@ -6,7 +6,7 @@ A Next.js 16 (App Router) + React 19 + Prisma 7 (PostgreSQL) app that runs a liv
 
 | Layer | What it does | Where |
 |---|---|---|
-| Public display | Full-screen slideshow of group photos plus rotating testimonials; can switch to a video | `app/display` → `src/components/BigScreen.tsx` |
+| Public display | Full-screen slideshow of group photos plus rotating testimonials; can switch to a video | `app/display` → `src/components/display/BigScreen.tsx` (logic in `useBigScreen.ts`) |
 | Participant portal | Form → pledge PDF generated in the browser → upload → saved as a Certificate record | `app/certificate` → `src/components/CertificateSystem.tsx` |
 | Admin dashboard | Upload/hide/delete group photos, moderate testimonials, control the display | `app/admin/*` → `src/components/AdminPanel.tsx` |
 | Data API | REST routes for images, certificates, display settings, summary, upload, SSE stream | `app/api/*` |

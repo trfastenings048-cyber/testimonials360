@@ -55,6 +55,26 @@
     --color-surface-subtle: var(--surface-subtle);
     --color-success: var(--success);
     --color-warning: var(--warning);
+    --color-display-bg: var(--display-bg);
+    --color-display-stage-from: var(--display-stage-from);
+    --color-display-stage-to: var(--display-stage-to);
+    --color-display-ink: var(--display-ink);
+    --color-display-muted: var(--display-muted);
+    --color-display-quote-from: var(--display-quote-from);
+    --color-display-quote-to: var(--display-quote-to);
+    --color-display-live: var(--display-live);
+    --color-display-paused: var(--display-paused);
+    --color-surface-page: var(--surface-page);
+    --color-surface-card: var(--surface-card);
+    --color-ink: var(--ink);
+    --color-ink-muted: var(--ink-muted);
+    --color-accent-blue: var(--accent-blue);
+    --color-accent-blue-strong: var(--accent-blue-strong);
+    --color-accent-blue-soft: var(--accent-blue-soft);
+    --color-live: var(--live);
+    --color-paused: var(--paused);
+    --font-display: 'Outfit Variable', 'Geist Variable', sans-serif;
+    --font-display-mono: 'Geist Mono Variable', ui-monospace, monospace;
 }
 
 :root {
@@ -68,6 +88,18 @@
     --surface-subtle: #f4f7fb;
     --success: #16a34a;
     --warning: #d97706;
+    /* Big-screen visual language, shared by /display and the admin. */
+    --surface-page: #e9edf3;
+    --surface-card: #ffffff;
+    --surface-stage-from: #eef1f6;
+    --surface-stage-to: #d5dbe5;
+    --ink: var(--brand-navy-deep);
+    --ink-muted: #5b6475;
+    --accent-blue: #5b8cff; /* fills only: 3.2:1 on white */
+    --accent-blue-strong: #2f5fd9; /* blue text/icons on white */
+    --accent-blue-soft: #e8eeff;
+    --live: #22c55e;
+    --paused: #f59e0b;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -171,26 +203,109 @@
 }
 
 /*
- * Admin type scale (minimum 12px for readable text):
- *   page title    text-2xl font-bold        24/32
- *   section title text-base font-semibold   16/24
+ * Admin on the big-screen look. Applied together with .theme-tr (which the participant
+ * portal also uses), so the portal keeps the navy/teal palette.
+ */
+.theme-admin {
+    --background: var(--surface-page);
+    --foreground: var(--ink);
+    --card: var(--surface-card);
+    --card-foreground: var(--ink);
+    --popover: var(--surface-card);
+    --popover-foreground: var(--ink);
+    --primary: var(--ink);
+    --primary-foreground: #ffffff;
+    --secondary: var(--accent-blue);
+    --secondary-foreground: #ffffff;
+    --muted: #f1f4f8;
+    --muted-foreground: var(--ink-muted);
+    --accent: var(--accent-blue-soft);
+    --accent-foreground: var(--ink);
+    --border: #e2e7ef;
+    --input: #d8dee8;
+    --ring: var(--accent-blue);
+    --radius: 1rem;
+    --sidebar: var(--surface-card);
+    --sidebar-foreground: var(--ink-muted);
+    --sidebar-primary: var(--ink);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: rgb(2 29 71 / 0.06);
+    --sidebar-accent-foreground: var(--ink);
+    --sidebar-border: #e2e7ef;
+    --sidebar-ring: var(--accent-blue);
+    font-family: var(--font-display);
+}
+
+/* Big screen (/display) palette. */
+.theme-display {
+    --display-bg: var(--surface-page);
+    --display-stage-from: var(--surface-stage-from);
+    --display-stage-to: var(--surface-stage-to);
+    --display-ink: var(--ink);
+    --display-muted: var(--ink-muted);
+    --display-quote-from: var(--accent-blue-soft);
+    --display-quote-to: var(--accent-blue);
+    --display-live: var(--live);
+    --display-paused: var(--paused);
+}
+
+@utility surface-shadow {
+    box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.18);
+}
+
+/* Kept as an alias; the display components use this name. */
+@utility display-shadow {
+    box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.18);
+}
+
+/* White 24px card with a soft shadow and no border. */
+@utility surface-card {
+    border-radius: 24px;
+    background-color: var(--surface-card);
+    box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.18);
+}
+
+/* The testimonial-card gradient: light periwinkle to bright blue. */
+@utility bg-signature {
+    background-image: linear-gradient(135deg, var(--accent-blue-soft) 20%, var(--accent-blue));
+}
+
+/* Admin sidebar: periwinkle at the top fading to white, so the nav stays crisp. */
+@utility sidebar-gradient {
+    background-image: linear-gradient(180deg, #d9e4ff 0%, #eef2ff 38%, #ffffff 72%);
+}
+
+/* Admin navbar: white on the left (breadcrumb) to the signature blue on the right (pills). */
+@utility navbar-gradient {
+    background-image: linear-gradient(90deg, #ffffff 0%, var(--accent-blue-soft) 45%, #a9c0ff 78%, var(--accent-blue) 100%);
+}
+
+/*
+ * Admin type scale (Outfit; minimum 12px for readable text; medium, never bold):
+ *   page title    text-[28px] font-normal   28/36
+ *   section title text-base font-medium     16/24
  *   body          text-sm                   14/20
  *   meta / label  text-xs                   12/16
- *   eyebrow       text-eyebrow              11/16 uppercase
+ *   eyebrow       text-eyebrow              12/16 sentence case, muted
  */
 @utility text-eyebrow {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 16px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-weight: 500;
 }
 
 .theme-tr .admin-card {
   border: 1px solid var(--border);
   border-radius: 0.75rem;
-  background: var(--card);
+  background-color: var(--card);
   box-shadow: 0 4px 16px rgb(3 43 105 / 0.05);
+}
+
+.theme-admin .admin-card {
+  border: 0;
+  border-radius: 24px;
+  background-color: var(--surface-card);
+  box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.18);
 }
 
 .theme-tr .admin-button {
@@ -223,6 +338,10 @@
 @media (max-width: 639px) {
   .theme-tr .admin-card {
     border-radius: 0.625rem;
+  }
+
+  .theme-admin .admin-card {
+    border-radius: 20px;
   }
 
   .theme-tr .admin-table-scroll {
@@ -274,5 +393,89 @@
 
 .group-select-scroll::-webkit-scrollbar-thumb:hover {
   background: #737373;
+}
+
+/*
+ * Shared ui primitives in the admin, restyled to the big-screen look. Unlayered so it
+ * wins over the components' own utilities; scoped to .theme-admin so the participant
+ * portal keeps the default shapes.
+ */
+.theme-admin [data-slot='button'] {
+    border-radius: 9999px;
+}
+
+.theme-admin [data-slot='button'][data-variant='secondary'],
+.theme-admin [data-slot='button'][data-variant='outline'] {
+    border-color: transparent;
+    background: var(--surface-card);
+    color: var(--ink);
+    box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.18), 0 0 0 1px rgb(15 23 42 / 0.04);
+}
+
+.theme-admin [data-slot='button'][data-variant='secondary']:hover,
+.theme-admin [data-slot='button'][data-variant='outline']:hover {
+    background: #f6f8fb;
+}
+
+.theme-admin [data-slot='input'],
+.theme-admin [data-slot='textarea'],
+.theme-admin [data-slot='select-trigger'] {
+    border-radius: 12px;
+    background: var(--surface-card);
+}
+
+.theme-admin [data-slot='select-content'],
+.theme-admin [data-slot='dropdown-menu-content'] {
+    border-radius: 16px;
+    box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.25), 0 0 0 1px rgb(15 23 42 / 0.06);
+}
+
+.theme-admin [data-slot='badge'] {
+    font-weight: 500;
+}
+
+.theme-admin [data-slot='badge'][data-variant='secondary'] {
+    background: var(--accent-blue-soft);
+    color: var(--accent-blue-strong);
+}
+
+.theme-admin [data-slot='tooltip-content'] {
+    border-radius: 12px;
+}
+
+/* Segmented control: white pill track, navy pill for the selected option. */
+.theme-admin [data-slot='toggle-group'] {
+    border-radius: 9999px;
+    background: var(--surface-card);
+    box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.18), 0 0 0 1px rgb(15 23 42 / 0.04);
+}
+
+.theme-admin [data-slot='toggle-group-item'] {
+    border-radius: 9999px;
+}
+
+.theme-admin [data-slot='toggle-group-item'][data-pressed] {
+    background: var(--ink);
+    color: #ffffff;
+}
+
+.theme-admin [data-slot='sheet-content'] {
+    background-color: var(--surface-card);
+    font-family: var(--font-display);
+}
+
+/* `font-heading` / `font-sans` compile to Geist; inside the admin they follow Outfit. */
+.theme-admin .font-heading,
+.theme-admin .font-sans {
+    font-family: var(--font-display);
+}
+
+.theme-admin .admin-button {
+    font-weight: 500;
+}
+
+/* Unchecked checkboxes sit on white cards, not the grey page colour. */
+.theme-admin [data-slot='checkbox']:not([data-checked]):not([data-indeterminate]) {
+    background-color: var(--surface-card);
 }
 

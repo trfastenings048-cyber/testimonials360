@@ -53,8 +53,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
   // Dialogs, sheets and tooltips portal into <body>, outside the themed wrapper,
   // so apply the admin theme there too while the admin is mounted.
   useEffect(() => {
-    document.body.classList.add('theme-tr');
-    return () => document.body.classList.remove('theme-tr');
+    document.body.classList.add('theme-tr', 'theme-admin');
+    return () => document.body.classList.remove('theme-tr', 'theme-admin');
   }, []);
 
   const toggleCollapsed = () => writeCollapsed(!collapsed);
@@ -62,17 +62,17 @@ export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <AdminDataProvider>
       <TooltipProvider>
-        <div className="theme-tr min-h-screen w-full bg-surface-subtle text-foreground">
+        <div className="theme-tr theme-admin min-h-screen w-full bg-surface-page text-foreground">
           <a
             href="#admin-main"
-            className="sr-only z-[100] rounded-md bg-background px-4 py-2 text-sm font-semibold text-primary shadow focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+            className="sr-only z-[100] rounded-md bg-card px-4 py-2 text-sm font-medium text-primary shadow focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
           >
             Skip to content
           </a>
 
           <aside
             className={cn(
-              'fixed inset-y-0 left-0 z-40 hidden overflow-hidden bg-sidebar text-sidebar-foreground shadow-xl transition-[width] duration-200 lg:block',
+              'surface-shadow sidebar-gradient fixed inset-y-4 left-4 z-40 hidden overflow-hidden rounded-[24px] bg-sidebar text-sidebar-foreground transition-[width] duration-200 lg:block',
               collapsed ? 'w-[72px]' : 'w-64'
             )}
             aria-label="Admin sidebar"
@@ -83,7 +83,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <SheetContent
               side="left"
-              className="theme-tr border-sidebar-border bg-sidebar text-sidebar-foreground lg:hidden"
+              className="theme-tr theme-admin sidebar-gradient border-sidebar-border bg-sidebar text-sidebar-foreground lg:hidden"
             >
               <SheetTitle className="sr-only">Admin navigation</SheetTitle>
               <AdminSidebar collapsed={false} />
@@ -93,7 +93,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <div
             className={cn(
               'flex min-h-screen flex-col transition-[padding] duration-200',
-              collapsed ? 'lg:pl-[72px]' : 'lg:pl-64'
+              collapsed ? 'lg:pl-[104px]' : 'lg:pl-[288px]'
             )}
           >
             <AdminNavbar onOpenMenu={() => setMobileNavOpen(true)} />

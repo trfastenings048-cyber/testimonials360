@@ -33,6 +33,8 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useAdminData } from './AdminDataProvider';
 import { PageHeader } from './PageHeader';
 import { StatCard } from './StatCard';
+import { Arches } from '@/components/shared/Arches';
+import { InitialAvatar } from '@/components/shared/InitialAvatar';
 import { EmptyState } from './EmptyState';
 
 type DeleteConfirmation =
@@ -45,7 +47,7 @@ const normalizeGroupName = (name?: string) => name?.trim().toLowerCase() || '';
 
 function DetailField({ icon, label, value }: { icon: ReactNode; label: string; value: ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-3">
+    <div className="rounded-2xl bg-surface-page/60 p-3">
       <div className="mb-1 flex items-center gap-2 text-xs font-medium text-muted-foreground">
         {icon}
         {label}
@@ -70,13 +72,13 @@ function CertificateDetailsDialog({
     <Dialog.Root open={Boolean(certificate)} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-[190] bg-black/55 backdrop-blur-sm transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0" />
-        <Dialog.Popup className="fixed top-1/2 left-1/2 z-[191] flex max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl outline-none transition-all duration-150 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0">
+        <Dialog.Popup className="fixed top-1/2 left-1/2 z-[191] flex max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-3xl bg-card text-foreground shadow-2xl outline-none transition-all duration-150 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0">
           {certificate && submittedAt && (
             <>
-              <div className="flex items-start justify-between gap-4 border-b bg-muted/30 p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-4 border-b p-4 sm:p-5">
                 <div className="min-w-0">
-                  <p className="text-eyebrow text-secondary">Certificate submission</p>
-                  <Dialog.Title className="mt-1 truncate text-xl font-bold tracking-tight sm:text-2xl">
+                  <p className="text-eyebrow text-muted-foreground">Certificate submission</p>
+                  <Dialog.Title className="mt-1 truncate text-xl font-medium tracking-tight sm:text-2xl">
                     {certificate.userName}
                   </Dialog.Title>
                   <Dialog.Description className="mt-1 text-sm break-all text-muted-foreground">
@@ -90,7 +92,7 @@ function CertificateDetailsDialog({
 
               <div className="overflow-y-auto p-4 sm:p-5">
                 {groupImage && (
-                  <div className="relative mb-4 h-44 overflow-hidden rounded-lg border border-border bg-muted sm:h-56">
+                  <div className="relative mb-4 h-44 overflow-hidden rounded-2xl bg-muted sm:h-56">
                     <Image
                       src={imageSrc(groupImage, 'card')}
                       alt={groupImage.groupName}
@@ -100,23 +102,23 @@ function CertificateDetailsDialog({
                       className="object-cover"
                     />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-3">
-                      <p className="truncate text-sm font-bold text-white">{groupImage.groupName}</p>
+                      <p className="truncate text-sm font-medium text-white">{groupImage.groupName}</p>
                     </div>
                   </div>
                 )}
 
                 <div className="mb-4 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-lg border border-primary bg-primary p-3 text-primary-foreground">
+                  <div className="rounded-2xl bg-ink p-3 text-white">
                     <p className="text-xs font-medium opacity-80">Display status</p>
-                    <p className="mt-1 text-lg font-bold">{certificate.showOnDisplay ? 'On screen' : 'Hidden'}</p>
+                    <p className="mt-1 text-lg font-medium">{certificate.showOnDisplay ? 'On screen' : 'Hidden'}</p>
                   </div>
-                  <div className="rounded-lg border border-secondary/30 bg-accent p-3 text-accent-foreground">
+                  <div className="rounded-2xl bg-accent-blue-soft p-3 text-ink">
                     <p className="text-xs font-medium opacity-80">Event group</p>
-                    <p className="mt-1 truncate text-lg font-bold">{certificate.groupName}</p>
+                    <p className="mt-1 truncate text-lg font-medium">{certificate.groupName}</p>
                   </div>
-                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-primary">
+                  <div className="rounded-2xl bg-surface-page/60 p-3 text-ink">
                     <p className="text-xs font-medium opacity-80">Certificate</p>
-                    <p className="mt-1 text-lg font-bold">{certificate.certificateUrl ? 'Ready' : 'Pending'}</p>
+                    <p className="mt-1 text-lg font-medium">{certificate.certificateUrl ? 'Ready' : 'Pending'}</p>
                   </div>
                 </div>
 
@@ -133,18 +135,22 @@ function CertificateDetailsDialog({
                   <DetailField icon={<ImageIcon className="size-3.5" />} label="Group image" value={certificate.groupName} />
                 </div>
 
-                <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3">
-                  <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                    <MessageSquareText className="size-3.5" />
+                {/* Rendered like the big screen's testimonial card, so admins see what the room sees. */}
+                <div className="bg-signature relative mt-3 overflow-hidden rounded-3xl p-5">
+                  <Arches className="text-white/60" />
+                  <div className="relative mb-3 flex items-center gap-2 text-xs font-medium text-ink">
+                    <span className="flex size-7 items-center justify-center rounded-full bg-ink text-white">
+                      <MessageSquareText className="size-3.5" aria-hidden="true" />
+                    </span>
                     Feedback
                   </div>
-                  <p className="text-sm leading-6 whitespace-pre-wrap text-foreground">
-                    {certificate.feedback || 'No feedback provided.'}
+                  <p className="relative max-w-[92%] text-lg leading-7 font-light whitespace-pre-wrap text-ink">
+                    {certificate.feedback ? `“${certificate.feedback}”` : 'No feedback provided.'}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 border-t bg-background p-4 sm:flex-row sm:items-center sm:justify-end">
+              <div className="flex flex-col gap-2 border-t bg-card p-4 sm:flex-row sm:items-center sm:justify-end">
                 {certificate.certificateUrl ? (
                   <Button
                     type="button"
@@ -376,7 +382,7 @@ export function TestimonialsPage() {
       className={className}
     >
       {availableGroups.map((group) => (
-        <option key={group} value={group} className="bg-background text-foreground">
+        <option key={group} value={group} className="bg-card text-foreground">
           {group}
         </option>
       ))}
@@ -442,7 +448,7 @@ export function TestimonialsPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Total submissions" value={certificates.length} />
         <StatCard label="Submitted today" value={todayCount} tone="primary" />
-        <StatCard label="On the big screen" value={onScreenCount} tone="secondary" hint="Submissions with display switched on" />
+        <StatCard label="On the big screen" value={onScreenCount} tone="signature" hint="Submissions with display switched on" />
       </div>
 
       {/* Action bar */}
@@ -455,7 +461,7 @@ export function TestimonialsPage() {
             placeholder="Search by name, email, company, designation…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-10 w-full bg-background pl-9"
+            className="h-10 w-full bg-card pl-9"
           />
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
@@ -487,8 +493,8 @@ export function TestimonialsPage() {
       </div>
 
       <Card className="admin-card gap-0 overflow-hidden py-0">
-        <CardHeader className="border-b bg-muted/30 px-4 py-4 sm:px-6">
-          <CardTitle className="text-base font-semibold">Submissions</CardTitle>
+        <CardHeader className="border-b px-4 py-4 sm:px-6">
+          <CardTitle className="text-base font-medium">Submissions</CardTitle>
           <CardDescription>Participants, their designations, event groups and feedback.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
@@ -497,11 +503,14 @@ export function TestimonialsPage() {
             {certificatesLoading || filteredCertificates.length === 0
               ? emptyOrLoading
               : filteredCertificates.map((cert) => (
-                  <div key={cert.id} className="space-y-3 rounded-lg border bg-background p-3">
+                  <div key={cert.id} className="space-y-3 rounded-2xl bg-surface-page/60 p-3">
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate font-semibold">{cert.userName}</p>
-                        <p className="font-mono text-xs break-all text-muted-foreground">{cert.userEmail}</p>
+                      <div className="flex min-w-0 items-center gap-3">
+                        <InitialAvatar name={cert.userName} className="bg-white" />
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-ink">{cert.userName}</p>
+                          <p className="font-display-mono text-xs break-all text-muted-foreground">{cert.userEmail}</p>
+                        </div>
                       </div>
                       <Checkbox
                         checked={selectedCertIds.has(cert.id)}
@@ -532,7 +541,7 @@ export function TestimonialsPage() {
                       <p className="text-xs text-muted-foreground">Event group</p>
                       {groupSelect(
                         cert,
-                        'w-full rounded-lg border border-primary/15 bg-primary/5 px-3 py-2 text-sm font-semibold text-primary outline-none focus:border-ring focus:ring-2 focus:ring-ring/30'
+                        'w-full rounded-lg border border-primary/15 bg-primary/5 px-3 py-2 text-sm font-medium text-primary outline-none focus:border-ring focus:ring-2 focus:ring-ring/30'
                       )}
                     </div>
                     <p className="line-clamp-3 text-xs text-muted-foreground">
@@ -562,7 +571,7 @@ export function TestimonialsPage() {
                             href={certificateDownloadSrc(cert.id)}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex size-9 items-center justify-center rounded-lg bg-accent text-secondary transition-colors hover:bg-secondary/20"
+                            className="inline-flex size-9 items-center justify-center rounded-full bg-accent-blue-soft text-accent-blue-strong transition-colors hover:bg-accent-blue/20"
                             aria-label={`Download certificate for ${cert.userName}`}
                           >
                             <FileText className="size-4" />
@@ -589,8 +598,8 @@ export function TestimonialsPage() {
               emptyOrLoading
             ) : (
               <table className="w-full border-collapse text-sm">
-                <thead className="sticky top-0 z-10 border-b border-border bg-muted/95 backdrop-blur">
-                  <tr className="text-left text-xs font-semibold text-muted-foreground">
+                <thead className="sticky top-0 z-10 border-b border-border bg-surface-page/95 backdrop-blur">
+                  <tr className="text-left text-xs font-medium text-muted-foreground">
                     <th scope="col" className="w-10 px-4 py-3.5">
                       <Checkbox
                         checked={allFilteredSelected}
@@ -615,7 +624,7 @@ export function TestimonialsPage() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredCertificates.map((cert) => (
-                    <tr key={cert.id} className="transition-colors hover:bg-muted/30">
+                    <tr key={cert.id} className="transition-colors hover:bg-surface-page/50">
                       <td className="px-4 py-3">
                         <Checkbox
                           checked={selectedCertIds.has(cert.id)}
@@ -624,17 +633,22 @@ export function TestimonialsPage() {
                         />
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="text-xs font-medium">{new Date(cert.createdAt).toLocaleDateString()}</div>
-                        <div className="text-xs text-muted-foreground">{new Date(cert.createdAt).toLocaleTimeString()}</div>
+                        <div className="font-display-mono text-xs text-ink">{new Date(cert.createdAt).toLocaleDateString()}</div>
+                        <div className="font-display-mono text-xs text-muted-foreground">{new Date(cert.createdAt).toLocaleTimeString()}</div>
                       </td>
-                      <td className="px-4 py-3 font-semibold whitespace-nowrap text-foreground">{cert.userName}</td>
-                      <td className="px-4 py-3 font-mono text-xs whitespace-nowrap text-muted-foreground">{cert.userEmail}</td>
+                      <td className="px-4 py-3 font-medium whitespace-nowrap text-ink">
+                        <span className="flex items-center gap-2.5">
+                          <InitialAvatar name={cert.userName} className="size-8 text-xs" />
+                          {cert.userName}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-display-mono text-xs whitespace-nowrap text-muted-foreground">{cert.userEmail}</td>
                       <td className="px-4 py-3 whitespace-nowrap">{cert.teamName || <span className="text-muted-foreground/60">—</span>}</td>
                       <td className="px-4 py-3 whitespace-nowrap">{cert.designation || <span className="text-muted-foreground/60">—</span>}</td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {groupSelect(
                           cert,
-                          'cursor-pointer rounded-full border border-transparent bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary outline-none hover:border-primary/20 focus:border-ring focus:ring-2 focus:ring-ring/30'
+                          'cursor-pointer rounded-full border border-transparent bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary outline-none hover:border-primary/20 focus:border-ring focus:ring-2 focus:ring-ring/30'
                         )}
                       </td>
                       <td className="max-w-[200px] truncate px-4 py-3 text-xs text-muted-foreground" title={cert.feedback}>
@@ -653,7 +667,7 @@ export function TestimonialsPage() {
                             href={certificateDownloadSrc(cert.id)}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center justify-center rounded-lg bg-accent p-2 text-secondary transition-colors hover:bg-secondary/20"
+                            className="inline-flex items-center justify-center rounded-full bg-accent-blue-soft p-2 text-accent-blue-strong transition-colors hover:bg-accent-blue/20"
                             aria-label={`Download certificate for ${cert.userName}`}
                             title="Download / view certificate PDF"
                           >

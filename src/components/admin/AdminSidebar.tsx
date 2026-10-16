@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ArrowUpRight, Film, LogOut, MessageSquareQuote, PanelLeftClose, PanelLeftOpen, Pause, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Arches } from '@/components/shared/Arches';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { adminExternalLinks, adminNavItems, type AdminNavItem } from './nav-items';
 import { isTestimonial, useAdminData } from './AdminDataProvider';
@@ -18,7 +19,11 @@ type AdminSidebarProps = {
 };
 
 const itemBaseClasses =
-  'group relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring';
+  'group relative flex h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring';
+
+/** Active nav item: the navy pill used for the big screen's counter chip. */
+const itemActiveClasses =
+  'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground';
 
 /** Wraps an item in a right-side tooltip when the rail is collapsed and labels are hidden. */
 function RailTooltip({ collapsed, label, children }: { collapsed: boolean; label: string; children: React.ReactElement }) {
@@ -33,7 +38,7 @@ function RailTooltip({ collapsed, label, children }: { collapsed: boolean; label
 
 function SectionLabel({ collapsed, children }: { collapsed: boolean; children: ReactNode }) {
   if (collapsed) return <div className="mx-3 my-3 h-px bg-sidebar-border" aria-hidden="true" />;
-  return <p className="px-3 pt-5 pb-2 text-eyebrow text-white/45">{children}</p>;
+  return <p className="px-3 pt-5 pb-2 text-eyebrow text-muted-foreground">{children}</p>;
 }
 
 export function AdminSidebar({ collapsed, onToggleCollapse }: AdminSidebarProps) {
@@ -53,12 +58,17 @@ export function AdminSidebar({ collapsed, onToggleCollapse }: AdminSidebarProps)
     router.refresh();
   };
 
-  const renderBadge = (item: AdminNavItem) => {
+  const renderBadge = (item: AdminNavItem, isActive: boolean) => {
     if (item.href === '/admin/testimonials' && notOnScreen > 0) {
       return collapsed ? (
-        <span className="absolute top-1.5 right-2 size-2 rounded-full bg-sidebar-primary ring-2 ring-sidebar" aria-hidden="true" />
+        <span className="absolute top-1.5 right-2 size-2 rounded-full bg-accent-blue ring-2 ring-sidebar" aria-hidden="true" />
       ) : (
-        <span className="ml-auto rounded-full bg-sidebar-primary px-2 py-0.5 text-xs font-semibold text-sidebar-primary-foreground tabular-nums">
+        <span
+          className={cn(
+            'ml-auto rounded-full px-2 py-0.5 font-display-mono text-xs tabular-nums',
+            isActive ? 'bg-white text-ink' : 'bg-ink text-white'
+          )}
+        >
           {notOnScreen}
         </span>
       );
@@ -115,20 +125,20 @@ export function AdminSidebar({ collapsed, onToggleCollapse }: AdminSidebarProps)
       <Link
         href="/admin/overview"
         className={cn(
-          'flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-inset',
+          'flex h-16 shrink-0 items-center gap-3 rounded-t-[24px] outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-inset',
           collapsed ? 'justify-center px-2' : 'px-4',
           // The mobile drawer's close button sits in this corner.
           !onToggleCollapse && 'pr-14'
         )}
         aria-label="TR Fastenings admin, go to overview"
       >
-        <span className="shrink-0 rounded-md bg-white p-1 shadow-sm">
+        <span className="shrink-0 rounded-xl bg-white p-1 ring-1 ring-sidebar-border">
           <Image src="/tr-fastenings-logo.jpg" alt="" width={140} height={134} priority className="h-8 w-auto" />
         </span>
         {!collapsed && (
           <span className="min-w-0">
-            <span className="block text-eyebrow text-brand-teal-bright">TR Fastenings</span>
-            <span className="block truncate text-sm font-semibold text-white">360 Camera Admin</span>
+            <span className="block text-eyebrow text-muted-foreground">TR Fastenings</span>
+            <span className="block truncate text-[15px] font-medium text-ink">360 Camera Admin</span>
           </span>
         )}
       </Link>
@@ -148,15 +158,12 @@ export function AdminSidebar({ collapsed, onToggleCollapse }: AdminSidebarProps)
                     className={cn(
                       itemBaseClasses,
                       collapsed && 'justify-center px-0',
-                      isActive && 'bg-sidebar-accent text-sidebar-accent-foreground'
+                      isActive && itemActiveClasses
                     )}
                   >
-                    {isActive && (
-                      <span className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-sidebar-primary" aria-hidden="true" />
-                    )}
                     <Icon className="size-5 shrink-0" aria-hidden="true" />
                     <span className={cn('truncate', collapsed && 'sr-only')}>{item.label}</span>
-                    {renderBadge(item)}
+                    {renderBadge(item, isActive)}
                     <span className="sr-only">{srBadge(item)}</span>
                   </Link>
                 </RailTooltip>
@@ -198,13 +205,13 @@ export function AdminSidebar({ collapsed, onToggleCollapse }: AdminSidebarProps)
           <Link
             href="/admin/control"
             className={cn(
-              'block rounded-xl border border-sidebar-border bg-white/5 text-left outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+              'bg-signature relative block overflow-hidden rounded-2xl text-left text-ink outline-none transition-[filter] hover:brightness-105 focus-visible:ring-2 focus-visible:ring-sidebar-ring',
               collapsed ? 'flex h-11 items-center justify-center' : 'p-3'
             )}
           >
             {collapsed ? (
               <span className="relative">
-                <ModeIcon className="size-5 text-white" aria-hidden="true" />
+                <ModeIcon className="size-5 text-ink" aria-hidden="true" />
                 <span
                   className={cn('absolute -top-1 -right-1 size-2 rounded-full ring-2 ring-sidebar', toneDotClasses[status.tone])}
                   aria-hidden="true"
@@ -215,19 +222,20 @@ export function AdminSidebar({ collapsed, onToggleCollapse }: AdminSidebarProps)
               </span>
             ) : (
               <>
-                <span className="flex items-center justify-between gap-2">
-                  <span className="text-eyebrow text-brand-teal-bright">Now showing</span>
+                <Arches className="text-white/60" />
+                <span className="relative flex items-center justify-between gap-2">
+                  <span className="text-eyebrow text-ink/70">Now showing</span>
                   <span className={cn('size-2 rounded-full', toneDotClasses[status.tone])} aria-hidden="true" />
                 </span>
-                <span className="mt-2 flex items-center gap-2 text-sm font-semibold text-white">
+                <span className="relative mt-2 flex items-center gap-2 text-sm font-medium">
                   <ModeIcon className="size-4 shrink-0" aria-hidden="true" />
                   {modeLabel}
                 </span>
-                <span className="mt-1 flex items-center gap-1.5 text-xs text-sidebar-foreground">
+                <span className="relative mt-1 flex items-center gap-1.5 text-xs text-ink/75">
                   {primaryScreen && <PlaybackIcon className="size-3 shrink-0" aria-hidden="true" />}
                   <span className="truncate">{playback}</span>
                 </span>
-                <span className="mt-0.5 block truncate text-xs text-white/50">{contentSummary}</span>
+                <span className="relative mt-0.5 block truncate text-xs text-ink/65">{contentSummary}</span>
               </>
             )}
           </Link>
