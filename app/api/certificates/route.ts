@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
-import { broadcastUpdate } from '@/server/realtime';
+import { publishContent } from '@/server/realtime';
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,12 +43,13 @@ export async function POST(request: NextRequest) {
         imageUrl,
         certificateUrl,
         feedback,
-        showOnDisplay: showOnDisplay ?? true,
+        // New submissions wait for moderator approval before appearing on the big screen.
+        showOnDisplay: showOnDisplay ?? false,
         createdAt: createdAt || Date.now(),
       },
     });
 
-    broadcastUpdate('certificate-submitted', { action: 'cert-created', certificateId: certificate.id });
+    await publishContent('testimonial.submitted', certificate);
     return NextResponse.json(certificate, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create certificate';
@@ -61,13 +62,14 @@ export async function DELETE(request: NextRequest) {
     const { ids } = await request.json().catch(() => ({ ids: undefined }));
 
     if (ids && Array.isArray(ids)) {
-      await prisma.certificate.deleteMany({ where: { id: { in: ids } } });
-      broadcastUpdate('content-updated', { action: 'cert-bulk-deleted' });
-      return NextResponse.json({ success: true, count: ids.length });
+      const stringIds = ids.filter((id): id is string => typeof id === 'string');
+      await prisma.certificate.deleteMany({ where: { id: { in: stringIds } } });
+      await publishContent('testimonial.deleted', { ids: stringIds });
+      return NextResponse.json({ success: true, count: stringIds.length });
     }
 
     const deleted = await prisma.certificate.deleteMany({});
-    broadcastUpdate('content-updated', { action: 'cert-cleared' });
+    await publishContent('testimonials.cleared', {});
     return NextResponse.json({ success: true, count: deleted.count });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to delete certificates';

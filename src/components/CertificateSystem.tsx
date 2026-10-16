@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, FormEvent } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { downloadGroupImage, fetchImages, createCertificate, downloadCertificateFile, uploadFile } from '@/lib/api';
-import { imagePreviewSrc } from '@/lib/image-urls';
+import { imageSrc } from '@/lib/image-urls';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -342,19 +342,13 @@ export default function CertificateSystem() {
             imageUrl: selectedImage.url,
             certificateUrl: certUrl,
             feedback,
-            showOnDisplay: true,
+            // Hidden until a moderator approves it in the admin Testimonials page.
+            showOnDisplay: false,
             createdAt: Date.now()
           });
+          // The server announces the submission to the admin over Ably; new
+          // submissions stay off the big screen until a moderator approves them.
           setCurrentCertificateId(savedCertificate.id);
-
-          // Notify BigScreen to refresh — no polling needed.
-          try {
-            const channel = new BroadcastChannel('gates360-events');
-            channel.postMessage({ type: 'certificate-submitted' });
-            channel.close();
-          } catch {
-            // BroadcastChannel unavailable (e.g. cross-origin iframe) — silently ignore.
-          }
 
           // Send to Google Sheets if Webhook URL is configured
           const sheetsUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK_URL || GOOGLE_SHEETS_WEBHOOK_URL;
@@ -465,7 +459,7 @@ export default function CertificateSystem() {
     const selectedImage = images.find(img => img.id === selectedGroupId);
     if (!selectedImage) return;
     try {
-      const { blob, filename } = await downloadGroupImage(selectedImage.id);
+      const { blob, filename } = await downloadGroupImage(selectedImage);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -600,7 +594,7 @@ export default function CertificateSystem() {
             >
               <div className="relative h-[clamp(190px,58vw,260px)] w-full overflow-hidden rounded-xl sm:h-[340px] sm:rounded-[20px] md:h-[416px]">
                 <Image
-                  src={imagePreviewSrc(selectedImage.id)}
+                  src={imageSrc(selectedImage, 'card')}
                   alt={selectedImage.groupName}
                   fill
                   priority
@@ -707,7 +701,7 @@ export default function CertificateSystem() {
                           <div className="flex items-center gap-2">
                             <span className="relative block h-4 w-6 shrink-0 overflow-hidden rounded">
                               <Image
-                                src={imagePreviewSrc(img.id)}
+                                src={imageSrc(img, 'thumb')}
                                 alt=""
                                 fill
                                 unoptimized
