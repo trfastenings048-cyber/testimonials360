@@ -29,6 +29,12 @@ export type Certificate = $Result.DefaultSelection<Prisma.$CertificatePayload>
  */
 export type Video = $Result.DefaultSelection<Prisma.$VideoPayload>
 /**
+ * Model AdminLoginAttempt
+ * Failed admin sign-in counters, keyed by "ip:<address>" or "global". Makes a short PIN safe
+ * to use by locking out repeated guessing.
+ */
+export type AdminLoginAttempt = $Result.DefaultSelection<Prisma.$AdminLoginAttemptPayload>
+/**
  * Model DisplaySettings
  * 
  */
@@ -184,6 +190,16 @@ export class PrismaClient<
     * ```
     */
   get video(): Prisma.VideoDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.adminLoginAttempt`: Exposes CRUD operations for the **AdminLoginAttempt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdminLoginAttempts
+    * const adminLoginAttempts = await prisma.adminLoginAttempt.findMany()
+    * ```
+    */
+  get adminLoginAttempt(): Prisma.AdminLoginAttemptDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.displaySettings`: Exposes CRUD operations for the **DisplaySettings** model.
@@ -644,6 +660,7 @@ export namespace Prisma {
     EventImage: 'EventImage',
     Certificate: 'Certificate',
     Video: 'Video',
+    AdminLoginAttempt: 'AdminLoginAttempt',
     DisplaySettings: 'DisplaySettings'
   };
 
@@ -660,7 +677,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "eventImage" | "certificate" | "video" | "displaySettings"
+      modelProps: "eventImage" | "certificate" | "video" | "adminLoginAttempt" | "displaySettings"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -886,6 +903,80 @@ export namespace Prisma {
           }
         }
       }
+      AdminLoginAttempt: {
+        payload: Prisma.$AdminLoginAttemptPayload<ExtArgs>
+        fields: Prisma.AdminLoginAttemptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdminLoginAttemptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdminLoginAttemptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>
+          }
+          findFirst: {
+            args: Prisma.AdminLoginAttemptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdminLoginAttemptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>
+          }
+          findMany: {
+            args: Prisma.AdminLoginAttemptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>[]
+          }
+          create: {
+            args: Prisma.AdminLoginAttemptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>
+          }
+          createMany: {
+            args: Prisma.AdminLoginAttemptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdminLoginAttemptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>[]
+          }
+          delete: {
+            args: Prisma.AdminLoginAttemptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>
+          }
+          update: {
+            args: Prisma.AdminLoginAttemptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>
+          }
+          deleteMany: {
+            args: Prisma.AdminLoginAttemptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdminLoginAttemptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdminLoginAttemptUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>[]
+          }
+          upsert: {
+            args: Prisma.AdminLoginAttemptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminLoginAttemptPayload>
+          }
+          aggregate: {
+            args: Prisma.AdminLoginAttemptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdminLoginAttempt>
+          }
+          groupBy: {
+            args: Prisma.AdminLoginAttemptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdminLoginAttemptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdminLoginAttemptCountArgs<ExtArgs>
+            result: $Utils.Optional<AdminLoginAttemptCountAggregateOutputType> | number
+          }
+        }
+      }
       DisplaySettings: {
         payload: Prisma.$DisplaySettingsPayload<ExtArgs>
         fields: Prisma.DisplaySettingsFieldRefs
@@ -1086,6 +1177,7 @@ export namespace Prisma {
     eventImage?: EventImageOmit
     certificate?: CertificateOmit
     video?: VideoOmit
+    adminLoginAttempt?: AdminLoginAttemptOmit
     displaySettings?: DisplaySettingsOmit
   }
 
@@ -4451,6 +4543,1027 @@ export namespace Prisma {
 
 
   /**
+   * Model AdminLoginAttempt
+   */
+
+  export type AggregateAdminLoginAttempt = {
+    _count: AdminLoginAttemptCountAggregateOutputType | null
+    _avg: AdminLoginAttemptAvgAggregateOutputType | null
+    _sum: AdminLoginAttemptSumAggregateOutputType | null
+    _min: AdminLoginAttemptMinAggregateOutputType | null
+    _max: AdminLoginAttemptMaxAggregateOutputType | null
+  }
+
+  export type AdminLoginAttemptAvgAggregateOutputType = {
+    failures: number | null
+  }
+
+  export type AdminLoginAttemptSumAggregateOutputType = {
+    failures: number | null
+  }
+
+  export type AdminLoginAttemptMinAggregateOutputType = {
+    key: string | null
+    failures: number | null
+    windowStart: Date | null
+    lockedUntil: Date | null
+  }
+
+  export type AdminLoginAttemptMaxAggregateOutputType = {
+    key: string | null
+    failures: number | null
+    windowStart: Date | null
+    lockedUntil: Date | null
+  }
+
+  export type AdminLoginAttemptCountAggregateOutputType = {
+    key: number
+    failures: number
+    windowStart: number
+    lockedUntil: number
+    _all: number
+  }
+
+
+  export type AdminLoginAttemptAvgAggregateInputType = {
+    failures?: true
+  }
+
+  export type AdminLoginAttemptSumAggregateInputType = {
+    failures?: true
+  }
+
+  export type AdminLoginAttemptMinAggregateInputType = {
+    key?: true
+    failures?: true
+    windowStart?: true
+    lockedUntil?: true
+  }
+
+  export type AdminLoginAttemptMaxAggregateInputType = {
+    key?: true
+    failures?: true
+    windowStart?: true
+    lockedUntil?: true
+  }
+
+  export type AdminLoginAttemptCountAggregateInputType = {
+    key?: true
+    failures?: true
+    windowStart?: true
+    lockedUntil?: true
+    _all?: true
+  }
+
+  export type AdminLoginAttemptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminLoginAttempt to aggregate.
+     */
+    where?: AdminLoginAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminLoginAttempts to fetch.
+     */
+    orderBy?: AdminLoginAttemptOrderByWithRelationInput | AdminLoginAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdminLoginAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminLoginAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminLoginAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdminLoginAttempts
+    **/
+    _count?: true | AdminLoginAttemptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AdminLoginAttemptAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AdminLoginAttemptSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdminLoginAttemptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdminLoginAttemptMaxAggregateInputType
+  }
+
+  export type GetAdminLoginAttemptAggregateType<T extends AdminLoginAttemptAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdminLoginAttempt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdminLoginAttempt[P]>
+      : GetScalarType<T[P], AggregateAdminLoginAttempt[P]>
+  }
+
+
+
+
+  export type AdminLoginAttemptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminLoginAttemptWhereInput
+    orderBy?: AdminLoginAttemptOrderByWithAggregationInput | AdminLoginAttemptOrderByWithAggregationInput[]
+    by: AdminLoginAttemptScalarFieldEnum[] | AdminLoginAttemptScalarFieldEnum
+    having?: AdminLoginAttemptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdminLoginAttemptCountAggregateInputType | true
+    _avg?: AdminLoginAttemptAvgAggregateInputType
+    _sum?: AdminLoginAttemptSumAggregateInputType
+    _min?: AdminLoginAttemptMinAggregateInputType
+    _max?: AdminLoginAttemptMaxAggregateInputType
+  }
+
+  export type AdminLoginAttemptGroupByOutputType = {
+    key: string
+    failures: number
+    windowStart: Date
+    lockedUntil: Date | null
+    _count: AdminLoginAttemptCountAggregateOutputType | null
+    _avg: AdminLoginAttemptAvgAggregateOutputType | null
+    _sum: AdminLoginAttemptSumAggregateOutputType | null
+    _min: AdminLoginAttemptMinAggregateOutputType | null
+    _max: AdminLoginAttemptMaxAggregateOutputType | null
+  }
+
+  type GetAdminLoginAttemptGroupByPayload<T extends AdminLoginAttemptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdminLoginAttemptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdminLoginAttemptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdminLoginAttemptGroupByOutputType[P]>
+            : GetScalarType<T[P], AdminLoginAttemptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdminLoginAttemptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    failures?: boolean
+    windowStart?: boolean
+    lockedUntil?: boolean
+  }, ExtArgs["result"]["adminLoginAttempt"]>
+
+  export type AdminLoginAttemptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    failures?: boolean
+    windowStart?: boolean
+    lockedUntil?: boolean
+  }, ExtArgs["result"]["adminLoginAttempt"]>
+
+  export type AdminLoginAttemptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    failures?: boolean
+    windowStart?: boolean
+    lockedUntil?: boolean
+  }, ExtArgs["result"]["adminLoginAttempt"]>
+
+  export type AdminLoginAttemptSelectScalar = {
+    key?: boolean
+    failures?: boolean
+    windowStart?: boolean
+    lockedUntil?: boolean
+  }
+
+  export type AdminLoginAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"key" | "failures" | "windowStart" | "lockedUntil", ExtArgs["result"]["adminLoginAttempt"]>
+
+  export type $AdminLoginAttemptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdminLoginAttempt"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      key: string
+      failures: number
+      windowStart: Date
+      lockedUntil: Date | null
+    }, ExtArgs["result"]["adminLoginAttempt"]>
+    composites: {}
+  }
+
+  type AdminLoginAttemptGetPayload<S extends boolean | null | undefined | AdminLoginAttemptDefaultArgs> = $Result.GetResult<Prisma.$AdminLoginAttemptPayload, S>
+
+  type AdminLoginAttemptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdminLoginAttemptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdminLoginAttemptCountAggregateInputType | true
+    }
+
+  export interface AdminLoginAttemptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdminLoginAttempt'], meta: { name: 'AdminLoginAttempt' } }
+    /**
+     * Find zero or one AdminLoginAttempt that matches the filter.
+     * @param {AdminLoginAttemptFindUniqueArgs} args - Arguments to find a AdminLoginAttempt
+     * @example
+     * // Get one AdminLoginAttempt
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdminLoginAttemptFindUniqueArgs>(args: SelectSubset<T, AdminLoginAttemptFindUniqueArgs<ExtArgs>>): Prisma__AdminLoginAttemptClient<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdminLoginAttempt that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdminLoginAttemptFindUniqueOrThrowArgs} args - Arguments to find a AdminLoginAttempt
+     * @example
+     * // Get one AdminLoginAttempt
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdminLoginAttemptFindUniqueOrThrowArgs>(args: SelectSubset<T, AdminLoginAttemptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdminLoginAttemptClient<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminLoginAttempt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminLoginAttemptFindFirstArgs} args - Arguments to find a AdminLoginAttempt
+     * @example
+     * // Get one AdminLoginAttempt
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdminLoginAttemptFindFirstArgs>(args?: SelectSubset<T, AdminLoginAttemptFindFirstArgs<ExtArgs>>): Prisma__AdminLoginAttemptClient<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminLoginAttempt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminLoginAttemptFindFirstOrThrowArgs} args - Arguments to find a AdminLoginAttempt
+     * @example
+     * // Get one AdminLoginAttempt
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdminLoginAttemptFindFirstOrThrowArgs>(args?: SelectSubset<T, AdminLoginAttemptFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdminLoginAttemptClient<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdminLoginAttempts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminLoginAttemptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdminLoginAttempts
+     * const adminLoginAttempts = await prisma.adminLoginAttempt.findMany()
+     * 
+     * // Get first 10 AdminLoginAttempts
+     * const adminLoginAttempts = await prisma.adminLoginAttempt.findMany({ take: 10 })
+     * 
+     * // Only select the `key`
+     * const adminLoginAttemptWithKeyOnly = await prisma.adminLoginAttempt.findMany({ select: { key: true } })
+     * 
+     */
+    findMany<T extends AdminLoginAttemptFindManyArgs>(args?: SelectSubset<T, AdminLoginAttemptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdminLoginAttempt.
+     * @param {AdminLoginAttemptCreateArgs} args - Arguments to create a AdminLoginAttempt.
+     * @example
+     * // Create one AdminLoginAttempt
+     * const AdminLoginAttempt = await prisma.adminLoginAttempt.create({
+     *   data: {
+     *     // ... data to create a AdminLoginAttempt
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdminLoginAttemptCreateArgs>(args: SelectSubset<T, AdminLoginAttemptCreateArgs<ExtArgs>>): Prisma__AdminLoginAttemptClient<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdminLoginAttempts.
+     * @param {AdminLoginAttemptCreateManyArgs} args - Arguments to create many AdminLoginAttempts.
+     * @example
+     * // Create many AdminLoginAttempts
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdminLoginAttemptCreateManyArgs>(args?: SelectSubset<T, AdminLoginAttemptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdminLoginAttempts and returns the data saved in the database.
+     * @param {AdminLoginAttemptCreateManyAndReturnArgs} args - Arguments to create many AdminLoginAttempts.
+     * @example
+     * // Create many AdminLoginAttempts
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdminLoginAttempts and only return the `key`
+     * const adminLoginAttemptWithKeyOnly = await prisma.adminLoginAttempt.createManyAndReturn({
+     *   select: { key: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdminLoginAttemptCreateManyAndReturnArgs>(args?: SelectSubset<T, AdminLoginAttemptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdminLoginAttempt.
+     * @param {AdminLoginAttemptDeleteArgs} args - Arguments to delete one AdminLoginAttempt.
+     * @example
+     * // Delete one AdminLoginAttempt
+     * const AdminLoginAttempt = await prisma.adminLoginAttempt.delete({
+     *   where: {
+     *     // ... filter to delete one AdminLoginAttempt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdminLoginAttemptDeleteArgs>(args: SelectSubset<T, AdminLoginAttemptDeleteArgs<ExtArgs>>): Prisma__AdminLoginAttemptClient<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdminLoginAttempt.
+     * @param {AdminLoginAttemptUpdateArgs} args - Arguments to update one AdminLoginAttempt.
+     * @example
+     * // Update one AdminLoginAttempt
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdminLoginAttemptUpdateArgs>(args: SelectSubset<T, AdminLoginAttemptUpdateArgs<ExtArgs>>): Prisma__AdminLoginAttemptClient<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdminLoginAttempts.
+     * @param {AdminLoginAttemptDeleteManyArgs} args - Arguments to filter AdminLoginAttempts to delete.
+     * @example
+     * // Delete a few AdminLoginAttempts
+     * const { count } = await prisma.adminLoginAttempt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdminLoginAttemptDeleteManyArgs>(args?: SelectSubset<T, AdminLoginAttemptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminLoginAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminLoginAttemptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdminLoginAttempts
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdminLoginAttemptUpdateManyArgs>(args: SelectSubset<T, AdminLoginAttemptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminLoginAttempts and returns the data updated in the database.
+     * @param {AdminLoginAttemptUpdateManyAndReturnArgs} args - Arguments to update many AdminLoginAttempts.
+     * @example
+     * // Update many AdminLoginAttempts
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AdminLoginAttempts and only return the `key`
+     * const adminLoginAttemptWithKeyOnly = await prisma.adminLoginAttempt.updateManyAndReturn({
+     *   select: { key: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AdminLoginAttemptUpdateManyAndReturnArgs>(args: SelectSubset<T, AdminLoginAttemptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdminLoginAttempt.
+     * @param {AdminLoginAttemptUpsertArgs} args - Arguments to update or create a AdminLoginAttempt.
+     * @example
+     * // Update or create a AdminLoginAttempt
+     * const adminLoginAttempt = await prisma.adminLoginAttempt.upsert({
+     *   create: {
+     *     // ... data to create a AdminLoginAttempt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdminLoginAttempt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdminLoginAttemptUpsertArgs>(args: SelectSubset<T, AdminLoginAttemptUpsertArgs<ExtArgs>>): Prisma__AdminLoginAttemptClient<$Result.GetResult<Prisma.$AdminLoginAttemptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdminLoginAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminLoginAttemptCountArgs} args - Arguments to filter AdminLoginAttempts to count.
+     * @example
+     * // Count the number of AdminLoginAttempts
+     * const count = await prisma.adminLoginAttempt.count({
+     *   where: {
+     *     // ... the filter for the AdminLoginAttempts we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdminLoginAttemptCountArgs>(
+      args?: Subset<T, AdminLoginAttemptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdminLoginAttemptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdminLoginAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminLoginAttemptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdminLoginAttemptAggregateArgs>(args: Subset<T, AdminLoginAttemptAggregateArgs>): Prisma.PrismaPromise<GetAdminLoginAttemptAggregateType<T>>
+
+    /**
+     * Group by AdminLoginAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminLoginAttemptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdminLoginAttemptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdminLoginAttemptGroupByArgs['orderBy'] }
+        : { orderBy?: AdminLoginAttemptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdminLoginAttemptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdminLoginAttemptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdminLoginAttempt model
+   */
+  readonly fields: AdminLoginAttemptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdminLoginAttempt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdminLoginAttemptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdminLoginAttempt model
+   */
+  interface AdminLoginAttemptFieldRefs {
+    readonly key: FieldRef<"AdminLoginAttempt", 'String'>
+    readonly failures: FieldRef<"AdminLoginAttempt", 'Int'>
+    readonly windowStart: FieldRef<"AdminLoginAttempt", 'DateTime'>
+    readonly lockedUntil: FieldRef<"AdminLoginAttempt", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdminLoginAttempt findUnique
+   */
+  export type AdminLoginAttemptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * Filter, which AdminLoginAttempt to fetch.
+     */
+    where: AdminLoginAttemptWhereUniqueInput
+  }
+
+  /**
+   * AdminLoginAttempt findUniqueOrThrow
+   */
+  export type AdminLoginAttemptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * Filter, which AdminLoginAttempt to fetch.
+     */
+    where: AdminLoginAttemptWhereUniqueInput
+  }
+
+  /**
+   * AdminLoginAttempt findFirst
+   */
+  export type AdminLoginAttemptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * Filter, which AdminLoginAttempt to fetch.
+     */
+    where?: AdminLoginAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminLoginAttempts to fetch.
+     */
+    orderBy?: AdminLoginAttemptOrderByWithRelationInput | AdminLoginAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminLoginAttempts.
+     */
+    cursor?: AdminLoginAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminLoginAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminLoginAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminLoginAttempts.
+     */
+    distinct?: AdminLoginAttemptScalarFieldEnum | AdminLoginAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AdminLoginAttempt findFirstOrThrow
+   */
+  export type AdminLoginAttemptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * Filter, which AdminLoginAttempt to fetch.
+     */
+    where?: AdminLoginAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminLoginAttempts to fetch.
+     */
+    orderBy?: AdminLoginAttemptOrderByWithRelationInput | AdminLoginAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminLoginAttempts.
+     */
+    cursor?: AdminLoginAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminLoginAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminLoginAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminLoginAttempts.
+     */
+    distinct?: AdminLoginAttemptScalarFieldEnum | AdminLoginAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AdminLoginAttempt findMany
+   */
+  export type AdminLoginAttemptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * Filter, which AdminLoginAttempts to fetch.
+     */
+    where?: AdminLoginAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminLoginAttempts to fetch.
+     */
+    orderBy?: AdminLoginAttemptOrderByWithRelationInput | AdminLoginAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdminLoginAttempts.
+     */
+    cursor?: AdminLoginAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminLoginAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminLoginAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminLoginAttempts.
+     */
+    distinct?: AdminLoginAttemptScalarFieldEnum | AdminLoginAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AdminLoginAttempt create
+   */
+  export type AdminLoginAttemptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * The data needed to create a AdminLoginAttempt.
+     */
+    data: XOR<AdminLoginAttemptCreateInput, AdminLoginAttemptUncheckedCreateInput>
+  }
+
+  /**
+   * AdminLoginAttempt createMany
+   */
+  export type AdminLoginAttemptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdminLoginAttempts.
+     */
+    data: AdminLoginAttemptCreateManyInput | AdminLoginAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdminLoginAttempt createManyAndReturn
+   */
+  export type AdminLoginAttemptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdminLoginAttempts.
+     */
+    data: AdminLoginAttemptCreateManyInput | AdminLoginAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdminLoginAttempt update
+   */
+  export type AdminLoginAttemptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * The data needed to update a AdminLoginAttempt.
+     */
+    data: XOR<AdminLoginAttemptUpdateInput, AdminLoginAttemptUncheckedUpdateInput>
+    /**
+     * Choose, which AdminLoginAttempt to update.
+     */
+    where: AdminLoginAttemptWhereUniqueInput
+  }
+
+  /**
+   * AdminLoginAttempt updateMany
+   */
+  export type AdminLoginAttemptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdminLoginAttempts.
+     */
+    data: XOR<AdminLoginAttemptUpdateManyMutationInput, AdminLoginAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminLoginAttempts to update
+     */
+    where?: AdminLoginAttemptWhereInput
+    /**
+     * Limit how many AdminLoginAttempts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminLoginAttempt updateManyAndReturn
+   */
+  export type AdminLoginAttemptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to update AdminLoginAttempts.
+     */
+    data: XOR<AdminLoginAttemptUpdateManyMutationInput, AdminLoginAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminLoginAttempts to update
+     */
+    where?: AdminLoginAttemptWhereInput
+    /**
+     * Limit how many AdminLoginAttempts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminLoginAttempt upsert
+   */
+  export type AdminLoginAttemptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * The filter to search for the AdminLoginAttempt to update in case it exists.
+     */
+    where: AdminLoginAttemptWhereUniqueInput
+    /**
+     * In case the AdminLoginAttempt found by the `where` argument doesn't exist, create a new AdminLoginAttempt with this data.
+     */
+    create: XOR<AdminLoginAttemptCreateInput, AdminLoginAttemptUncheckedCreateInput>
+    /**
+     * In case the AdminLoginAttempt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdminLoginAttemptUpdateInput, AdminLoginAttemptUncheckedUpdateInput>
+  }
+
+  /**
+   * AdminLoginAttempt delete
+   */
+  export type AdminLoginAttemptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+    /**
+     * Filter which AdminLoginAttempt to delete.
+     */
+    where: AdminLoginAttemptWhereUniqueInput
+  }
+
+  /**
+   * AdminLoginAttempt deleteMany
+   */
+  export type AdminLoginAttemptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminLoginAttempts to delete
+     */
+    where?: AdminLoginAttemptWhereInput
+    /**
+     * Limit how many AdminLoginAttempts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminLoginAttempt without action
+   */
+  export type AdminLoginAttemptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminLoginAttempt
+     */
+    select?: AdminLoginAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminLoginAttempt
+     */
+    omit?: AdminLoginAttemptOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model DisplaySettings
    */
 
@@ -5609,6 +6722,16 @@ export namespace Prisma {
   export type VideoScalarFieldEnum = (typeof VideoScalarFieldEnum)[keyof typeof VideoScalarFieldEnum]
 
 
+  export const AdminLoginAttemptScalarFieldEnum: {
+    key: 'key',
+    failures: 'failures',
+    windowStart: 'windowStart',
+    lockedUntil: 'lockedUntil'
+  };
+
+  export type AdminLoginAttemptScalarFieldEnum = (typeof AdminLoginAttemptScalarFieldEnum)[keyof typeof AdminLoginAttemptScalarFieldEnum]
+
+
   export const DisplaySettingsScalarFieldEnum: {
     id: 'id',
     heading: 'heading',
@@ -5947,6 +7070,55 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Video"> | Date | string
   }
 
+  export type AdminLoginAttemptWhereInput = {
+    AND?: AdminLoginAttemptWhereInput | AdminLoginAttemptWhereInput[]
+    OR?: AdminLoginAttemptWhereInput[]
+    NOT?: AdminLoginAttemptWhereInput | AdminLoginAttemptWhereInput[]
+    key?: StringFilter<"AdminLoginAttempt"> | string
+    failures?: IntFilter<"AdminLoginAttempt"> | number
+    windowStart?: DateTimeFilter<"AdminLoginAttempt"> | Date | string
+    lockedUntil?: DateTimeNullableFilter<"AdminLoginAttempt"> | Date | string | null
+  }
+
+  export type AdminLoginAttemptOrderByWithRelationInput = {
+    key?: SortOrder
+    failures?: SortOrder
+    windowStart?: SortOrder
+    lockedUntil?: SortOrderInput | SortOrder
+  }
+
+  export type AdminLoginAttemptWhereUniqueInput = Prisma.AtLeast<{
+    key?: string
+    AND?: AdminLoginAttemptWhereInput | AdminLoginAttemptWhereInput[]
+    OR?: AdminLoginAttemptWhereInput[]
+    NOT?: AdminLoginAttemptWhereInput | AdminLoginAttemptWhereInput[]
+    failures?: IntFilter<"AdminLoginAttempt"> | number
+    windowStart?: DateTimeFilter<"AdminLoginAttempt"> | Date | string
+    lockedUntil?: DateTimeNullableFilter<"AdminLoginAttempt"> | Date | string | null
+  }, "key">
+
+  export type AdminLoginAttemptOrderByWithAggregationInput = {
+    key?: SortOrder
+    failures?: SortOrder
+    windowStart?: SortOrder
+    lockedUntil?: SortOrderInput | SortOrder
+    _count?: AdminLoginAttemptCountOrderByAggregateInput
+    _avg?: AdminLoginAttemptAvgOrderByAggregateInput
+    _max?: AdminLoginAttemptMaxOrderByAggregateInput
+    _min?: AdminLoginAttemptMinOrderByAggregateInput
+    _sum?: AdminLoginAttemptSumOrderByAggregateInput
+  }
+
+  export type AdminLoginAttemptScalarWhereWithAggregatesInput = {
+    AND?: AdminLoginAttemptScalarWhereWithAggregatesInput | AdminLoginAttemptScalarWhereWithAggregatesInput[]
+    OR?: AdminLoginAttemptScalarWhereWithAggregatesInput[]
+    NOT?: AdminLoginAttemptScalarWhereWithAggregatesInput | AdminLoginAttemptScalarWhereWithAggregatesInput[]
+    key?: StringWithAggregatesFilter<"AdminLoginAttempt"> | string
+    failures?: IntWithAggregatesFilter<"AdminLoginAttempt"> | number
+    windowStart?: DateTimeWithAggregatesFilter<"AdminLoginAttempt"> | Date | string
+    lockedUntil?: DateTimeNullableWithAggregatesFilter<"AdminLoginAttempt"> | Date | string | null
+  }
+
   export type DisplaySettingsWhereInput = {
     AND?: DisplaySettingsWhereInput | DisplaySettingsWhereInput[]
     OR?: DisplaySettingsWhereInput[]
@@ -6283,6 +7455,55 @@ export namespace Prisma {
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminLoginAttemptCreateInput = {
+    key: string
+    failures?: number
+    windowStart?: Date | string
+    lockedUntil?: Date | string | null
+  }
+
+  export type AdminLoginAttemptUncheckedCreateInput = {
+    key: string
+    failures?: number
+    windowStart?: Date | string
+    lockedUntil?: Date | string | null
+  }
+
+  export type AdminLoginAttemptUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    failures?: IntFieldUpdateOperationsInput | number
+    windowStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AdminLoginAttemptUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    failures?: IntFieldUpdateOperationsInput | number
+    windowStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AdminLoginAttemptCreateManyInput = {
+    key: string
+    failures?: number
+    windowStart?: Date | string
+    lockedUntil?: Date | string | null
+  }
+
+  export type AdminLoginAttemptUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    failures?: IntFieldUpdateOperationsInput | number
+    windowStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AdminLoginAttemptUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    failures?: IntFieldUpdateOperationsInput | number
+    windowStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type DisplaySettingsCreateInput = {
@@ -6718,6 +7939,76 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type AdminLoginAttemptCountOrderByAggregateInput = {
+    key?: SortOrder
+    failures?: SortOrder
+    windowStart?: SortOrder
+    lockedUntil?: SortOrder
+  }
+
+  export type AdminLoginAttemptAvgOrderByAggregateInput = {
+    failures?: SortOrder
+  }
+
+  export type AdminLoginAttemptMaxOrderByAggregateInput = {
+    key?: SortOrder
+    failures?: SortOrder
+    windowStart?: SortOrder
+    lockedUntil?: SortOrder
+  }
+
+  export type AdminLoginAttemptMinOrderByAggregateInput = {
+    key?: SortOrder
+    failures?: SortOrder
+    windowStart?: SortOrder
+    lockedUntil?: SortOrder
+  }
+
+  export type AdminLoginAttemptSumOrderByAggregateInput = {
+    failures?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type DisplaySettingsCountOrderByAggregateInput = {
     id?: SortOrder
     heading?: SortOrder
@@ -6763,22 +8054,6 @@ export namespace Prisma {
 
   export type DisplaySettingsSumOrderByAggregateInput = {
     testimonialDurationMs?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -6827,6 +8102,10 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -7021,6 +8300,17 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -7035,6 +8325,20 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
 

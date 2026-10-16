@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { ADMIN_COOKIE, isAdminAuthBypassed, isAdminAuthConfigured, isValidAdminSession } from '@/server/admin-auth';
+import {
+  ADMIN_COOKIE,
+  adminPinLength,
+  isAdminAuthBypassed,
+  isAdminAuthConfigured,
+  isValidAdminSession,
+} from '@/server/admin-auth';
 import { AdminLoginForm } from '@/components/admin/AdminLoginForm';
 
 export const metadata: Metadata = { title: 'Sign in · Admin · TR Fastenings' };
@@ -18,6 +24,11 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
   if (isAdminAuthConfigured() && (await isValidAdminSession(session))) redirect(destination);
 
   return (
-    <AdminLoginForm destination={destination} bypassed={isAdminAuthBypassed()} configured={isAdminAuthConfigured()} />
+    <AdminLoginForm
+      destination={destination}
+      bypassed={isAdminAuthBypassed()}
+      configured={isAdminAuthConfigured()}
+      pinLength={adminPinLength()}
+    />
   );
 }

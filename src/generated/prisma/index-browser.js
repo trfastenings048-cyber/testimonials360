@@ -157,6 +157,13 @@ exports.Prisma.VideoScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AdminLoginAttemptScalarFieldEnum = {
+  key: 'key',
+  failures: 'failures',
+  windowStart: 'windowStart',
+  lockedUntil: 'lockedUntil'
+};
+
 exports.Prisma.DisplaySettingsScalarFieldEnum = {
   id: 'id',
   heading: 'heading',
@@ -190,6 +197,7 @@ exports.Prisma.ModelName = {
   EventImage: 'EventImage',
   Certificate: 'Certificate',
   Video: 'Video',
+  AdminLoginAttempt: 'AdminLoginAttempt',
   DisplaySettings: 'DisplaySettings'
 };
 

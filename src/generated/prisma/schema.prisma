@@ -49,6 +49,15 @@ model Video {
   @@index([createdAt])
 }
 
+/// Failed admin sign-in counters, keyed by "ip:<address>" or "global". Makes a short PIN safe
+/// to use by locking out repeated guessing.
+model AdminLoginAttempt {
+  key         String    @id
+  failures    Int       @default(0)
+  windowStart DateTime  @default(now())
+  lockedUntil DateTime?
+}
+
 model DisplaySettings {
   id                    String   @id @default("default")
   heading               String   @default("Testimonials")

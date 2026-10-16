@@ -12,7 +12,18 @@ const defaults = {
   testimonialAutoPlay: true, testimonialDurationMs: 5000,
 };
 
-const loadSettings = () => prisma.displaySettings.upsert({ where: { id: 'default' }, create: defaults, update: {} });
+// A plain read (one round trip). The old upsert ran a write transaction on every GET,
+// which made this the slowest route; the row only needs creating once.
+async function loadSettings() {
+  const existing = await prisma.displaySettings.findUnique({ where: { id: 'default' } });
+  if (existing) return existing;
+  try {
+    return await prisma.displaySettings.create({ data: defaults });
+  } catch {
+    // Another request created it first.
+    return prisma.displaySettings.findUniqueOrThrow({ where: { id: 'default' } });
+  }
+}
 
 async function videoForUrl(url: string | null): Promise<DisplayVideo | null> {
   if (!url) return null;
@@ -46,6 +57,7 @@ export async function PATCH(request: NextRequest) {
       data.mode = body.mode;
     }
 
+    let chosenVideo: DisplayVideo | null = null;
     if (body.mode === 'video') {
       const video =
         typeof body.videoId === 'string' && body.videoId
@@ -58,6 +70,7 @@ export async function PATCH(request: NextRequest) {
         );
       }
       data.videoUrl = video.url;
+      chosenVideo = { id: video.id, url: video.url, title: video.title };
     }
 
     if (typeof body.heading === 'string') data.heading = body.heading.trim() || 'Testimonials';
@@ -69,12 +82,16 @@ export async function PATCH(request: NextRequest) {
       data.testimonialDurationMs = Math.max(1000, Math.min(60000, Number(body.testimonialDurationMs) || 5000));
     }
 
-    const settings = await prisma.displaySettings.upsert({
-      where: { id: 'default' },
-      create: { ...defaults, ...data },
-      update: data,
-    });
-    const video = await videoForUrl(settings.videoUrl);
+    // The row almost always exists, so a single UPDATE; create only on the very first save.
+    let settings;
+    try {
+      settings = await prisma.displaySettings.update({ where: { id: 'default' }, data });
+    } catch (error) {
+      if ((error as { code?: string })?.code !== 'P2025') throw error;
+      settings = await prisma.displaySettings.create({ data: { ...defaults, ...data } });
+    }
+    // Reuse the video we just looked up instead of querying for it again.
+    const video = chosenVideo ?? (await videoForUrl(settings.videoUrl));
 
     await publishModeChanged({
       mode: settings.mode === 'video' ? 'video' : 'testimonials',

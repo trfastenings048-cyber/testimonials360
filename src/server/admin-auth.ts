@@ -13,6 +13,9 @@ const accessKey = () => process.env.ADMIN_ACCESS_KEY?.trim() || '';
 export const isAdminAuthBypassed = () => !accessKey() && process.env.NODE_ENV !== 'production';
 export const isAdminAuthConfigured = () => Boolean(accessKey());
 
+/** When ADMIN_ACCESS_KEY is a short all-digit code (e.g. "4826"), its length; otherwise null. */
+export const adminPinLength = () => (/^\d{4,8}$/.test(accessKey()) ? accessKey().length : null);
+
 const toBase64Url = (buffer: ArrayBuffer) =>
   btoa(String.fromCharCode(...new Uint8Array(buffer)))
     .replace(/\+/g, '-')
