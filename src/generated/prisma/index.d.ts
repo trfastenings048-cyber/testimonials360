@@ -23,6 +23,16 @@ export type EventImage = $Result.DefaultSelection<Prisma.$EventImagePayload>
  * 
  */
 export type Certificate = $Result.DefaultSelection<Prisma.$CertificatePayload>
+/**
+ * Model Video
+ * 
+ */
+export type Video = $Result.DefaultSelection<Prisma.$VideoPayload>
+/**
+ * Model DisplaySettings
+ * 
+ */
+export type DisplaySettings = $Result.DefaultSelection<Prisma.$DisplaySettingsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -164,6 +174,26 @@ export class PrismaClient<
     * ```
     */
   get certificate(): Prisma.CertificateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.video`: Exposes CRUD operations for the **Video** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Videos
+    * const videos = await prisma.video.findMany()
+    * ```
+    */
+  get video(): Prisma.VideoDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.displaySettings`: Exposes CRUD operations for the **DisplaySettings** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DisplaySettings
+    * const displaySettings = await prisma.displaySettings.findMany()
+    * ```
+    */
+  get displaySettings(): Prisma.DisplaySettingsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -612,7 +642,9 @@ export namespace Prisma {
 
   export const ModelName: {
     EventImage: 'EventImage',
-    Certificate: 'Certificate'
+    Certificate: 'Certificate',
+    Video: 'Video',
+    DisplaySettings: 'DisplaySettings'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -628,7 +660,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "eventImage" | "certificate"
+      modelProps: "eventImage" | "certificate" | "video" | "displaySettings"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -780,6 +812,154 @@ export namespace Prisma {
           }
         }
       }
+      Video: {
+        payload: Prisma.$VideoPayload<ExtArgs>
+        fields: Prisma.VideoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VideoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VideoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>
+          }
+          findFirst: {
+            args: Prisma.VideoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VideoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>
+          }
+          findMany: {
+            args: Prisma.VideoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>[]
+          }
+          create: {
+            args: Prisma.VideoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>
+          }
+          createMany: {
+            args: Prisma.VideoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.VideoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>[]
+          }
+          delete: {
+            args: Prisma.VideoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>
+          }
+          update: {
+            args: Prisma.VideoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>
+          }
+          deleteMany: {
+            args: Prisma.VideoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VideoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.VideoUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>[]
+          }
+          upsert: {
+            args: Prisma.VideoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoPayload>
+          }
+          aggregate: {
+            args: Prisma.VideoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVideo>
+          }
+          groupBy: {
+            args: Prisma.VideoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VideoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VideoCountArgs<ExtArgs>
+            result: $Utils.Optional<VideoCountAggregateOutputType> | number
+          }
+        }
+      }
+      DisplaySettings: {
+        payload: Prisma.$DisplaySettingsPayload<ExtArgs>
+        fields: Prisma.DisplaySettingsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DisplaySettingsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DisplaySettingsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>
+          }
+          findFirst: {
+            args: Prisma.DisplaySettingsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DisplaySettingsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>
+          }
+          findMany: {
+            args: Prisma.DisplaySettingsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>[]
+          }
+          create: {
+            args: Prisma.DisplaySettingsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>
+          }
+          createMany: {
+            args: Prisma.DisplaySettingsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DisplaySettingsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>[]
+          }
+          delete: {
+            args: Prisma.DisplaySettingsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>
+          }
+          update: {
+            args: Prisma.DisplaySettingsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>
+          }
+          deleteMany: {
+            args: Prisma.DisplaySettingsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DisplaySettingsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DisplaySettingsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>[]
+          }
+          upsert: {
+            args: Prisma.DisplaySettingsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DisplaySettingsPayload>
+          }
+          aggregate: {
+            args: Prisma.DisplaySettingsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDisplaySettings>
+          }
+          groupBy: {
+            args: Prisma.DisplaySettingsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DisplaySettingsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DisplaySettingsCountArgs<ExtArgs>
+            result: $Utils.Optional<DisplaySettingsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -905,6 +1085,8 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     eventImage?: EventImageOmit
     certificate?: CertificateOmit
+    video?: VideoOmit
+    displaySettings?: DisplaySettingsOmit
   }
 
   /* Types for Logging */
@@ -3145,6 +3327,2229 @@ export namespace Prisma {
 
 
   /**
+   * Model Video
+   */
+
+  export type AggregateVideo = {
+    _count: VideoCountAggregateOutputType | null
+    _avg: VideoAvgAggregateOutputType | null
+    _sum: VideoSumAggregateOutputType | null
+    _min: VideoMinAggregateOutputType | null
+    _max: VideoMaxAggregateOutputType | null
+  }
+
+  export type VideoAvgAggregateOutputType = {
+    bytes: number | null
+    duration: number | null
+    width: number | null
+    height: number | null
+  }
+
+  export type VideoSumAggregateOutputType = {
+    bytes: number | null
+    duration: number | null
+    width: number | null
+    height: number | null
+  }
+
+  export type VideoMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    publicId: string | null
+    url: string | null
+    thumbnailUrl: string | null
+    format: string | null
+    bytes: number | null
+    duration: number | null
+    width: number | null
+    height: number | null
+    createdAt: Date | null
+  }
+
+  export type VideoMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    publicId: string | null
+    url: string | null
+    thumbnailUrl: string | null
+    format: string | null
+    bytes: number | null
+    duration: number | null
+    width: number | null
+    height: number | null
+    createdAt: Date | null
+  }
+
+  export type VideoCountAggregateOutputType = {
+    id: number
+    title: number
+    publicId: number
+    url: number
+    thumbnailUrl: number
+    format: number
+    bytes: number
+    duration: number
+    width: number
+    height: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type VideoAvgAggregateInputType = {
+    bytes?: true
+    duration?: true
+    width?: true
+    height?: true
+  }
+
+  export type VideoSumAggregateInputType = {
+    bytes?: true
+    duration?: true
+    width?: true
+    height?: true
+  }
+
+  export type VideoMinAggregateInputType = {
+    id?: true
+    title?: true
+    publicId?: true
+    url?: true
+    thumbnailUrl?: true
+    format?: true
+    bytes?: true
+    duration?: true
+    width?: true
+    height?: true
+    createdAt?: true
+  }
+
+  export type VideoMaxAggregateInputType = {
+    id?: true
+    title?: true
+    publicId?: true
+    url?: true
+    thumbnailUrl?: true
+    format?: true
+    bytes?: true
+    duration?: true
+    width?: true
+    height?: true
+    createdAt?: true
+  }
+
+  export type VideoCountAggregateInputType = {
+    id?: true
+    title?: true
+    publicId?: true
+    url?: true
+    thumbnailUrl?: true
+    format?: true
+    bytes?: true
+    duration?: true
+    width?: true
+    height?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type VideoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Video to aggregate.
+     */
+    where?: VideoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Videos to fetch.
+     */
+    orderBy?: VideoOrderByWithRelationInput | VideoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VideoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Videos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Videos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Videos
+    **/
+    _count?: true | VideoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: VideoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: VideoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VideoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VideoMaxAggregateInputType
+  }
+
+  export type GetVideoAggregateType<T extends VideoAggregateArgs> = {
+        [P in keyof T & keyof AggregateVideo]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVideo[P]>
+      : GetScalarType<T[P], AggregateVideo[P]>
+  }
+
+
+
+
+  export type VideoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VideoWhereInput
+    orderBy?: VideoOrderByWithAggregationInput | VideoOrderByWithAggregationInput[]
+    by: VideoScalarFieldEnum[] | VideoScalarFieldEnum
+    having?: VideoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VideoCountAggregateInputType | true
+    _avg?: VideoAvgAggregateInputType
+    _sum?: VideoSumAggregateInputType
+    _min?: VideoMinAggregateInputType
+    _max?: VideoMaxAggregateInputType
+  }
+
+  export type VideoGroupByOutputType = {
+    id: string
+    title: string
+    publicId: string
+    url: string
+    thumbnailUrl: string
+    format: string
+    bytes: number
+    duration: number | null
+    width: number | null
+    height: number | null
+    createdAt: Date
+    _count: VideoCountAggregateOutputType | null
+    _avg: VideoAvgAggregateOutputType | null
+    _sum: VideoSumAggregateOutputType | null
+    _min: VideoMinAggregateOutputType | null
+    _max: VideoMaxAggregateOutputType | null
+  }
+
+  type GetVideoGroupByPayload<T extends VideoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VideoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VideoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VideoGroupByOutputType[P]>
+            : GetScalarType<T[P], VideoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VideoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    publicId?: boolean
+    url?: boolean
+    thumbnailUrl?: boolean
+    format?: boolean
+    bytes?: boolean
+    duration?: boolean
+    width?: boolean
+    height?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["video"]>
+
+  export type VideoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    publicId?: boolean
+    url?: boolean
+    thumbnailUrl?: boolean
+    format?: boolean
+    bytes?: boolean
+    duration?: boolean
+    width?: boolean
+    height?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["video"]>
+
+  export type VideoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    publicId?: boolean
+    url?: boolean
+    thumbnailUrl?: boolean
+    format?: boolean
+    bytes?: boolean
+    duration?: boolean
+    width?: boolean
+    height?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["video"]>
+
+  export type VideoSelectScalar = {
+    id?: boolean
+    title?: boolean
+    publicId?: boolean
+    url?: boolean
+    thumbnailUrl?: boolean
+    format?: boolean
+    bytes?: boolean
+    duration?: boolean
+    width?: boolean
+    height?: boolean
+    createdAt?: boolean
+  }
+
+  export type VideoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "publicId" | "url" | "thumbnailUrl" | "format" | "bytes" | "duration" | "width" | "height" | "createdAt", ExtArgs["result"]["video"]>
+
+  export type $VideoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Video"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      publicId: string
+      url: string
+      thumbnailUrl: string
+      format: string
+      bytes: number
+      duration: number | null
+      width: number | null
+      height: number | null
+      createdAt: Date
+    }, ExtArgs["result"]["video"]>
+    composites: {}
+  }
+
+  type VideoGetPayload<S extends boolean | null | undefined | VideoDefaultArgs> = $Result.GetResult<Prisma.$VideoPayload, S>
+
+  type VideoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<VideoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: VideoCountAggregateInputType | true
+    }
+
+  export interface VideoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Video'], meta: { name: 'Video' } }
+    /**
+     * Find zero or one Video that matches the filter.
+     * @param {VideoFindUniqueArgs} args - Arguments to find a Video
+     * @example
+     * // Get one Video
+     * const video = await prisma.video.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VideoFindUniqueArgs>(args: SelectSubset<T, VideoFindUniqueArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Video that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {VideoFindUniqueOrThrowArgs} args - Arguments to find a Video
+     * @example
+     * // Get one Video
+     * const video = await prisma.video.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VideoFindUniqueOrThrowArgs>(args: SelectSubset<T, VideoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Video that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoFindFirstArgs} args - Arguments to find a Video
+     * @example
+     * // Get one Video
+     * const video = await prisma.video.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VideoFindFirstArgs>(args?: SelectSubset<T, VideoFindFirstArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Video that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoFindFirstOrThrowArgs} args - Arguments to find a Video
+     * @example
+     * // Get one Video
+     * const video = await prisma.video.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VideoFindFirstOrThrowArgs>(args?: SelectSubset<T, VideoFindFirstOrThrowArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Videos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Videos
+     * const videos = await prisma.video.findMany()
+     * 
+     * // Get first 10 Videos
+     * const videos = await prisma.video.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const videoWithIdOnly = await prisma.video.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends VideoFindManyArgs>(args?: SelectSubset<T, VideoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Video.
+     * @param {VideoCreateArgs} args - Arguments to create a Video.
+     * @example
+     * // Create one Video
+     * const Video = await prisma.video.create({
+     *   data: {
+     *     // ... data to create a Video
+     *   }
+     * })
+     * 
+     */
+    create<T extends VideoCreateArgs>(args: SelectSubset<T, VideoCreateArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Videos.
+     * @param {VideoCreateManyArgs} args - Arguments to create many Videos.
+     * @example
+     * // Create many Videos
+     * const video = await prisma.video.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VideoCreateManyArgs>(args?: SelectSubset<T, VideoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Videos and returns the data saved in the database.
+     * @param {VideoCreateManyAndReturnArgs} args - Arguments to create many Videos.
+     * @example
+     * // Create many Videos
+     * const video = await prisma.video.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Videos and only return the `id`
+     * const videoWithIdOnly = await prisma.video.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends VideoCreateManyAndReturnArgs>(args?: SelectSubset<T, VideoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Video.
+     * @param {VideoDeleteArgs} args - Arguments to delete one Video.
+     * @example
+     * // Delete one Video
+     * const Video = await prisma.video.delete({
+     *   where: {
+     *     // ... filter to delete one Video
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VideoDeleteArgs>(args: SelectSubset<T, VideoDeleteArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Video.
+     * @param {VideoUpdateArgs} args - Arguments to update one Video.
+     * @example
+     * // Update one Video
+     * const video = await prisma.video.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VideoUpdateArgs>(args: SelectSubset<T, VideoUpdateArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Videos.
+     * @param {VideoDeleteManyArgs} args - Arguments to filter Videos to delete.
+     * @example
+     * // Delete a few Videos
+     * const { count } = await prisma.video.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VideoDeleteManyArgs>(args?: SelectSubset<T, VideoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Videos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Videos
+     * const video = await prisma.video.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VideoUpdateManyArgs>(args: SelectSubset<T, VideoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Videos and returns the data updated in the database.
+     * @param {VideoUpdateManyAndReturnArgs} args - Arguments to update many Videos.
+     * @example
+     * // Update many Videos
+     * const video = await prisma.video.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Videos and only return the `id`
+     * const videoWithIdOnly = await prisma.video.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends VideoUpdateManyAndReturnArgs>(args: SelectSubset<T, VideoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Video.
+     * @param {VideoUpsertArgs} args - Arguments to update or create a Video.
+     * @example
+     * // Update or create a Video
+     * const video = await prisma.video.upsert({
+     *   create: {
+     *     // ... data to create a Video
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Video we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VideoUpsertArgs>(args: SelectSubset<T, VideoUpsertArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Videos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoCountArgs} args - Arguments to filter Videos to count.
+     * @example
+     * // Count the number of Videos
+     * const count = await prisma.video.count({
+     *   where: {
+     *     // ... the filter for the Videos we want to count
+     *   }
+     * })
+    **/
+    count<T extends VideoCountArgs>(
+      args?: Subset<T, VideoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VideoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Video.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VideoAggregateArgs>(args: Subset<T, VideoAggregateArgs>): Prisma.PrismaPromise<GetVideoAggregateType<T>>
+
+    /**
+     * Group by Video.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VideoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VideoGroupByArgs['orderBy'] }
+        : { orderBy?: VideoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VideoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVideoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Video model
+   */
+  readonly fields: VideoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Video.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VideoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Video model
+   */
+  interface VideoFieldRefs {
+    readonly id: FieldRef<"Video", 'String'>
+    readonly title: FieldRef<"Video", 'String'>
+    readonly publicId: FieldRef<"Video", 'String'>
+    readonly url: FieldRef<"Video", 'String'>
+    readonly thumbnailUrl: FieldRef<"Video", 'String'>
+    readonly format: FieldRef<"Video", 'String'>
+    readonly bytes: FieldRef<"Video", 'Float'>
+    readonly duration: FieldRef<"Video", 'Float'>
+    readonly width: FieldRef<"Video", 'Int'>
+    readonly height: FieldRef<"Video", 'Int'>
+    readonly createdAt: FieldRef<"Video", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Video findUnique
+   */
+  export type VideoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * Filter, which Video to fetch.
+     */
+    where: VideoWhereUniqueInput
+  }
+
+  /**
+   * Video findUniqueOrThrow
+   */
+  export type VideoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * Filter, which Video to fetch.
+     */
+    where: VideoWhereUniqueInput
+  }
+
+  /**
+   * Video findFirst
+   */
+  export type VideoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * Filter, which Video to fetch.
+     */
+    where?: VideoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Videos to fetch.
+     */
+    orderBy?: VideoOrderByWithRelationInput | VideoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Videos.
+     */
+    cursor?: VideoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Videos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Videos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Videos.
+     */
+    distinct?: VideoScalarFieldEnum | VideoScalarFieldEnum[]
+  }
+
+  /**
+   * Video findFirstOrThrow
+   */
+  export type VideoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * Filter, which Video to fetch.
+     */
+    where?: VideoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Videos to fetch.
+     */
+    orderBy?: VideoOrderByWithRelationInput | VideoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Videos.
+     */
+    cursor?: VideoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Videos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Videos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Videos.
+     */
+    distinct?: VideoScalarFieldEnum | VideoScalarFieldEnum[]
+  }
+
+  /**
+   * Video findMany
+   */
+  export type VideoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * Filter, which Videos to fetch.
+     */
+    where?: VideoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Videos to fetch.
+     */
+    orderBy?: VideoOrderByWithRelationInput | VideoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Videos.
+     */
+    cursor?: VideoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Videos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Videos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Videos.
+     */
+    distinct?: VideoScalarFieldEnum | VideoScalarFieldEnum[]
+  }
+
+  /**
+   * Video create
+   */
+  export type VideoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Video.
+     */
+    data: XOR<VideoCreateInput, VideoUncheckedCreateInput>
+  }
+
+  /**
+   * Video createMany
+   */
+  export type VideoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Videos.
+     */
+    data: VideoCreateManyInput | VideoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Video createManyAndReturn
+   */
+  export type VideoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * The data used to create many Videos.
+     */
+    data: VideoCreateManyInput | VideoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Video update
+   */
+  export type VideoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Video.
+     */
+    data: XOR<VideoUpdateInput, VideoUncheckedUpdateInput>
+    /**
+     * Choose, which Video to update.
+     */
+    where: VideoWhereUniqueInput
+  }
+
+  /**
+   * Video updateMany
+   */
+  export type VideoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Videos.
+     */
+    data: XOR<VideoUpdateManyMutationInput, VideoUncheckedUpdateManyInput>
+    /**
+     * Filter which Videos to update
+     */
+    where?: VideoWhereInput
+    /**
+     * Limit how many Videos to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Video updateManyAndReturn
+   */
+  export type VideoUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * The data used to update Videos.
+     */
+    data: XOR<VideoUpdateManyMutationInput, VideoUncheckedUpdateManyInput>
+    /**
+     * Filter which Videos to update
+     */
+    where?: VideoWhereInput
+    /**
+     * Limit how many Videos to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Video upsert
+   */
+  export type VideoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Video to update in case it exists.
+     */
+    where: VideoWhereUniqueInput
+    /**
+     * In case the Video found by the `where` argument doesn't exist, create a new Video with this data.
+     */
+    create: XOR<VideoCreateInput, VideoUncheckedCreateInput>
+    /**
+     * In case the Video was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VideoUpdateInput, VideoUncheckedUpdateInput>
+  }
+
+  /**
+   * Video delete
+   */
+  export type VideoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+    /**
+     * Filter which Video to delete.
+     */
+    where: VideoWhereUniqueInput
+  }
+
+  /**
+   * Video deleteMany
+   */
+  export type VideoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Videos to delete
+     */
+    where?: VideoWhereInput
+    /**
+     * Limit how many Videos to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Video without action
+   */
+  export type VideoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Video
+     */
+    select?: VideoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Video
+     */
+    omit?: VideoOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DisplaySettings
+   */
+
+  export type AggregateDisplaySettings = {
+    _count: DisplaySettingsCountAggregateOutputType | null
+    _avg: DisplaySettingsAvgAggregateOutputType | null
+    _sum: DisplaySettingsSumAggregateOutputType | null
+    _min: DisplaySettingsMinAggregateOutputType | null
+    _max: DisplaySettingsMaxAggregateOutputType | null
+  }
+
+  export type DisplaySettingsAvgAggregateOutputType = {
+    testimonialDurationMs: number | null
+  }
+
+  export type DisplaySettingsSumAggregateOutputType = {
+    testimonialDurationMs: number | null
+  }
+
+  export type DisplaySettingsMinAggregateOutputType = {
+    id: string | null
+    heading: string | null
+    subtitle: string | null
+    mode: string | null
+    videoUrl: string | null
+    videoAutoplay: boolean | null
+    videoLoop: boolean | null
+    testimonialAutoPlay: boolean | null
+    testimonialDurationMs: number | null
+    updatedAt: Date | null
+  }
+
+  export type DisplaySettingsMaxAggregateOutputType = {
+    id: string | null
+    heading: string | null
+    subtitle: string | null
+    mode: string | null
+    videoUrl: string | null
+    videoAutoplay: boolean | null
+    videoLoop: boolean | null
+    testimonialAutoPlay: boolean | null
+    testimonialDurationMs: number | null
+    updatedAt: Date | null
+  }
+
+  export type DisplaySettingsCountAggregateOutputType = {
+    id: number
+    heading: number
+    subtitle: number
+    mode: number
+    videoUrl: number
+    videoAutoplay: number
+    videoLoop: number
+    testimonialAutoPlay: number
+    testimonialDurationMs: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DisplaySettingsAvgAggregateInputType = {
+    testimonialDurationMs?: true
+  }
+
+  export type DisplaySettingsSumAggregateInputType = {
+    testimonialDurationMs?: true
+  }
+
+  export type DisplaySettingsMinAggregateInputType = {
+    id?: true
+    heading?: true
+    subtitle?: true
+    mode?: true
+    videoUrl?: true
+    videoAutoplay?: true
+    videoLoop?: true
+    testimonialAutoPlay?: true
+    testimonialDurationMs?: true
+    updatedAt?: true
+  }
+
+  export type DisplaySettingsMaxAggregateInputType = {
+    id?: true
+    heading?: true
+    subtitle?: true
+    mode?: true
+    videoUrl?: true
+    videoAutoplay?: true
+    videoLoop?: true
+    testimonialAutoPlay?: true
+    testimonialDurationMs?: true
+    updatedAt?: true
+  }
+
+  export type DisplaySettingsCountAggregateInputType = {
+    id?: true
+    heading?: true
+    subtitle?: true
+    mode?: true
+    videoUrl?: true
+    videoAutoplay?: true
+    videoLoop?: true
+    testimonialAutoPlay?: true
+    testimonialDurationMs?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DisplaySettingsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DisplaySettings to aggregate.
+     */
+    where?: DisplaySettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DisplaySettings to fetch.
+     */
+    orderBy?: DisplaySettingsOrderByWithRelationInput | DisplaySettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DisplaySettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DisplaySettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DisplaySettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DisplaySettings
+    **/
+    _count?: true | DisplaySettingsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DisplaySettingsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DisplaySettingsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DisplaySettingsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DisplaySettingsMaxAggregateInputType
+  }
+
+  export type GetDisplaySettingsAggregateType<T extends DisplaySettingsAggregateArgs> = {
+        [P in keyof T & keyof AggregateDisplaySettings]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDisplaySettings[P]>
+      : GetScalarType<T[P], AggregateDisplaySettings[P]>
+  }
+
+
+
+
+  export type DisplaySettingsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DisplaySettingsWhereInput
+    orderBy?: DisplaySettingsOrderByWithAggregationInput | DisplaySettingsOrderByWithAggregationInput[]
+    by: DisplaySettingsScalarFieldEnum[] | DisplaySettingsScalarFieldEnum
+    having?: DisplaySettingsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DisplaySettingsCountAggregateInputType | true
+    _avg?: DisplaySettingsAvgAggregateInputType
+    _sum?: DisplaySettingsSumAggregateInputType
+    _min?: DisplaySettingsMinAggregateInputType
+    _max?: DisplaySettingsMaxAggregateInputType
+  }
+
+  export type DisplaySettingsGroupByOutputType = {
+    id: string
+    heading: string
+    subtitle: string
+    mode: string
+    videoUrl: string | null
+    videoAutoplay: boolean
+    videoLoop: boolean
+    testimonialAutoPlay: boolean
+    testimonialDurationMs: number
+    updatedAt: Date
+    _count: DisplaySettingsCountAggregateOutputType | null
+    _avg: DisplaySettingsAvgAggregateOutputType | null
+    _sum: DisplaySettingsSumAggregateOutputType | null
+    _min: DisplaySettingsMinAggregateOutputType | null
+    _max: DisplaySettingsMaxAggregateOutputType | null
+  }
+
+  type GetDisplaySettingsGroupByPayload<T extends DisplaySettingsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DisplaySettingsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DisplaySettingsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DisplaySettingsGroupByOutputType[P]>
+            : GetScalarType<T[P], DisplaySettingsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DisplaySettingsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    heading?: boolean
+    subtitle?: boolean
+    mode?: boolean
+    videoUrl?: boolean
+    videoAutoplay?: boolean
+    videoLoop?: boolean
+    testimonialAutoPlay?: boolean
+    testimonialDurationMs?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["displaySettings"]>
+
+  export type DisplaySettingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    heading?: boolean
+    subtitle?: boolean
+    mode?: boolean
+    videoUrl?: boolean
+    videoAutoplay?: boolean
+    videoLoop?: boolean
+    testimonialAutoPlay?: boolean
+    testimonialDurationMs?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["displaySettings"]>
+
+  export type DisplaySettingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    heading?: boolean
+    subtitle?: boolean
+    mode?: boolean
+    videoUrl?: boolean
+    videoAutoplay?: boolean
+    videoLoop?: boolean
+    testimonialAutoPlay?: boolean
+    testimonialDurationMs?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["displaySettings"]>
+
+  export type DisplaySettingsSelectScalar = {
+    id?: boolean
+    heading?: boolean
+    subtitle?: boolean
+    mode?: boolean
+    videoUrl?: boolean
+    videoAutoplay?: boolean
+    videoLoop?: boolean
+    testimonialAutoPlay?: boolean
+    testimonialDurationMs?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DisplaySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "heading" | "subtitle" | "mode" | "videoUrl" | "videoAutoplay" | "videoLoop" | "testimonialAutoPlay" | "testimonialDurationMs" | "updatedAt", ExtArgs["result"]["displaySettings"]>
+
+  export type $DisplaySettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DisplaySettings"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      heading: string
+      subtitle: string
+      mode: string
+      videoUrl: string | null
+      videoAutoplay: boolean
+      videoLoop: boolean
+      testimonialAutoPlay: boolean
+      testimonialDurationMs: number
+      updatedAt: Date
+    }, ExtArgs["result"]["displaySettings"]>
+    composites: {}
+  }
+
+  type DisplaySettingsGetPayload<S extends boolean | null | undefined | DisplaySettingsDefaultArgs> = $Result.GetResult<Prisma.$DisplaySettingsPayload, S>
+
+  type DisplaySettingsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DisplaySettingsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DisplaySettingsCountAggregateInputType | true
+    }
+
+  export interface DisplaySettingsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DisplaySettings'], meta: { name: 'DisplaySettings' } }
+    /**
+     * Find zero or one DisplaySettings that matches the filter.
+     * @param {DisplaySettingsFindUniqueArgs} args - Arguments to find a DisplaySettings
+     * @example
+     * // Get one DisplaySettings
+     * const displaySettings = await prisma.displaySettings.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DisplaySettingsFindUniqueArgs>(args: SelectSubset<T, DisplaySettingsFindUniqueArgs<ExtArgs>>): Prisma__DisplaySettingsClient<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DisplaySettings that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DisplaySettingsFindUniqueOrThrowArgs} args - Arguments to find a DisplaySettings
+     * @example
+     * // Get one DisplaySettings
+     * const displaySettings = await prisma.displaySettings.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DisplaySettingsFindUniqueOrThrowArgs>(args: SelectSubset<T, DisplaySettingsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DisplaySettingsClient<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DisplaySettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DisplaySettingsFindFirstArgs} args - Arguments to find a DisplaySettings
+     * @example
+     * // Get one DisplaySettings
+     * const displaySettings = await prisma.displaySettings.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DisplaySettingsFindFirstArgs>(args?: SelectSubset<T, DisplaySettingsFindFirstArgs<ExtArgs>>): Prisma__DisplaySettingsClient<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DisplaySettings that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DisplaySettingsFindFirstOrThrowArgs} args - Arguments to find a DisplaySettings
+     * @example
+     * // Get one DisplaySettings
+     * const displaySettings = await prisma.displaySettings.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DisplaySettingsFindFirstOrThrowArgs>(args?: SelectSubset<T, DisplaySettingsFindFirstOrThrowArgs<ExtArgs>>): Prisma__DisplaySettingsClient<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DisplaySettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DisplaySettingsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DisplaySettings
+     * const displaySettings = await prisma.displaySettings.findMany()
+     * 
+     * // Get first 10 DisplaySettings
+     * const displaySettings = await prisma.displaySettings.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const displaySettingsWithIdOnly = await prisma.displaySettings.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DisplaySettingsFindManyArgs>(args?: SelectSubset<T, DisplaySettingsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DisplaySettings.
+     * @param {DisplaySettingsCreateArgs} args - Arguments to create a DisplaySettings.
+     * @example
+     * // Create one DisplaySettings
+     * const DisplaySettings = await prisma.displaySettings.create({
+     *   data: {
+     *     // ... data to create a DisplaySettings
+     *   }
+     * })
+     * 
+     */
+    create<T extends DisplaySettingsCreateArgs>(args: SelectSubset<T, DisplaySettingsCreateArgs<ExtArgs>>): Prisma__DisplaySettingsClient<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DisplaySettings.
+     * @param {DisplaySettingsCreateManyArgs} args - Arguments to create many DisplaySettings.
+     * @example
+     * // Create many DisplaySettings
+     * const displaySettings = await prisma.displaySettings.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DisplaySettingsCreateManyArgs>(args?: SelectSubset<T, DisplaySettingsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DisplaySettings and returns the data saved in the database.
+     * @param {DisplaySettingsCreateManyAndReturnArgs} args - Arguments to create many DisplaySettings.
+     * @example
+     * // Create many DisplaySettings
+     * const displaySettings = await prisma.displaySettings.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DisplaySettings and only return the `id`
+     * const displaySettingsWithIdOnly = await prisma.displaySettings.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DisplaySettingsCreateManyAndReturnArgs>(args?: SelectSubset<T, DisplaySettingsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DisplaySettings.
+     * @param {DisplaySettingsDeleteArgs} args - Arguments to delete one DisplaySettings.
+     * @example
+     * // Delete one DisplaySettings
+     * const DisplaySettings = await prisma.displaySettings.delete({
+     *   where: {
+     *     // ... filter to delete one DisplaySettings
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DisplaySettingsDeleteArgs>(args: SelectSubset<T, DisplaySettingsDeleteArgs<ExtArgs>>): Prisma__DisplaySettingsClient<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DisplaySettings.
+     * @param {DisplaySettingsUpdateArgs} args - Arguments to update one DisplaySettings.
+     * @example
+     * // Update one DisplaySettings
+     * const displaySettings = await prisma.displaySettings.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DisplaySettingsUpdateArgs>(args: SelectSubset<T, DisplaySettingsUpdateArgs<ExtArgs>>): Prisma__DisplaySettingsClient<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DisplaySettings.
+     * @param {DisplaySettingsDeleteManyArgs} args - Arguments to filter DisplaySettings to delete.
+     * @example
+     * // Delete a few DisplaySettings
+     * const { count } = await prisma.displaySettings.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DisplaySettingsDeleteManyArgs>(args?: SelectSubset<T, DisplaySettingsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DisplaySettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DisplaySettingsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DisplaySettings
+     * const displaySettings = await prisma.displaySettings.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DisplaySettingsUpdateManyArgs>(args: SelectSubset<T, DisplaySettingsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DisplaySettings and returns the data updated in the database.
+     * @param {DisplaySettingsUpdateManyAndReturnArgs} args - Arguments to update many DisplaySettings.
+     * @example
+     * // Update many DisplaySettings
+     * const displaySettings = await prisma.displaySettings.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DisplaySettings and only return the `id`
+     * const displaySettingsWithIdOnly = await prisma.displaySettings.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DisplaySettingsUpdateManyAndReturnArgs>(args: SelectSubset<T, DisplaySettingsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DisplaySettings.
+     * @param {DisplaySettingsUpsertArgs} args - Arguments to update or create a DisplaySettings.
+     * @example
+     * // Update or create a DisplaySettings
+     * const displaySettings = await prisma.displaySettings.upsert({
+     *   create: {
+     *     // ... data to create a DisplaySettings
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DisplaySettings we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DisplaySettingsUpsertArgs>(args: SelectSubset<T, DisplaySettingsUpsertArgs<ExtArgs>>): Prisma__DisplaySettingsClient<$Result.GetResult<Prisma.$DisplaySettingsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DisplaySettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DisplaySettingsCountArgs} args - Arguments to filter DisplaySettings to count.
+     * @example
+     * // Count the number of DisplaySettings
+     * const count = await prisma.displaySettings.count({
+     *   where: {
+     *     // ... the filter for the DisplaySettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends DisplaySettingsCountArgs>(
+      args?: Subset<T, DisplaySettingsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DisplaySettingsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DisplaySettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DisplaySettingsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DisplaySettingsAggregateArgs>(args: Subset<T, DisplaySettingsAggregateArgs>): Prisma.PrismaPromise<GetDisplaySettingsAggregateType<T>>
+
+    /**
+     * Group by DisplaySettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DisplaySettingsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DisplaySettingsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DisplaySettingsGroupByArgs['orderBy'] }
+        : { orderBy?: DisplaySettingsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DisplaySettingsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDisplaySettingsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DisplaySettings model
+   */
+  readonly fields: DisplaySettingsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DisplaySettings.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DisplaySettingsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DisplaySettings model
+   */
+  interface DisplaySettingsFieldRefs {
+    readonly id: FieldRef<"DisplaySettings", 'String'>
+    readonly heading: FieldRef<"DisplaySettings", 'String'>
+    readonly subtitle: FieldRef<"DisplaySettings", 'String'>
+    readonly mode: FieldRef<"DisplaySettings", 'String'>
+    readonly videoUrl: FieldRef<"DisplaySettings", 'String'>
+    readonly videoAutoplay: FieldRef<"DisplaySettings", 'Boolean'>
+    readonly videoLoop: FieldRef<"DisplaySettings", 'Boolean'>
+    readonly testimonialAutoPlay: FieldRef<"DisplaySettings", 'Boolean'>
+    readonly testimonialDurationMs: FieldRef<"DisplaySettings", 'Int'>
+    readonly updatedAt: FieldRef<"DisplaySettings", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DisplaySettings findUnique
+   */
+  export type DisplaySettingsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which DisplaySettings to fetch.
+     */
+    where: DisplaySettingsWhereUniqueInput
+  }
+
+  /**
+   * DisplaySettings findUniqueOrThrow
+   */
+  export type DisplaySettingsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which DisplaySettings to fetch.
+     */
+    where: DisplaySettingsWhereUniqueInput
+  }
+
+  /**
+   * DisplaySettings findFirst
+   */
+  export type DisplaySettingsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which DisplaySettings to fetch.
+     */
+    where?: DisplaySettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DisplaySettings to fetch.
+     */
+    orderBy?: DisplaySettingsOrderByWithRelationInput | DisplaySettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DisplaySettings.
+     */
+    cursor?: DisplaySettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DisplaySettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DisplaySettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DisplaySettings.
+     */
+    distinct?: DisplaySettingsScalarFieldEnum | DisplaySettingsScalarFieldEnum[]
+  }
+
+  /**
+   * DisplaySettings findFirstOrThrow
+   */
+  export type DisplaySettingsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which DisplaySettings to fetch.
+     */
+    where?: DisplaySettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DisplaySettings to fetch.
+     */
+    orderBy?: DisplaySettingsOrderByWithRelationInput | DisplaySettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DisplaySettings.
+     */
+    cursor?: DisplaySettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DisplaySettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DisplaySettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DisplaySettings.
+     */
+    distinct?: DisplaySettingsScalarFieldEnum | DisplaySettingsScalarFieldEnum[]
+  }
+
+  /**
+   * DisplaySettings findMany
+   */
+  export type DisplaySettingsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which DisplaySettings to fetch.
+     */
+    where?: DisplaySettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DisplaySettings to fetch.
+     */
+    orderBy?: DisplaySettingsOrderByWithRelationInput | DisplaySettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DisplaySettings.
+     */
+    cursor?: DisplaySettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DisplaySettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DisplaySettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DisplaySettings.
+     */
+    distinct?: DisplaySettingsScalarFieldEnum | DisplaySettingsScalarFieldEnum[]
+  }
+
+  /**
+   * DisplaySettings create
+   */
+  export type DisplaySettingsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DisplaySettings.
+     */
+    data: XOR<DisplaySettingsCreateInput, DisplaySettingsUncheckedCreateInput>
+  }
+
+  /**
+   * DisplaySettings createMany
+   */
+  export type DisplaySettingsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DisplaySettings.
+     */
+    data: DisplaySettingsCreateManyInput | DisplaySettingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DisplaySettings createManyAndReturn
+   */
+  export type DisplaySettingsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * The data used to create many DisplaySettings.
+     */
+    data: DisplaySettingsCreateManyInput | DisplaySettingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DisplaySettings update
+   */
+  export type DisplaySettingsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DisplaySettings.
+     */
+    data: XOR<DisplaySettingsUpdateInput, DisplaySettingsUncheckedUpdateInput>
+    /**
+     * Choose, which DisplaySettings to update.
+     */
+    where: DisplaySettingsWhereUniqueInput
+  }
+
+  /**
+   * DisplaySettings updateMany
+   */
+  export type DisplaySettingsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DisplaySettings.
+     */
+    data: XOR<DisplaySettingsUpdateManyMutationInput, DisplaySettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which DisplaySettings to update
+     */
+    where?: DisplaySettingsWhereInput
+    /**
+     * Limit how many DisplaySettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DisplaySettings updateManyAndReturn
+   */
+  export type DisplaySettingsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * The data used to update DisplaySettings.
+     */
+    data: XOR<DisplaySettingsUpdateManyMutationInput, DisplaySettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which DisplaySettings to update
+     */
+    where?: DisplaySettingsWhereInput
+    /**
+     * Limit how many DisplaySettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DisplaySettings upsert
+   */
+  export type DisplaySettingsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DisplaySettings to update in case it exists.
+     */
+    where: DisplaySettingsWhereUniqueInput
+    /**
+     * In case the DisplaySettings found by the `where` argument doesn't exist, create a new DisplaySettings with this data.
+     */
+    create: XOR<DisplaySettingsCreateInput, DisplaySettingsUncheckedCreateInput>
+    /**
+     * In case the DisplaySettings was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DisplaySettingsUpdateInput, DisplaySettingsUncheckedUpdateInput>
+  }
+
+  /**
+   * DisplaySettings delete
+   */
+  export type DisplaySettingsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+    /**
+     * Filter which DisplaySettings to delete.
+     */
+    where: DisplaySettingsWhereUniqueInput
+  }
+
+  /**
+   * DisplaySettings deleteMany
+   */
+  export type DisplaySettingsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DisplaySettings to delete
+     */
+    where?: DisplaySettingsWhereInput
+    /**
+     * Limit how many DisplaySettings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DisplaySettings without action
+   */
+  export type DisplaySettingsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisplaySettings
+     */
+    select?: DisplaySettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisplaySettings
+     */
+    omit?: DisplaySettingsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -3185,6 +5590,39 @@ export namespace Prisma {
   };
 
   export type CertificateScalarFieldEnum = (typeof CertificateScalarFieldEnum)[keyof typeof CertificateScalarFieldEnum]
+
+
+  export const VideoScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    publicId: 'publicId',
+    url: 'url',
+    thumbnailUrl: 'thumbnailUrl',
+    format: 'format',
+    bytes: 'bytes',
+    duration: 'duration',
+    width: 'width',
+    height: 'height',
+    createdAt: 'createdAt'
+  };
+
+  export type VideoScalarFieldEnum = (typeof VideoScalarFieldEnum)[keyof typeof VideoScalarFieldEnum]
+
+
+  export const DisplaySettingsScalarFieldEnum: {
+    id: 'id',
+    heading: 'heading',
+    subtitle: 'subtitle',
+    mode: 'mode',
+    videoUrl: 'videoUrl',
+    videoAutoplay: 'videoAutoplay',
+    videoLoop: 'videoLoop',
+    testimonialAutoPlay: 'testimonialAutoPlay',
+    testimonialDurationMs: 'testimonialDurationMs',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DisplaySettingsScalarFieldEnum = (typeof DisplaySettingsScalarFieldEnum)[keyof typeof DisplaySettingsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -3262,6 +5700,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
   /**
    * Deep Input Types
@@ -3409,6 +5861,169 @@ export namespace Prisma {
     showOnDisplay?: BoolWithAggregatesFilter<"Certificate"> | boolean
     gradient?: StringNullableWithAggregatesFilter<"Certificate"> | string | null
     createdAt?: FloatWithAggregatesFilter<"Certificate"> | number
+  }
+
+  export type VideoWhereInput = {
+    AND?: VideoWhereInput | VideoWhereInput[]
+    OR?: VideoWhereInput[]
+    NOT?: VideoWhereInput | VideoWhereInput[]
+    id?: StringFilter<"Video"> | string
+    title?: StringFilter<"Video"> | string
+    publicId?: StringFilter<"Video"> | string
+    url?: StringFilter<"Video"> | string
+    thumbnailUrl?: StringFilter<"Video"> | string
+    format?: StringFilter<"Video"> | string
+    bytes?: FloatFilter<"Video"> | number
+    duration?: FloatNullableFilter<"Video"> | number | null
+    width?: IntNullableFilter<"Video"> | number | null
+    height?: IntNullableFilter<"Video"> | number | null
+    createdAt?: DateTimeFilter<"Video"> | Date | string
+  }
+
+  export type VideoOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    thumbnailUrl?: SortOrder
+    format?: SortOrder
+    bytes?: SortOrder
+    duration?: SortOrderInput | SortOrder
+    width?: SortOrderInput | SortOrder
+    height?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VideoWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    publicId?: string
+    AND?: VideoWhereInput | VideoWhereInput[]
+    OR?: VideoWhereInput[]
+    NOT?: VideoWhereInput | VideoWhereInput[]
+    title?: StringFilter<"Video"> | string
+    url?: StringFilter<"Video"> | string
+    thumbnailUrl?: StringFilter<"Video"> | string
+    format?: StringFilter<"Video"> | string
+    bytes?: FloatFilter<"Video"> | number
+    duration?: FloatNullableFilter<"Video"> | number | null
+    width?: IntNullableFilter<"Video"> | number | null
+    height?: IntNullableFilter<"Video"> | number | null
+    createdAt?: DateTimeFilter<"Video"> | Date | string
+  }, "id" | "publicId">
+
+  export type VideoOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    thumbnailUrl?: SortOrder
+    format?: SortOrder
+    bytes?: SortOrder
+    duration?: SortOrderInput | SortOrder
+    width?: SortOrderInput | SortOrder
+    height?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: VideoCountOrderByAggregateInput
+    _avg?: VideoAvgOrderByAggregateInput
+    _max?: VideoMaxOrderByAggregateInput
+    _min?: VideoMinOrderByAggregateInput
+    _sum?: VideoSumOrderByAggregateInput
+  }
+
+  export type VideoScalarWhereWithAggregatesInput = {
+    AND?: VideoScalarWhereWithAggregatesInput | VideoScalarWhereWithAggregatesInput[]
+    OR?: VideoScalarWhereWithAggregatesInput[]
+    NOT?: VideoScalarWhereWithAggregatesInput | VideoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Video"> | string
+    title?: StringWithAggregatesFilter<"Video"> | string
+    publicId?: StringWithAggregatesFilter<"Video"> | string
+    url?: StringWithAggregatesFilter<"Video"> | string
+    thumbnailUrl?: StringWithAggregatesFilter<"Video"> | string
+    format?: StringWithAggregatesFilter<"Video"> | string
+    bytes?: FloatWithAggregatesFilter<"Video"> | number
+    duration?: FloatNullableWithAggregatesFilter<"Video"> | number | null
+    width?: IntNullableWithAggregatesFilter<"Video"> | number | null
+    height?: IntNullableWithAggregatesFilter<"Video"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"Video"> | Date | string
+  }
+
+  export type DisplaySettingsWhereInput = {
+    AND?: DisplaySettingsWhereInput | DisplaySettingsWhereInput[]
+    OR?: DisplaySettingsWhereInput[]
+    NOT?: DisplaySettingsWhereInput | DisplaySettingsWhereInput[]
+    id?: StringFilter<"DisplaySettings"> | string
+    heading?: StringFilter<"DisplaySettings"> | string
+    subtitle?: StringFilter<"DisplaySettings"> | string
+    mode?: StringFilter<"DisplaySettings"> | string
+    videoUrl?: StringNullableFilter<"DisplaySettings"> | string | null
+    videoAutoplay?: BoolFilter<"DisplaySettings"> | boolean
+    videoLoop?: BoolFilter<"DisplaySettings"> | boolean
+    testimonialAutoPlay?: BoolFilter<"DisplaySettings"> | boolean
+    testimonialDurationMs?: IntFilter<"DisplaySettings"> | number
+    updatedAt?: DateTimeFilter<"DisplaySettings"> | Date | string
+  }
+
+  export type DisplaySettingsOrderByWithRelationInput = {
+    id?: SortOrder
+    heading?: SortOrder
+    subtitle?: SortOrder
+    mode?: SortOrder
+    videoUrl?: SortOrderInput | SortOrder
+    videoAutoplay?: SortOrder
+    videoLoop?: SortOrder
+    testimonialAutoPlay?: SortOrder
+    testimonialDurationMs?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DisplaySettingsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DisplaySettingsWhereInput | DisplaySettingsWhereInput[]
+    OR?: DisplaySettingsWhereInput[]
+    NOT?: DisplaySettingsWhereInput | DisplaySettingsWhereInput[]
+    heading?: StringFilter<"DisplaySettings"> | string
+    subtitle?: StringFilter<"DisplaySettings"> | string
+    mode?: StringFilter<"DisplaySettings"> | string
+    videoUrl?: StringNullableFilter<"DisplaySettings"> | string | null
+    videoAutoplay?: BoolFilter<"DisplaySettings"> | boolean
+    videoLoop?: BoolFilter<"DisplaySettings"> | boolean
+    testimonialAutoPlay?: BoolFilter<"DisplaySettings"> | boolean
+    testimonialDurationMs?: IntFilter<"DisplaySettings"> | number
+    updatedAt?: DateTimeFilter<"DisplaySettings"> | Date | string
+  }, "id">
+
+  export type DisplaySettingsOrderByWithAggregationInput = {
+    id?: SortOrder
+    heading?: SortOrder
+    subtitle?: SortOrder
+    mode?: SortOrder
+    videoUrl?: SortOrderInput | SortOrder
+    videoAutoplay?: SortOrder
+    videoLoop?: SortOrder
+    testimonialAutoPlay?: SortOrder
+    testimonialDurationMs?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DisplaySettingsCountOrderByAggregateInput
+    _avg?: DisplaySettingsAvgOrderByAggregateInput
+    _max?: DisplaySettingsMaxOrderByAggregateInput
+    _min?: DisplaySettingsMinOrderByAggregateInput
+    _sum?: DisplaySettingsSumOrderByAggregateInput
+  }
+
+  export type DisplaySettingsScalarWhereWithAggregatesInput = {
+    AND?: DisplaySettingsScalarWhereWithAggregatesInput | DisplaySettingsScalarWhereWithAggregatesInput[]
+    OR?: DisplaySettingsScalarWhereWithAggregatesInput[]
+    NOT?: DisplaySettingsScalarWhereWithAggregatesInput | DisplaySettingsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DisplaySettings"> | string
+    heading?: StringWithAggregatesFilter<"DisplaySettings"> | string
+    subtitle?: StringWithAggregatesFilter<"DisplaySettings"> | string
+    mode?: StringWithAggregatesFilter<"DisplaySettings"> | string
+    videoUrl?: StringNullableWithAggregatesFilter<"DisplaySettings"> | string | null
+    videoAutoplay?: BoolWithAggregatesFilter<"DisplaySettings"> | boolean
+    videoLoop?: BoolWithAggregatesFilter<"DisplaySettings"> | boolean
+    testimonialAutoPlay?: BoolWithAggregatesFilter<"DisplaySettings"> | boolean
+    testimonialDurationMs?: IntWithAggregatesFilter<"DisplaySettings"> | number
+    updatedAt?: DateTimeWithAggregatesFilter<"DisplaySettings"> | Date | string
   }
 
   export type EventImageCreateInput = {
@@ -3570,6 +6185,195 @@ export namespace Prisma {
     showOnDisplay?: BoolFieldUpdateOperationsInput | boolean
     gradient?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type VideoCreateInput = {
+    id?: string
+    title: string
+    publicId: string
+    url: string
+    thumbnailUrl: string
+    format: string
+    bytes: number
+    duration?: number | null
+    width?: number | null
+    height?: number | null
+    createdAt?: Date | string
+  }
+
+  export type VideoUncheckedCreateInput = {
+    id?: string
+    title: string
+    publicId: string
+    url: string
+    thumbnailUrl: string
+    format: string
+    bytes: number
+    duration?: number | null
+    width?: number | null
+    height?: number | null
+    createdAt?: Date | string
+  }
+
+  export type VideoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    thumbnailUrl?: StringFieldUpdateOperationsInput | string
+    format?: StringFieldUpdateOperationsInput | string
+    bytes?: FloatFieldUpdateOperationsInput | number
+    duration?: NullableFloatFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VideoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    thumbnailUrl?: StringFieldUpdateOperationsInput | string
+    format?: StringFieldUpdateOperationsInput | string
+    bytes?: FloatFieldUpdateOperationsInput | number
+    duration?: NullableFloatFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VideoCreateManyInput = {
+    id?: string
+    title: string
+    publicId: string
+    url: string
+    thumbnailUrl: string
+    format: string
+    bytes: number
+    duration?: number | null
+    width?: number | null
+    height?: number | null
+    createdAt?: Date | string
+  }
+
+  export type VideoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    thumbnailUrl?: StringFieldUpdateOperationsInput | string
+    format?: StringFieldUpdateOperationsInput | string
+    bytes?: FloatFieldUpdateOperationsInput | number
+    duration?: NullableFloatFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VideoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    thumbnailUrl?: StringFieldUpdateOperationsInput | string
+    format?: StringFieldUpdateOperationsInput | string
+    bytes?: FloatFieldUpdateOperationsInput | number
+    duration?: NullableFloatFieldUpdateOperationsInput | number | null
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DisplaySettingsCreateInput = {
+    id?: string
+    heading?: string
+    subtitle?: string
+    mode?: string
+    videoUrl?: string | null
+    videoAutoplay?: boolean
+    videoLoop?: boolean
+    testimonialAutoPlay?: boolean
+    testimonialDurationMs?: number
+    updatedAt?: Date | string
+  }
+
+  export type DisplaySettingsUncheckedCreateInput = {
+    id?: string
+    heading?: string
+    subtitle?: string
+    mode?: string
+    videoUrl?: string | null
+    videoAutoplay?: boolean
+    videoLoop?: boolean
+    testimonialAutoPlay?: boolean
+    testimonialDurationMs?: number
+    updatedAt?: Date | string
+  }
+
+  export type DisplaySettingsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    heading?: StringFieldUpdateOperationsInput | string
+    subtitle?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    videoAutoplay?: BoolFieldUpdateOperationsInput | boolean
+    videoLoop?: BoolFieldUpdateOperationsInput | boolean
+    testimonialAutoPlay?: BoolFieldUpdateOperationsInput | boolean
+    testimonialDurationMs?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DisplaySettingsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    heading?: StringFieldUpdateOperationsInput | string
+    subtitle?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    videoAutoplay?: BoolFieldUpdateOperationsInput | boolean
+    videoLoop?: BoolFieldUpdateOperationsInput | boolean
+    testimonialAutoPlay?: BoolFieldUpdateOperationsInput | boolean
+    testimonialDurationMs?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DisplaySettingsCreateManyInput = {
+    id?: string
+    heading?: string
+    subtitle?: string
+    mode?: string
+    videoUrl?: string | null
+    videoAutoplay?: boolean
+    videoLoop?: boolean
+    testimonialAutoPlay?: boolean
+    testimonialDurationMs?: number
+    updatedAt?: Date | string
+  }
+
+  export type DisplaySettingsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    heading?: StringFieldUpdateOperationsInput | string
+    subtitle?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    videoAutoplay?: BoolFieldUpdateOperationsInput | boolean
+    videoLoop?: BoolFieldUpdateOperationsInput | boolean
+    testimonialAutoPlay?: BoolFieldUpdateOperationsInput | boolean
+    testimonialDurationMs?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DisplaySettingsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    heading?: StringFieldUpdateOperationsInput | string
+    subtitle?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    videoAutoplay?: BoolFieldUpdateOperationsInput | boolean
+    videoLoop?: BoolFieldUpdateOperationsInput | boolean
+    testimonialAutoPlay?: BoolFieldUpdateOperationsInput | boolean
+    testimonialDurationMs?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -3768,6 +6572,215 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type VideoCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    thumbnailUrl?: SortOrder
+    format?: SortOrder
+    bytes?: SortOrder
+    duration?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VideoAvgOrderByAggregateInput = {
+    bytes?: SortOrder
+    duration?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+  }
+
+  export type VideoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    thumbnailUrl?: SortOrder
+    format?: SortOrder
+    bytes?: SortOrder
+    duration?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VideoMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    thumbnailUrl?: SortOrder
+    format?: SortOrder
+    bytes?: SortOrder
+    duration?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VideoSumOrderByAggregateInput = {
+    bytes?: SortOrder
+    duration?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type DisplaySettingsCountOrderByAggregateInput = {
+    id?: SortOrder
+    heading?: SortOrder
+    subtitle?: SortOrder
+    mode?: SortOrder
+    videoUrl?: SortOrder
+    videoAutoplay?: SortOrder
+    videoLoop?: SortOrder
+    testimonialAutoPlay?: SortOrder
+    testimonialDurationMs?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DisplaySettingsAvgOrderByAggregateInput = {
+    testimonialDurationMs?: SortOrder
+  }
+
+  export type DisplaySettingsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    heading?: SortOrder
+    subtitle?: SortOrder
+    mode?: SortOrder
+    videoUrl?: SortOrder
+    videoAutoplay?: SortOrder
+    videoLoop?: SortOrder
+    testimonialAutoPlay?: SortOrder
+    testimonialDurationMs?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DisplaySettingsMinOrderByAggregateInput = {
+    id?: SortOrder
+    heading?: SortOrder
+    subtitle?: SortOrder
+    mode?: SortOrder
+    videoUrl?: SortOrder
+    videoAutoplay?: SortOrder
+    videoLoop?: SortOrder
+    testimonialAutoPlay?: SortOrder
+    testimonialDurationMs?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DisplaySettingsSumOrderByAggregateInput = {
+    testimonialDurationMs?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -3786,6 +6799,34 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -3910,6 +6951,90 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
 

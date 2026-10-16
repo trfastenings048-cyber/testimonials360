@@ -32,3 +32,32 @@ model Certificate {
   gradient       String?
   createdAt      Float
 }
+
+model Video {
+  id           String   @id @default(uuid())
+  title        String
+  publicId     String   @unique
+  url          String
+  thumbnailUrl String
+  format       String
+  bytes        Float
+  duration     Float?
+  width        Int?
+  height       Int?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model DisplaySettings {
+  id                     String   @id @default("default")
+  heading                String   @default("Testimonials")
+  subtitle               String   @default("")
+  mode                   String   @default("testimonials")
+  videoUrl               String?
+  videoAutoplay          Boolean  @default(true)
+  videoLoop              Boolean  @default(true)
+  testimonialAutoPlay    Boolean  @default(true)
+  testimonialDurationMs  Int      @default(5000)
+  updatedAt              DateTime @updatedAt
+}

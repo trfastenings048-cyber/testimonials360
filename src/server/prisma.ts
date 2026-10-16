@@ -18,7 +18,10 @@ const pool =
 
 const adapter = new PrismaPg(pool);
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
+// Hot reload may retain a client created before a new Prisma model was generated.
+export const prisma = globalForPrisma.prisma?.video
+  ? globalForPrisma.prisma
+  : new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;

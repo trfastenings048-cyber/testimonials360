@@ -143,6 +143,33 @@ exports.Prisma.CertificateScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.VideoScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  publicId: 'publicId',
+  url: 'url',
+  thumbnailUrl: 'thumbnailUrl',
+  format: 'format',
+  bytes: 'bytes',
+  duration: 'duration',
+  width: 'width',
+  height: 'height',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DisplaySettingsScalarFieldEnum = {
+  id: 'id',
+  heading: 'heading',
+  subtitle: 'subtitle',
+  mode: 'mode',
+  videoUrl: 'videoUrl',
+  videoAutoplay: 'videoAutoplay',
+  videoLoop: 'videoLoop',
+  testimonialAutoPlay: 'testimonialAutoPlay',
+  testimonialDurationMs: 'testimonialDurationMs',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -161,7 +188,9 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   EventImage: 'EventImage',
-  Certificate: 'Certificate'
+  Certificate: 'Certificate',
+  Video: 'Video',
+  DisplaySettings: 'DisplaySettings'
 };
 
 /**
