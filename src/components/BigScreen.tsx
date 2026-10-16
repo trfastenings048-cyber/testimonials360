@@ -1,25 +1,32 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { fetchCertificates, fetchImages, CertificateRecord } from '@/lib/api';
-import { imagePreviewSrc } from '@/lib/image-urls';
+import type * as Ably from 'ably';
+import { fetchCertificates, fetchImages, fetchDisplaySettings, CertificateRecord } from '@/lib/api';
+import { imageSrc } from '@/lib/image-urls';
 import { AnimatePresence, motion } from 'motion/react';
 import { EventImage } from '@/types';
+import { Award, ChevronLeft, ChevronRight, Film, Loader2, Maximize, Minimize, Pause, Play, Volume2, WifiOff } from 'lucide-react';
 import {
-  Award,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Maximize,
-  Minimize,
-  Pause,
-  Play,
-} from 'lucide-react';
+  CHANNELS,
+  MODE_CHANGED,
+  isCommandName,
+  isModeChangedData,
+  type CommandData,
+  type ContentEvents,
+  type DisplayMode,
+  type DisplayVideo,
+  type ScreenState,
+} from '@/lib/realtime/protocol';
+import { useChannelMessages, useRealtimeClient, useScreenPresence } from '@/lib/realtime/client';
 
 const GROUP_DURATION = 8000;
 const TESTIMONIAL_DURATION = 5000;
 const PROGRESS_STEP = 50;
+/** Commands older than this (e.g. replayed after a reconnect) are ignored. */
+const COMMAND_MAX_AGE_MS = 10_000;
+const SYSTEM_INTRO_EMAIL = 'system-intro@gates.com';
 
 const normalizeGroupName = (groupName?: string) => groupName?.trim().toLowerCase() || '';
 
@@ -41,6 +48,14 @@ const getDisplayGroupImages = (images: EventImage[]) => {
   );
 };
 
+const isDisplayableTestimonial = (certificate: Partial<CertificateRecord> | null | undefined) =>
+  Boolean(certificate?.showOnDisplay) &&
+  certificate?.userEmail !== SYSTEM_INTRO_EMAIL &&
+  Boolean(certificate?.feedback?.trim());
+
+const byNewest = (a: CertificateRecord, b: CertificateRecord) => b.createdAt - a.createdAt;
+const byNewestImage = (a: EventImage, b: EventImage) => b.timestamp - a.timestamp;
+
 const slideVariants = {
   enter: (direction: 'forward' | 'backward') => ({
     x: direction === 'forward' ? '100%' : '-100%',
@@ -56,186 +71,321 @@ const slideVariants = {
 export default function BigScreen() {
   const [images, setImages] = useState<EventImage[]>([]);
   const [testimonials, setTestimonials] = useState<CertificateRecord[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
+  const [rawImageIndex, setCurrentImageIndex] = useState(0);
+  const [rawTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [isPaused, setIsPaused] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const progressRef = useRef(0);
 
-  useEffect(() => {
-    const loadImages = async (focusImageId?: string) => {
-      try {
-        const fetchedImages = await fetchImages(true);
-        setImages(fetchedImages);
-        const focusImage =
-          (focusImageId && fetchedImages.find((image) => image.id === focusImageId)) || fetchedImages[0];
-        if (focusImage) {
-          const nextGroupImages = getDisplayGroupImages(fetchedImages);
-          const focusGroupKey = normalizeGroupName(focusImage.groupName);
-          const focusGroupIndex = nextGroupImages.findIndex(
-            (image) => normalizeGroupName(image.groupName) === focusGroupKey
-          );
-          if (focusGroupIndex >= 0) {
-            setDirection('forward');
-            setCurrentImageIndex(focusGroupIndex);
-            setProgress(0);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading group images:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Display settings (loaded once, then kept live via `mode.changed`).
+  const [mode, setMode] = useState<DisplayMode>('testimonials');
+  const [video, setVideo] = useState<DisplayVideo | null>(null);
+  const [testimonialAutoPlay, setTestimonialAutoPlay] = useState(true);
+  const [testimonialDurationMs, setTestimonialDurationMs] = useState(TESTIMONIAL_DURATION);
+  const [videoAutoplay, setVideoAutoplay] = useState(true);
+  const [videoLoop, setVideoLoop] = useState(true);
 
-    const loadTestimonials = async (focusCertificateId?: string) => {
-      try {
-        const certificates = await fetchCertificates(true);
-        const nextTestimonials = certificates.filter(
-          (certificate) =>
-            certificate.userEmail !== 'system-intro@gates.com' &&
-            Boolean(certificate.feedback?.trim())
-        );
-        setTestimonials(nextTestimonials);
-        if (nextTestimonials.length > 0) {
-          const focusIndex = focusCertificateId
-            ? nextTestimonials.findIndex((certificate) => certificate.id === focusCertificateId)
-            : 0;
-          setCurrentTestimonialIndex(focusIndex >= 0 ? focusIndex : 0);
-        }
-      } catch (error) {
-        console.error('Error loading testimonials:', error);
-      }
-    };
+  const [isTestimonialPaused, setIsTestimonialPaused] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+  // Bumped on manual navigation so presence reports the new position (auto-rotation doesn't).
+  const [manualNavCount, setManualNavCount] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-    // Initial load.
-    void loadImages();
-    void loadTestimonials();
+  const { client, connection } = useRealtimeClient('display');
 
-    // 1. Real-time cross-device notification stream (Server-Sent Events)
-    let eventSource: EventSource | null = null;
-    try {
-      eventSource = new EventSource('/api/stream');
-      eventSource.addEventListener('update', (message) => {
-        let event: { type?: string; imageId?: string; certificateId?: string };
-        try {
-          event = JSON.parse(message.data || '{}') as {
-            type?: string;
-            imageId?: string;
-            certificateId?: string;
-          };
-        } catch {
-          return;
-        }
-        if (event.type === 'certificate-submitted') {
-          void loadTestimonials(event.certificateId);
-          return;
-        }
-        if (event.type === 'content-updated') {
-          void loadImages(event.imageId);
-          void loadTestimonials();
-        }
-      });
-      eventSource.onerror = (err) => {
-        console.warn('SSE stream error, EventSource will automatically reconnect:', err);
-      };
-    } catch (err) {
-      console.warn('Failed to initialize EventSource:', err);
-    }
+  // ---------------------------------------------------------------------------
+  // Initial load (the only API reads this screen makes) and resync after a long outage
+  // ---------------------------------------------------------------------------
 
-    // 2. Local tab notification channel (instant same-device sync)
-    const channel = new BroadcastChannel('gates360-events');
-    channel.addEventListener('message', (event) => {
-      if (event.data?.type === 'certificate-submitted') {
-        void loadTestimonials(event.data?.certificateId);
-      } else if (event.data?.type === 'content-updated') {
-        void loadImages(event.data?.imageId);
-        void loadTestimonials();
-      }
-    });
+  const loadAll = useCallback(() => {
+    const imagesRequest = fetchImages(true)
+      .then(setImages)
+      .catch((error) => console.error('Error loading group images:', error));
 
-    return () => {
-      if (eventSource) {
-        eventSource.close();
-      }
-      channel.close();
-    };
+    const testimonialsRequest = fetchCertificates(true)
+      .then((certificates) => setTestimonials(certificates.filter(isDisplayableTestimonial).sort(byNewest)))
+      .catch((error) => console.error('Error loading testimonials:', error));
+
+    const settingsRequest = fetchDisplaySettings()
+      .then((settings) => {
+        setMode(settings.mode === 'video' ? 'video' : 'testimonials');
+        setVideo(settings.video ?? null);
+        setTestimonialAutoPlay(settings.testimonialAutoPlay);
+        setTestimonialDurationMs(settings.testimonialDurationMs || TESTIMONIAL_DURATION);
+        setVideoAutoplay(settings.videoAutoplay);
+        setVideoLoop(settings.videoLoop);
+      })
+      .catch((error) => console.error('Error loading display settings:', error));
+
+    return Promise.all([imagesRequest, testimonialsRequest, settingsRequest]);
   }, []);
 
-  const groupImages = useMemo(() => {
-    return getDisplayGroupImages(images);
-  }, [images]);
-
   useEffect(() => {
-    if (currentImageIndex >= groupImages.length) {
-      setCurrentImageIndex(0);
-      setProgress(0);
-    }
-  }, [currentImageIndex, groupImages.length]);
+    loadAll().finally(() => setIsLoading(false));
+  }, [loadAll]);
 
+  // Ably resumes short drops with no message loss; only a suspension (offline > 2 min)
+  // can miss messages, so that's the one case that reloads.
+  const clockOffsetRef = useRef(0);
+  useEffect(() => {
+    if (!client) return;
+    const onChange = (change: Ably.ConnectionStateChange) => {
+      if (change.current !== 'connected') return;
+      // Ably's clock stamps messages; measure our offset so the staleness check is skew-proof.
+      client
+        .time()
+        .then((serverTime) => {
+          clockOffsetRef.current = serverTime - Date.now();
+        })
+        .catch(() => undefined);
+      if (change.previous === 'suspended') void loadAll();
+    };
+    client.connection.on(onChange);
+    return () => client.connection.off(onChange);
+  }, [client, loadAll]);
+
+  // ---------------------------------------------------------------------------
+  // Derived positions
+  // ---------------------------------------------------------------------------
+
+  const groupImages = useMemo(() => getDisplayGroupImages(images), [images]);
+  const currentImageIndex = groupImages.length ? rawImageIndex % groupImages.length : 0;
   const currentImage = groupImages[currentImageIndex] ?? null;
 
+  const currentTestimonialIndex = testimonials.length
+    ? ((rawTestimonialIndex % testimonials.length) + testimonials.length) % testimonials.length
+    : 0;
   const currentTestimonial = testimonials[currentTestimonialIndex] ?? null;
 
-  useEffect(() => {
-    if (currentTestimonialIndex >= testimonials.length) {
-      setCurrentTestimonialIndex(0);
-    }
-  }, [currentTestimonialIndex, testimonials.length]);
+  const showNextTestimonial = useCallback(() => setCurrentTestimonialIndex((index) => index + 1), []);
+  const showPreviousTestimonial = useCallback(() => setCurrentTestimonialIndex((index) => index - 1), []);
 
-  // Testimonials rotate independently and intentionally have no playback controls.
-  useEffect(() => {
-    if (testimonials.length <= 1) return;
-
-    const interval = window.setInterval(() => {
-      setCurrentTestimonialIndex((index) => (index + 1) % testimonials.length);
-    }, TESTIMONIAL_DURATION);
-
-    return () => window.clearInterval(interval);
-  }, [testimonials.length]);
-
-  const showNextGroup = () => {
-    if (groupImages.length === 0) return;
-    setDirection('forward');
-    setCurrentImageIndex((index) => (index + 1) % groupImages.length);
+  const resetProgress = () => {
+    progressRef.current = 0;
     setProgress(0);
+  };
+
+  // Functional updates so back-to-back remote commands each move exactly one slide.
+  const showNextGroup = () => {
+    const count = groupImages.length;
+    if (count === 0) return;
+    setDirection('forward');
+    setCurrentImageIndex((index) => ((index % count) + 1) % count);
+    setManualNavCount((value) => value + 1);
+    resetProgress();
   };
 
   const showPreviousGroup = () => {
-    if (groupImages.length === 0) return;
+    const count = groupImages.length;
+    if (count === 0) return;
     setDirection('backward');
-    setCurrentImageIndex((index) => (index - 1 + groupImages.length) % groupImages.length);
-    setProgress(0);
+    setCurrentImageIndex((index) => ((index % count) - 1 + count) % count);
+    setManualNavCount((value) => value + 1);
+    resetProgress();
   };
 
-  // Playback controls affect only the upper group-image card.
+  // ---------------------------------------------------------------------------
+  // Realtime: commands and mode changes
+  // ---------------------------------------------------------------------------
+
+  const seenCommandIds = useRef<string[]>([]);
+
+  useChannelMessages(client, CHANNELS.control, (message) => {
+    if (message.name === MODE_CHANGED && isModeChangedData(message.data)) {
+      setMode(message.data.mode);
+      setVideo(message.data.video);
+      setTestimonialAutoPlay(message.data.testimonialAutoPlay);
+      setTestimonialDurationMs(message.data.testimonialDurationMs || TESTIMONIAL_DURATION);
+      return;
+    }
+
+    if (!isCommandName(message.name)) return;
+    const data = message.data as CommandData | undefined;
+    const age = Date.now() + clockOffsetRef.current - (message.timestamp ?? Date.now());
+    if (age > COMMAND_MAX_AGE_MS) return;
+    if (data?.id) {
+      if (seenCommandIds.current.includes(data.id)) return;
+      seenCommandIds.current = [...seenCommandIds.current.slice(-49), data.id];
+    }
+
+    switch (message.name) {
+      case 'testimonials.next':
+        showNextTestimonial();
+        setManualNavCount((count) => count + 1);
+        break;
+      case 'testimonials.previous':
+        showPreviousTestimonial();
+        setManualNavCount((count) => count + 1);
+        break;
+      case 'testimonials.pause':
+        setIsTestimonialPaused(true);
+        break;
+      case 'testimonials.play':
+        setIsTestimonialPaused(false);
+        break;
+      case 'banner.next':
+        showNextGroup();
+        break;
+      case 'banner.previous':
+        showPreviousGroup();
+        break;
+      case 'banner.pause':
+        setIsPaused(true);
+        break;
+      case 'banner.play':
+        setIsPaused(false);
+        break;
+      case 'video.play':
+        // Allowed even before a tap because the video stays muted until then.
+        videoRef.current?.play().catch((error) => console.warn('Video play was blocked:', error));
+        break;
+      case 'video.pause':
+        videoRef.current?.pause();
+        break;
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Realtime: content deltas (patched locally; no refetch)
+  // ---------------------------------------------------------------------------
+
+  useChannelMessages(client, CHANNELS.content, (message) => {
+    switch (message.name) {
+      case 'testimonial.updated':
+      case 'testimonial.submitted': {
+        const record = message.data as ContentEvents['testimonial.updated'] as CertificateRecord;
+        setTestimonials((current) => {
+          const others = current.filter((item) => item.id !== record.id);
+          return isDisplayableTestimonial(record) ? [...others, record].sort(byNewest) : others;
+        });
+        break;
+      }
+      case 'testimonial.deleted': {
+        const { ids } = message.data as ContentEvents['testimonial.deleted'];
+        setTestimonials((current) => current.filter((item) => !ids.includes(item.id)));
+        break;
+      }
+      case 'testimonials.cleared':
+        setTestimonials([]);
+        break;
+      case 'image.updated': {
+        const image = message.data as ContentEvents['image.updated'];
+        setImages((current) => {
+          const isNew = !current.some((item) => item.id === image.id);
+          const others = current.filter((item) => item.id !== image.id);
+          const next = image.isVisible ? [image, ...others].sort(byNewestImage) : others;
+          if (isNew && image.isVisible) {
+            // Jump to the newly uploaded group so the room sees it straight away.
+            const groupIndex = getDisplayGroupImages(next).findIndex(
+              (item) => normalizeGroupName(item.groupName) === normalizeGroupName(image.groupName)
+            );
+            if (groupIndex >= 0) {
+              setDirection('forward');
+              setCurrentImageIndex(groupIndex);
+              progressRef.current = 0;
+              setProgress(0);
+            }
+          }
+          return next;
+        });
+        break;
+      }
+      case 'image.deleted': {
+        const { id } = message.data as ContentEvents['image.deleted'];
+        setImages((current) => current.filter((item) => item.id !== id));
+        break;
+      }
+      case 'video.deleted': {
+        const { id } = message.data as ContentEvents['video.deleted'];
+        setVideo((current) => (current?.id === id ? null : current));
+        break;
+      }
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Presence: report state on discrete changes only
+  // ---------------------------------------------------------------------------
+
+  const screenState: ScreenState = {
+    mode,
+    testimonials: { paused: isTestimonialPaused, index: currentTestimonialIndex, count: testimonials.length },
+    banner: {
+      paused: isPaused,
+      index: currentImageIndex,
+      count: groupImages.length,
+      groupName: currentImage?.groupName ?? null,
+    },
+    video: { id: video?.id || null, title: video?.title ?? null, playing: isVideoPlaying },
+    audioUnlocked,
+  };
+  const presenceVersion = [
+    mode,
+    isTestimonialPaused,
+    isPaused,
+    manualNavCount,
+    testimonials.length,
+    groupImages.length,
+    video?.url ?? '',
+    isVideoPlaying,
+    audioUnlocked,
+  ].join('|');
+  useScreenPresence(client, screenState, presenceVersion);
+
+  // ---------------------------------------------------------------------------
+  // Audio unlock: browsers mute autoplay until the page has had one user gesture
+  // ---------------------------------------------------------------------------
+
   useEffect(() => {
-    if (isPaused || groupImages.length <= 1) return;
+    if (audioUnlocked) return;
+    const unlock = () => setAudioUnlocked(true);
+    window.addEventListener('pointerdown', unlock, { once: true });
+    window.addEventListener('keydown', unlock, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+  }, [audioUnlocked]);
 
-    const interval = window.setInterval(() => {
-      setProgress((currentProgress) =>
-        Math.min(100, currentProgress + (PROGRESS_STEP / GROUP_DURATION) * 100)
-      );
-    }, PROGRESS_STEP);
+  // React doesn't reliably reflect `muted` changes to the DOM, so set it directly.
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.muted = !audioUnlocked;
+  }, [audioUnlocked, video?.url, mode]);
 
+  // ---------------------------------------------------------------------------
+  // Local timers (no network)
+  // ---------------------------------------------------------------------------
+
+  // Testimonials rotate independently from the group images.
+  useEffect(() => {
+    if (mode !== 'testimonials' || testimonials.length <= 1 || isTestimonialPaused || !testimonialAutoPlay) return;
+    const interval = window.setInterval(showNextTestimonial, testimonialDurationMs || TESTIMONIAL_DURATION);
     return () => window.clearInterval(interval);
-  }, [groupImages.length, isPaused]);
+  }, [mode, testimonials.length, isTestimonialPaused, testimonialAutoPlay, testimonialDurationMs, showNextTestimonial]);
 
-  // Advance once the progress bar fills. Kept out of the setProgress updater, which React
-  // may call twice (Strict Mode) and would skip a slide — with 2 groups it never moved.
+  // Group slideshow: advance when the progress bar fills. The advance happens in the
+  // timer callback (not a state updater) so Strict Mode's double-invoke can't skip slides.
   useEffect(() => {
-    if (progress < 100 || groupImages.length <= 1) return;
-    setDirection('forward');
-    setCurrentImageIndex((index) => (index + 1) % groupImages.length);
-    setProgress(0);
-  }, [progress, groupImages.length]);
+    if (mode !== 'testimonials' || isPaused || groupImages.length <= 1) return;
+    const interval = window.setInterval(() => {
+      progressRef.current += (PROGRESS_STEP / GROUP_DURATION) * 100;
+      if (progressRef.current >= 100) {
+        progressRef.current = 0;
+        setDirection('forward');
+        setCurrentImageIndex((index) => index + 1);
+      }
+      setProgress(progressRef.current);
+    }, PROGRESS_STEP);
+    return () => window.clearInterval(interval);
+  }, [mode, groupImages.length, isPaused]);
 
   useEffect(() => {
     const syncFullscreenState = () => setIsFullscreen(Boolean(document.fullscreenElement));
     document.addEventListener('fullscreenchange', syncFullscreenState);
-    syncFullscreenState();
     return () => document.removeEventListener('fullscreenchange', syncFullscreenState);
   }, []);
 
@@ -259,6 +409,7 @@ export default function BigScreen() {
       </div>
     );
   }
+
   return (
     <div className="relative h-screen w-full select-none overflow-hidden bg-white font-sans text-white">
       <button
@@ -270,6 +421,44 @@ export default function BigScreen() {
       >
         {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
       </button>
+
+      {/* Only shown when realtime is down for long enough to matter. */}
+      {connection === 'offline' && (
+        <div className="absolute right-16 top-4 z-[100] flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-xs font-semibold text-white">
+          <WifiOff className="h-3.5 w-3.5" aria-hidden="true" /> Reconnecting…
+        </div>
+      )}
+
+      {mode === 'video' && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#032b69]">
+          {video ? (
+            <video
+              key={video.url}
+              ref={videoRef}
+              className="h-full w-full object-contain"
+              src={video.url}
+              autoPlay={videoAutoplay}
+              loop={videoLoop}
+              muted={!audioUnlocked}
+              controls
+              playsInline
+              onPlay={() => setIsVideoPlaying(true)}
+              onPause={() => setIsVideoPlaying(false)}
+              onEnded={() => setIsVideoPlaying(false)}
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-3 text-center text-white">
+              <Film className="h-14 w-14 text-[#70e1e8]" aria-hidden="true" />
+              <p className="text-lg font-semibold">No video configured</p>
+            </div>
+          )}
+          {video && !audioUnlocked && (
+            <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/65 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+              <Volume2 className="h-4 w-4" aria-hidden="true" /> Tap the screen once to turn on sound
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Full-screen group slideshow with the testimonial overlaid on top. */}
       {/* Background gradient: white at the top fading to navy at the bottom. */}
@@ -289,7 +478,7 @@ export default function BigScreen() {
             >
               {/* Slide fills the full screen; the gradient shows around the photo. */}
               <Image
-                src={imagePreviewSrc(currentImage.id)}
+                src={imageSrc(currentImage, 'full')}
                 alt={`${currentImage.groupName} group`}
                 fill
                 priority
@@ -308,7 +497,6 @@ export default function BigScreen() {
 
         {/* Gradient over the full-screen slide: clear/white at the top, navy at the bottom. */}
         <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-b from-transparent from-45% via-[#032b69]/55 via-75% to-[#032b69]" />
-
 
         <div className="absolute left-3 top-3 z-30 flex items-center gap-2 sm:left-4 sm:top-4">
           <button
@@ -348,10 +536,7 @@ export default function BigScreen() {
         </button>
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-1 bg-white/20 md:h-1.5">
-          <div
-            style={{ width: `${progress}%` }}
-            className="h-full bg-[#00a9b7] transition-all duration-75 ease-linear"
-          />
+          <div style={{ width: `${progress}%` }} className="h-full bg-[#00a9b7] transition-all duration-75 ease-linear" />
         </div>
 
         {/* Overlay row: testimonial on the left. */}
@@ -377,9 +562,8 @@ export default function BigScreen() {
                     </span>
                     <span className="text-xs text-[#111111]/30">|</span>
                     <span className="text-[0.5rem] font-semibold uppercase tracking-wider text-[#111111]/70 md:text-[0.55rem] lg:text-[0.6rem] xl:text-[0.7rem]">
-                      {[currentTestimonial.designation, currentTestimonial.teamName]
-                        .filter(Boolean)
-                        .join(' at ') || 'Participant'}
+                      {[currentTestimonial.designation, currentTestimonial.teamName].filter(Boolean).join(' at ') ||
+                        'Participant'}
                     </span>
                     {testimonials.length > 1 && (
                       <span className="ml-auto pl-3 text-[10px] font-semibold tabular-nums text-[#111111]/50">
@@ -401,6 +585,40 @@ export default function BigScreen() {
             </AnimatePresence>
           </div>
 
+          {testimonials.length > 1 && (
+            <div className="pointer-events-auto absolute bottom-5 right-5 flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  showPreviousTestimonial();
+                  setManualNavCount((count) => count + 1);
+                }}
+                className="rounded-full bg-[#032b69]/80 p-2"
+                aria-label="Previous testimonial"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsTestimonialPaused((value) => !value)}
+                className="rounded-full bg-[#032b69]/80 p-2"
+                aria-label={isTestimonialPaused ? 'Play testimonials' : 'Pause testimonials'}
+              >
+                {isTestimonialPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  showNextTestimonial();
+                  setManualNavCount((count) => count + 1);
+                }}
+                className="rounded-full bg-[#032b69]/80 p-2"
+                aria-label="Next testimonial"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
