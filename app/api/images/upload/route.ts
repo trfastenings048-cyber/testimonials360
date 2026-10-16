@@ -1,27 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
-import { broadcastUpdate } from '@/server/realtime';
-import { saveUploadedFile } from '@/server/uploads';
+import { publishContent } from '@/server/realtime';
+import { describeCloudinaryError, fetchImageResource } from '@/server/cloudinary-direct';
 
+export const runtime = 'nodejs';
+
+const IMAGE_FOLDER = 'content';
+
+// Called after the browser has uploaded the photo directly to Cloudinary. Only the
+// Cloudinary id arrives here; the file itself never passes through this function.
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file');
+    const body = await request.json().catch(() => ({}));
+    const publicId = typeof body.publicId === 'string' ? body.publicId.trim() : '';
+    const groupName = typeof body.groupName === 'string' ? body.groupName.trim().slice(0, 120) : '';
 
-    if (!(file instanceof File)) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    if (!publicId.startsWith(`${IMAGE_FOLDER}/`)) {
+      return NextResponse.json({ error: 'A Cloudinary image publicId is required' }, { status: 400 });
     }
 
-    const groupName = String(formData.get('groupName') || '').trim() || 'General';
-    const { url } = await saveUploadedFile(file, 'content');
+    // Trust Cloudinary's record, not the client, for the final URL.
+    const resource = await fetchImageResource(publicId);
     const image = await prisma.eventImage.create({
-      data: { url, groupName, timestamp: Date.now(), isVisible: true },
+      data: { url: resource.url, groupName: groupName || 'General', timestamp: Date.now(), isVisible: true },
     });
 
-    broadcastUpdate('content-updated', { action: 'image-created', imageId: image.id });
+    await publishContent('image.updated', image);
     return NextResponse.json(image, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to save image to database';
-    return NextResponse.json({ error: message }, { status: 500 });
+    const { status, message } = describeCloudinaryError(error, 'Failed to save image');
+    return NextResponse.json({ error: message }, { status });
   }
 }

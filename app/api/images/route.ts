@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
-import { broadcastUpdate } from '@/server/realtime';
+import { publishContent } from '@/server/realtime';
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    broadcastUpdate('content-updated', { action: 'image-created', imageId: image.id });
+    await publishContent('image.updated', image);
     return NextResponse.json(image, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create image';

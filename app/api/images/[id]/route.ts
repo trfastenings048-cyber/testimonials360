@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
-import { broadcastUpdate } from '@/server/realtime';
+import { publishContent } from '@/server/realtime';
 import { deleteStoredObject } from '@/server/uploads';
 
 type Params = { params: Promise<{ id: string }> };
@@ -25,7 +25,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       data: { isVisible: Boolean(isVisible) },
     });
 
-    broadcastUpdate('content-updated', { action: 'image-updated' });
+    await publishContent('image.updated', image);
     return NextResponse.json(image);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to update image';
@@ -49,7 +49,7 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     }
 
     const deleted = await prisma.eventImage.deleteMany({ where: { id: trimmedId } });
-    broadcastUpdate('content-updated', { action: 'image-deleted' });
+    await publishContent('image.deleted', { id: trimmedId });
     return NextResponse.json({ success: true, deleted: deleted.count > 0, count: deleted.count });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to delete image';

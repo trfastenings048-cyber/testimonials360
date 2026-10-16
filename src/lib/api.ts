@@ -1,3 +1,5 @@
+import { groupImageFileName } from '@/lib/image-urls';
+
 export type SummaryRecord = {
   id: string;
   name: string;
@@ -117,22 +119,25 @@ export const createImage = async (data: { url: string; groupName: string; timest
 };
 
 // Upload image file and save record directly into DB
-export const uploadImageToDB = async (file: File | Blob, groupName: string): Promise<EventImage> => {
-  const formData = new FormData();
-  const originalName = file instanceof File ? file.name : `image_${Date.now()}.jpg`;
-  formData.append('file', file, originalName);
-  formData.append('groupName', groupName);
-
+/**
+ * Uploads a group photo straight from the browser to Cloudinary (signed by our API), then
+ * registers it. The file never passes through a Vercel function, so large photos work.
+ */
+export const uploadImageToDB = async (
+  file: File,
+  groupName: string,
+  { onProgress, signal }: { onProgress?: (percent: number) => void; signal?: AbortSignal } = {}
+): Promise<EventImage> => {
+  const publicId = await uploadToCloudinary(file, { signUrl: '/api/images/sign', resourceType: 'image', onProgress, signal });
   const resp = await fetch('/api/images/upload', {
     method: 'POST',
-    body: formData,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ publicId, groupName }),
+    signal,
   });
-
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => null);
-    throw new Error(err?.error || 'Failed to upload and save image to database');
-  }
-  return await resp.json();
+  if (!resp.ok) throw await readError(resp, 'Uploaded, but saving the photo failed');
+  onProgress?.(100);
+  return resp.json();
 };
 
 // Update image visibility
@@ -148,9 +153,24 @@ export const updateImageVisibility = async (id: string, isVisible: boolean): Pro
   return await resp.json();
 };
 
-// Download the original group image through the API.
-export const downloadGroupImage = async (id: string): Promise<{ blob: Blob; filename: string }> => {
-  const resp = await fetch(`/api/images/${encodeURIComponent(id)}/download`);
+/**
+ * Downloads the original group photo. It is fetched straight from Cloudinary's CDN (no Vercel
+ * function or bandwidth); the API route is only a fallback if that request fails.
+ */
+export const downloadGroupImage = async (
+  image: Pick<EventImage, 'id' | 'url' | 'groupName'>
+): Promise<{ blob: Blob; filename: string }> => {
+  try {
+    const direct = await fetch(image.url, { mode: 'cors' });
+    if (direct.ok) {
+      const blob = await direct.blob();
+      return { blob, filename: groupImageFileName(image.groupName, blob.type || 'image/jpeg') };
+    }
+  } catch {
+    // Fall through to the API route.
+  }
+
+  const resp = await fetch(`/api/images/${encodeURIComponent(image.id)}/download`);
   if (!resp.ok) {
     const result = await resp.json().catch(() => null);
     throw new Error(result?.error || 'Failed to download group image');
@@ -256,3 +276,213 @@ export const bulkDeleteCertificates = async (ids?: string[]): Promise<void> => {
     throw new Error('Failed to delete certificates');
   }
 };
+
+export type DisplaySettings = {
+  id: string; heading: string; subtitle: string; mode: 'video' | 'testimonials'; videoUrl?: string | null;
+  videoAutoplay: boolean; videoLoop: boolean; testimonialAutoPlay: boolean; testimonialDurationMs: number;
+  /** The video the screen plays in video mode (resolved by the server). */
+  video?: { id: string; url: string; title: string } | null;
+};
+
+export const fetchDisplaySettings = async (): Promise<DisplaySettings> => {
+  const response = await fetch('/api/display-settings', { cache: 'no-store' });
+  if (!response.ok) throw new Error('Failed to load display settings');
+  return response.json();
+};
+
+export type DisplaySettingsUpdate = Partial<
+  Pick<
+    DisplaySettings,
+    'mode' | 'heading' | 'subtitle' | 'videoAutoplay' | 'videoLoop' | 'testimonialAutoPlay' | 'testimonialDurationMs'
+  >
+> & {
+  /** With mode 'video': play this video instead of the latest upload. */
+  videoId?: string;
+};
+
+/** Partial update; switching to video mode plays the latest upload unless videoId is given. */
+export const updateDisplaySettings = async (data: DisplaySettingsUpdate): Promise<DisplaySettings> => {
+  const response = await fetch('/api/display-settings', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw await readError(response, 'Failed to save display settings');
+  return response.json();
+};
+
+// ---------------------------------------------------------------------------
+// Videos
+// ---------------------------------------------------------------------------
+
+export type VideoRecord = {
+  id: string;
+  title: string;
+  publicId: string;
+  url: string;
+  thumbnailUrl: string;
+  format: string;
+  bytes: number;
+  duration: number | null;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+};
+
+export type VideoSortField = 'title' | 'createdAt' | 'duration' | 'bytes' | 'format';
+
+export type VideoListQuery = {
+  page: number;
+  pageSize: number;
+  sort: VideoSortField;
+  order: 'asc' | 'desc';
+  q: string;
+};
+
+export type VideoListResponse = VideoListQuery & {
+  items: VideoRecord[];
+  total: number;
+  pageCount: number;
+};
+
+const readError = async (response: Response, fallback: string) => {
+  const body = await response.json().catch(() => null);
+  return new Error(body?.error || fallback);
+};
+
+export const fetchVideos = async (query: VideoListQuery, signal?: AbortSignal): Promise<VideoListResponse> => {
+  const params = new URLSearchParams({
+    page: String(query.page),
+    pageSize: String(query.pageSize),
+    sort: query.sort,
+    order: query.order,
+  });
+  if (query.q) params.set('q', query.q);
+  const response = await fetch(`/api/videos?${params}`, { cache: 'no-store', signal });
+  if (!response.ok) throw await readError(response, 'Failed to load videos');
+  return response.json();
+};
+
+export const renameVideo = async (id: string, title: string): Promise<VideoRecord> => {
+  const response = await fetch(`/api/videos/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  });
+  if (!response.ok) throw await readError(response, 'Failed to rename video');
+  return response.json();
+};
+
+export const deleteVideo = async (id: string): Promise<{ clearedFromDisplay: boolean }> => {
+  const response = await fetch(`/api/videos/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  if (!response.ok) throw await readError(response, 'Failed to delete video');
+  return response.json();
+};
+
+// Cloudinary requires every chunk but the last to be at least 5MB.
+const UPLOAD_CHUNK_BYTES = 20 * 1024 * 1024;
+
+type UploadSignature = { cloudName: string; apiKey: string; timestamp: number; signature: string; folder: string };
+
+const postChunk = (
+  url: string,
+  form: FormData,
+  headers: Record<string, string>,
+  onChunkProgress: (loaded: number) => void,
+  signal?: AbortSignal
+) =>
+  new Promise<Record<string, unknown>>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
+    xhr.upload.addEventListener('progress', (event) => onChunkProgress(event.loaded));
+    xhr.addEventListener('load', () => {
+      let body: Record<string, unknown> = {};
+      try {
+        body = JSON.parse(xhr.responseText);
+      } catch {
+        // Leave body empty; handled below.
+      }
+      if (xhr.status >= 200 && xhr.status < 300) resolve(body);
+      else {
+        const message = (body.error as { message?: string } | undefined)?.message;
+        reject(new Error(message || `Cloudinary upload failed (HTTP ${xhr.status})`));
+      }
+    });
+    xhr.addEventListener('error', () => reject(new Error('Network error while uploading to Cloudinary')));
+    xhr.addEventListener('abort', () => reject(new DOMException('Upload cancelled', 'AbortError')));
+    signal?.addEventListener('abort', () => xhr.abort(), { once: true });
+    xhr.send(form);
+  });
+
+type CloudinaryUploadOptions = {
+  signUrl: string;
+  resourceType: 'image' | 'video';
+  onProgress?: (percent: number) => void;
+  signal?: AbortSignal;
+};
+
+/**
+ * Uploads a file straight from the browser to Cloudinary using a signature from our API
+ * (the secret stays on the server), in chunks for large files. Returns the publicId.
+ */
+export const uploadToCloudinary = async (
+  file: File,
+  { signUrl, resourceType, onProgress, signal }: CloudinaryUploadOptions
+): Promise<string> => {
+  const signResponse = await fetch(signUrl, { method: 'POST', signal });
+  if (!signResponse.ok) throw await readError(signResponse, 'Could not start the upload');
+  const sig: UploadSignature = await signResponse.json();
+
+  const endpoint = `https://api.cloudinary.com/v1_1/${encodeURIComponent(sig.cloudName)}/${resourceType}/upload`;
+  const uploadId = `upl-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  const total = file.size;
+  let result: Record<string, unknown> = {};
+
+  for (let start = 0; start < total || (total === 0 && start === 0); start += UPLOAD_CHUNK_BYTES) {
+    const end = Math.min(start + UPLOAD_CHUNK_BYTES, total);
+    const form = new FormData();
+    form.append('file', file.slice(start, end), file.name);
+    form.append('api_key', sig.apiKey);
+    form.append('timestamp', String(sig.timestamp));
+    form.append('signature', sig.signature);
+    form.append('folder', sig.folder);
+
+    const headers: Record<string, string> =
+      total > UPLOAD_CHUNK_BYTES
+        ? { 'X-Unique-Upload-Id': uploadId, 'Content-Range': `bytes ${start}-${end - 1}/${total}` }
+        : {};
+
+    result = await postChunk(
+      endpoint,
+      form,
+      headers,
+      (loaded) => onProgress?.(total ? Math.min(99, Math.round(((start + loaded) / total) * 100)) : 99),
+      signal
+    );
+    if (total === 0) break;
+  }
+
+  const publicId = typeof result.public_id === 'string' ? result.public_id : '';
+  if (!publicId) throw new Error('Cloudinary did not return a file id');
+  return publicId;
+};
+
+/** Uploads a video directly to Cloudinary, then records it in the DB. */
+export const uploadVideo = async (
+  file: File,
+  title: string,
+  { onProgress, signal }: { onProgress?: (percent: number) => void; signal?: AbortSignal } = {}
+): Promise<VideoRecord> => {
+  const publicId = await uploadToCloudinary(file, { signUrl: '/api/videos/sign', resourceType: 'video', onProgress, signal });
+  const saveResponse = await fetch('/api/videos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ publicId, title }),
+    signal,
+  });
+  if (!saveResponse.ok) throw await readError(saveResponse, 'Uploaded, but saving the video details failed');
+  onProgress?.(100);
+  return saveResponse.json();
+};
+
