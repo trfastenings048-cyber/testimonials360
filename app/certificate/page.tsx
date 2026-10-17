@@ -3,7 +3,7 @@ import CertificateSystem from '@/components/CertificateSystem';
 
 export const metadata: Metadata = {
   title: 'TR FASTENING 360 Camera | Certificate',
-  description: 'Claim your personalised certificate and group photo',
+  description: 'Share your experience and claim your personalised certificate',
 };
 
 export default function CertificatePage() {
