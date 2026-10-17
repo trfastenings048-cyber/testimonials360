@@ -149,7 +149,6 @@ export default function BigScreen() {
         <div className="grid h-[24vh] grid-cols-[1.85fr_1fr] gap-[1.4vw]">
           <TestimonialCard
             testimonial={screen.currentTestimonial}
-            next={screen.nextTestimonial}
             fallbackTitle={fallbackTitle}
           />
           <SpeakerCard

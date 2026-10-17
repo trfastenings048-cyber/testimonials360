@@ -7,11 +7,9 @@ import { quoteScale } from './format';
 /** Left card in the bottom row: the current quote, or the group name when there are no testimonials. */
 export function TestimonialCard({
   testimonial,
-  next,
   fallbackTitle,
 }: {
   testimonial: CertificateRecord | null;
-  next: CertificateRecord | null;
   fallbackTitle: string;
 }) {
   const reduceMotion = useReducedMotion();
@@ -54,12 +52,6 @@ export function TestimonialCard({
         </AnimatePresence>
       </div>
 
-      {next && (
-        <div className="relative mt-[1.2vh] flex items-center justify-between gap-[1vw] border-t border-white/50 pt-[1.2vh] text-[clamp(11px,0.85vw,16px)]">
-          <span className="shrink-0 text-display-ink/70">Up next</span>
-          <span className="truncate text-[1.05em] font-medium text-display-ink">{next.userName || 'Anonymous'}</span>
-        </div>
-      )}
     </article>
   );
 }
