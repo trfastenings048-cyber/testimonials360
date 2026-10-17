@@ -20,13 +20,12 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { bulkDeleteCertificates, deleteCertificate, updateCertificate, updateCertificateDisplay } from '@/lib/api';
+import { bulkDeleteCertificates, deleteCertificate, updateCertificate } from '@/lib/api';
 import { imageSrc } from '@/lib/image-urls';
 import type { CertificateRecord, EventImage } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -110,7 +109,7 @@ function CertificateDetailsDialog({
                 <div className="mb-4 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-2xl bg-ink p-3 text-white">
                     <p className="text-xs font-medium opacity-80">Display status</p>
-                    <p className="mt-1 text-lg font-medium">{certificate.showOnDisplay ? 'On screen' : 'Hidden'}</p>
+                    <p className="mt-1 text-lg font-medium">Automatically shown</p>
                   </div>
                   <div className="rounded-2xl bg-accent-blue-soft p-3 text-ink">
                     <p className="text-xs font-medium opacity-80">Event group</p>
@@ -331,17 +330,6 @@ export function TestimonialsPage() {
     toast.success('CSV exported successfully!');
   };
 
-  const toggleShowOnDisplay = async (id: string, current: boolean) => {
-    try {
-      await updateCertificateDisplay(id, !current);
-      setCertificates((prev) => prev.map((c) => (c.id === id ? { ...c, showOnDisplay: !current } : c)));
-      toast.success(`Display status updated: ${!current ? 'Shown' : 'Hidden'}`);
-    } catch (error) {
-      console.error('Failed to update display status:', error);
-      toast.error('Failed to update display status.');
-    }
-  };
-
   const availableGroups = useMemo(() => {
     const names = [...images.map((img) => img.groupName), ...certificates.map((c) => c.groupName)].filter(
       (n): n is string => Boolean(n)
@@ -372,7 +360,7 @@ export function TestimonialsPage() {
     filteredCertificates.length > 0 && filteredCertificates.every((c) => selectedCertIds.has(c.id));
   const someFilteredSelected = !allFilteredSelected && filteredCertificates.some((c) => selectedCertIds.has(c.id));
   const todayCount = certificates.filter((c) => new Date(c.createdAt).toDateString() === new Date().toDateString()).length;
-  const onScreenCount = certificates.filter((c) => c.showOnDisplay).length;
+  const onScreenCount = certificates.length;
 
   const groupSelect = (cert: CertificateRecord, className: string) => (
     <select
@@ -442,13 +430,13 @@ export function TestimonialsPage() {
       <PageHeader
         eyebrow="Operations"
         title="Testimonials"
-        description="Review submissions, choose what goes on the big screen, and download certificates."
+        description="Review participant testimonials shown automatically on the big screen."
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Total submissions" value={certificates.length} />
         <StatCard label="Submitted today" value={todayCount} tone="primary" />
-        <StatCard label="On the big screen" value={onScreenCount} tone="signature" hint="Submissions with display switched on" />
+        <StatCard label="On the big screen" value={onScreenCount} tone="signature" hint="Testimonials are shown automatically" />
       </div>
 
       {/* Action bar */}
@@ -548,14 +536,7 @@ export function TestimonialsPage() {
                       {cert.feedback || <span className="italic opacity-60">No feedback provided</span>}
                     </p>
                     <div className="flex items-center justify-between gap-3 border-t pt-3">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Switch
-                          checked={cert.showOnDisplay || false}
-                          onCheckedChange={() => void toggleShowOnDisplay(cert.id, cert.showOnDisplay || false)}
-                          aria-label={`Show ${cert.userName}'s testimonial on the big screen`}
-                        />
-                        On screen
-                      </div>
+                      <span className="text-xs font-medium text-emerald-700">Automatically on screen</span>
                       <div className="flex items-center gap-1">
                         <Button
                           size="icon-lg"
@@ -615,7 +596,6 @@ export function TestimonialsPage() {
                     <th scope="col" className="px-4 py-3.5 whitespace-nowrap">Designation</th>
                     <th scope="col" className="px-4 py-3.5 whitespace-nowrap">Event group</th>
                     <th scope="col" className="px-4 py-3.5 whitespace-nowrap">Feedback</th>
-                    <th scope="col" className="w-28 px-4 py-3.5 text-center whitespace-nowrap">On screen</th>
                     <th scope="col" className="w-24 px-4 py-3.5 text-center whitespace-nowrap">Certificate</th>
                     <th scope="col" className="w-24 px-4 py-3.5 text-center whitespace-nowrap">
                       <span className="sr-only">Actions</span>
@@ -653,13 +633,6 @@ export function TestimonialsPage() {
                       </td>
                       <td className="max-w-[200px] truncate px-4 py-3 text-xs text-muted-foreground" title={cert.feedback}>
                         {cert.feedback || <span className="italic opacity-50">No feedback provided</span>}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <Switch
-                          checked={cert.showOnDisplay || false}
-                          onCheckedChange={() => void toggleShowOnDisplay(cert.id, cert.showOnDisplay || false)}
-                          aria-label={`Show ${cert.userName}'s testimonial on the big screen`}
-                        />
                       </td>
                       <td className="px-4 py-3 text-center">
                         {cert.certificateUrl ? (

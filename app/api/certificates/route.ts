@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         certificateUrl,
         feedback,
         // New submissions wait for moderator approval before appearing on the big screen.
-        showOnDisplay: showOnDisplay ?? false,
+        showOnDisplay: showOnDisplay ?? true,
         createdAt: createdAt || Date.now(),
       },
     });
