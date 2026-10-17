@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Quote } from 'lucide-react';
 import type { CertificateRecord } from '@/lib/api';
 import { Arches } from '@/components/shared/Arches';
-import { quoteScale } from './format';
+import { quoteScale, speakerRole } from './format';
 
 /** Left card in the bottom row: the current quote, or the group name when there are no testimonials. */
 export function TestimonialCard({
@@ -15,16 +15,21 @@ export function TestimonialCard({
   const reduceMotion = useReducedMotion();
   const rise = reduceMotion ? 0 : 12;
   const quote = testimonial?.feedback?.trim() ?? '';
+  const speakerName = testimonial?.userName || fallbackTitle;
+  const speakerDesignation = testimonial ? speakerRole(testimonial) : '';
 
   return (
     <article className="relative flex min-w-0 flex-col overflow-hidden rounded-[24px] bg-gradient-to-br from-display-quote-from from-20% to-display-quote-to px-[2.2vw] py-[2.4vh] display-shadow">
       <Arches />
 
-      <header className="relative flex items-center gap-[0.8vw] text-[clamp(11px,0.85vw,16px)] font-medium text-display-ink">
+      <header className="relative flex items-center gap-[0.8vw] text-[clamp(14px,1.1vw,21px)] font-medium text-display-ink">
         <span className="flex size-[clamp(26px,2.1vw,40px)] items-center justify-center rounded-full bg-display-ink text-white">
           <Quote className="size-[45%] fill-current" aria-hidden="true" />
         </span>
-        <h1 className="truncate">{testimonial?.userName || 'Testimonial'}</h1>
+        <h1 className="truncate">
+          {speakerName}
+          {speakerDesignation && <span className="font-normal text-display-ink/70"> <span aria-hidden="true">—</span> {speakerDesignation}</span>}
+        </h1>
       </header>
 
       <div className="relative mt-[1.6vh] flex min-h-0 flex-1 items-center" aria-live="polite">
