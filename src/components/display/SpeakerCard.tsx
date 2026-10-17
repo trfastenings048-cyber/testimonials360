@@ -78,7 +78,7 @@ export function SpeakerCard({
         ) : (
           <div className="size-[clamp(64px,7vw,132px)] animate-pulse rounded-md bg-slate-100" aria-hidden="true" />
         )}
-        <span className="text-center text-[clamp(10px,0.78vw,15px)] font-medium text-display-muted">Scan for certificates</span>
+        <span className="text-center text-[clamp(10px,0.78vw,15px)] font-medium text-display-muted">Scan to submit the reviews of TR Fastening Experience Center</span>
       </a>
     </aside>
   );

@@ -55,7 +55,7 @@ export default function CertificateSystem() {
   );
 
   return (
-    <main className="theme-display min-h-screen overflow-x-hidden bg-display-bg p-[2.2vw] font-display text-display-ink">
+    <main className="theme-display min-h-screen overflow-x-hidden bg-display-bg px-[clamp(16px,2.2vw,36px)] py-[clamp(16px,2.2vw,36px)] font-display text-display-ink">
       <div className="mx-auto flex min-h-[calc(100vh-4.4vw)] w-full max-w-[1500px] flex-col gap-[1.6vh]">
         <header className="flex items-center justify-between gap-4 px-[0.4vw] py-[0.4vh]"><span className="display-shadow inline-flex items-center gap-2 rounded-full bg-white px-[1.1em] py-[0.6em] text-[clamp(11px,0.85vw,16px)] font-medium"><span className="size-2 rounded-full bg-display-live" /> Share your experience</span><span className="rounded-full bg-display-ink px-[1.1em] py-[0.55em] text-[clamp(11px,0.85vw,16px)] font-medium text-white">TR Fastenings · 360 Experience</span></header>
 
