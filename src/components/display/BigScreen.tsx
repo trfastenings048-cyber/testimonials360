@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Film, ImageIcon, Loader2, Volume2 } from 'lucide-react';
+import { ImageIcon, Loader2 } from 'lucide-react';
 import { imageSrc } from '@/lib/image-urls';
 import { BlurFillImage } from './BlurFillImage';
 import { GroupChip } from './GroupChip';
@@ -67,29 +67,37 @@ export default function BigScreen() {
   }
 
   const statusState: StatusPillState =
-    screen.connection === 'offline'
-      ? 'offline'
-      : (isVideo ? !screen.isVideoPlaying : screen.isPaused)
-        ? 'paused'
-        : 'live';
+    screen.connection === 'offline' ? 'offline' : screen.isPaused ? 'paused' : 'live';
   const groupCount = screen.groupImages.length;
   const fallbackTitle = screen.currentImage?.groupName || 'Sanitation Sandbox';
+
+  // Video mode is just the video, edge to edge: no frame, status pill, captions or footer.
+  if (isVideo) {
+    // A tap also enters browser fullscreen (it needs a gesture), alongside unlocking sound.
+    return (
+      <div
+        className="theme-display fixed inset-0 cursor-none overflow-hidden bg-black select-none"
+        onClick={() => {
+          if (!screen.isFullscreen) void screen.toggleFullscreen();
+        }}
+      >
+        <VideoStage
+          video={screen.video}
+          videoRef={screen.videoRef}
+          autoPlay={screen.videoAutoplay}
+          loop={screen.videoLoop}
+          muted={!screen.audioUnlocked}
+          nextVideo={screen.nextVideo}
+          onPlayingChange={screen.setIsVideoPlaying}
+          onEnded={screen.handleVideoEnded}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="theme-display grid h-screen w-full grid-rows-[minmax(0,1fr)_auto] gap-[1.6vh] overflow-hidden bg-display-bg p-[2.2vw] font-display text-display-ink select-none">
       <StageFrame>
-        {isVideo ? (
-          <VideoStage
-            video={screen.video}
-            videoRef={screen.videoRef}
-            autoPlay={screen.videoAutoplay}
-            loop={screen.videoLoop}
-            muted={!screen.audioUnlocked}
-            nextVideo={screen.nextVideo}
-            onPlayingChange={screen.setIsVideoPlaying}
-            onEnded={screen.handleVideoEnded}
-          />
-        ) : (
           <AnimatePresence initial={false} custom={screen.direction}>
             {screen.currentImage ? (
               <motion.div
@@ -117,45 +125,21 @@ export default function BigScreen() {
               </div>
             )}
           </AnimatePresence>
-        )}
 
         {/* Top overlays */}
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-4 p-[1.4vw]">
           <div className="pointer-events-auto">
-            <StatusPill state={statusState} liveLabel={isVideo ? 'Playing' : undefined} />
+            <StatusPill state={statusState} />
           </div>
-          {!isVideo && screen.currentImage && (
+          {screen.currentImage && (
             <GroupChip name={screen.currentImage.groupName} index={screen.currentImageIndex} count={groupCount} />
           )}
         </div>
 
         {/* No on-screen controls: the screen is driven from /admin/control (or the keyboard). */}
-        {isVideo && screen.video && !screen.audioUnlocked && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-[4%] z-10 flex justify-center">
-            <div className="display-shadow flex items-center gap-2 rounded-full bg-white/90 px-[1.4vw] py-[0.8vw] text-[clamp(12px,0.95vw,18px)] font-medium backdrop-blur-md">
-              <Volume2 className="size-[1.2em]" aria-hidden="true" /> Tap the screen once to turn on sound
-            </div>
-          </div>
-        )}
       </StageFrame>
 
-      {isVideo ? (
-        <div className="display-shadow flex items-center gap-[1vw] rounded-[24px] bg-white px-[1.7vw] py-[1.8vh]">
-          <span className="flex size-[clamp(26px,2.1vw,40px)] shrink-0 items-center justify-center rounded-full bg-display-ink text-white">
-            <Film className="size-[45%]" aria-hidden="true" />
-          </span>
-          <span className="shrink-0 text-[clamp(11px,0.85vw,16px)] text-display-muted">Now playing</span>
-          <span className="truncate text-[clamp(16px,1.4vw,28px)] font-medium">
-            {screen.video?.title ?? 'No video selected'}
-          </span>
-          {screen.videoCount > 1 && (
-            <span className="ml-auto shrink-0 text-[clamp(11px,0.85vw,16px)] text-display-muted">
-              Part {screen.videoIndex + 1} of {screen.videoCount}
-            </span>
-          )}
-        </div>
-      ) : (
-        <div className="grid h-[24vh] grid-cols-[1.85fr_1fr] gap-[1.4vw]">
+      <div className="grid h-[24vh] grid-cols-[1.85fr_1fr] gap-[1.4vw]">
           <TestimonialCard
             testimonial={screen.currentTestimonial}
             fallbackTitle={fallbackTitle}
@@ -165,8 +149,7 @@ export default function BigScreen() {
             next={screen.nextTestimonial}
             fallbackTitle={fallbackTitle}
           />
-        </div>
-      )}
+      </div>
     </div>
   );
 }
