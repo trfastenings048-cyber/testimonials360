@@ -26,15 +26,17 @@ async function main() {
 
   for (const [index, name] of files.entries()) {
     const position = index + 1;
-    const publicId = `${VIDEO_FOLDER}/${basename(name, extname(name))}`;
     console.log(`[${position}/${files.length}] uploading ${name}…`);
-    await cloudinary.uploader.upload_large(join(directory, name), {
+    const uploaded = (await cloudinary.uploader.upload_large(join(directory, name), {
       resource_type: 'video',
       public_id: basename(name, extname(name)),
       folder: VIDEO_FOLDER,
       overwrite: true,
       chunk_size: 20_000_000,
-    });
+    })) as { public_id?: string; error?: { message?: string } };
+    // upload_large can resolve with an error object instead of rejecting, so check explicitly.
+    if (!uploaded.public_id) throw new Error(`Upload of ${name} failed: ${uploaded.error?.message ?? JSON.stringify(uploaded)}`);
+    const publicId = uploaded.public_id;
 
     const resource = await fetchVideoResource(publicId);
     const title = `TR Fastening · Part ${position} of ${files.length}`;
