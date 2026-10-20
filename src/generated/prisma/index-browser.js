@@ -154,7 +154,9 @@ exports.Prisma.VideoScalarFieldEnum = {
   duration: 'duration',
   width: 'width',
   height: 'height',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  setName: 'setName',
+  position: 'position'
 };
 
 exports.Prisma.AdminLoginAttemptScalarFieldEnum = {
@@ -172,6 +174,7 @@ exports.Prisma.DisplaySettingsScalarFieldEnum = {
   videoUrl: 'videoUrl',
   videoAutoplay: 'videoAutoplay',
   videoLoop: 'videoLoop',
+  videoSet: 'videoSet',
   testimonialAutoPlay: 'testimonialAutoPlay',
   testimonialDurationMs: 'testimonialDurationMs',
   updatedAt: 'updatedAt'

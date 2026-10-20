@@ -30,7 +30,7 @@ export default function BigScreen() {
   const isVideo = screen.mode === 'video';
 
   // Local keyboard shortcuts for whoever is standing at the screen.
-  const { showPreviousGroup, showNextGroup, toggleGroupPaused, toggleFullscreen, videoRef } = screen;
+  const { showPreviousGroup, showNextGroup, showPreviousClip, showNextClip, toggleGroupPaused, toggleFullscreen, videoRef } = screen;
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
@@ -45,15 +45,17 @@ export default function BigScreen() {
         } else {
           toggleGroupPaused();
         }
-      } else if (!isVideo && event.key === 'ArrowLeft') {
-        showPreviousGroup();
-      } else if (!isVideo && event.key === 'ArrowRight') {
-        showNextGroup();
+      } else if (event.key === 'ArrowLeft') {
+        if (isVideo) showPreviousClip();
+        else showPreviousGroup();
+      } else if (event.key === 'ArrowRight') {
+        if (isVideo) showNextClip();
+        else showNextGroup();
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isVideo, showPreviousGroup, showNextGroup, toggleGroupPaused, toggleFullscreen, videoRef]);
+  }, [isVideo, showPreviousGroup, showNextGroup, showPreviousClip, showNextClip, toggleGroupPaused, toggleFullscreen, videoRef]);
 
   if (screen.isLoading) {
     return (
@@ -83,7 +85,9 @@ export default function BigScreen() {
             autoPlay={screen.videoAutoplay}
             loop={screen.videoLoop}
             muted={!screen.audioUnlocked}
+            nextVideo={screen.nextVideo}
             onPlayingChange={screen.setIsVideoPlaying}
+            onEnded={screen.handleVideoEnded}
           />
         ) : (
           <AnimatePresence initial={false} custom={screen.direction}>
@@ -144,6 +148,11 @@ export default function BigScreen() {
           <span className="truncate text-[clamp(16px,1.4vw,28px)] font-medium">
             {screen.video?.title ?? 'No video selected'}
           </span>
+          {screen.videoCount > 1 && (
+            <span className="ml-auto shrink-0 text-[clamp(11px,0.85vw,16px)] text-display-muted">
+              Part {screen.videoIndex + 1} of {screen.videoCount}
+            </span>
+          )}
         </div>
       ) : (
         <div className="grid h-[24vh] grid-cols-[1.85fr_1fr] gap-[1.4vw]">

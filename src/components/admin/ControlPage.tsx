@@ -8,6 +8,8 @@ import {
   ChevronRight,
   Film,
   Loader2,
+  SkipBack,
+  SkipForward,
   MessageSquareQuote,
   MonitorOff,
   Pause,
@@ -74,22 +76,32 @@ export function ControlPage() {
   const [pendingCommand, setPendingCommand] = useState<CommandName | null>(null);
   const [latestVideo, setLatestVideo] = useState<VideoRecord | null>(null);
   const [videosLoaded, setVideosLoaded] = useState(false);
+  const [partCount, setPartCount] = useState<number | null>(null);
+  const [savingSet, setSavingSet] = useState<'single' | 'parts' | null>(null);
 
   // One read to know what "Video" will play; uploads and deletes then arrive over Ably.
   useEffect(() => {
-    fetchVideos({ page: 1, pageSize: 10, sort: 'createdAt', order: 'desc', q: '' })
+    fetchVideos({ page: 1, pageSize: 10, sort: 'createdAt', order: 'desc', q: '', standalone: true })
       .then((result) => setLatestVideo(result.items[0] ?? null))
       .catch(() => setLatestVideo(null))
       .finally(() => setVideosLoaded(true));
+    fetchVideos({ page: 1, pageSize: 10, sort: 'createdAt', order: 'desc', q: '', set: 'parts' })
+      .then((result) => setPartCount(result.total))
+      .catch(() => setPartCount(0));
   }, []);
 
   useChannelMessages(realtime, CHANNELS.content, (message) => {
     if (message.name === 'video.created') {
-      setLatestVideo(message.data as VideoRecord);
+      const created = message.data as VideoRecord;
+      if (created.setName) setPartCount((count) => (count ?? 0) + 1);
+      else setLatestVideo(created);
     } else if (message.name === 'video.deleted') {
       const { id } = message.data as ContentEvents['video.deleted'];
+      fetchVideos({ page: 1, pageSize: 10, sort: 'createdAt', order: 'desc', q: '', set: 'parts' })
+        .then((result) => setPartCount(result.total))
+        .catch(() => undefined);
       if (latestVideo?.id === id) {
-        fetchVideos({ page: 1, pageSize: 10, sort: 'createdAt', order: 'desc', q: '' })
+        fetchVideos({ page: 1, pageSize: 10, sort: 'createdAt', order: 'desc', q: '', standalone: true })
           .then((result) => setLatestVideo(result.items[0] ?? null))
           .catch(() => setLatestVideo(null));
       }
@@ -102,14 +114,15 @@ export function ControlPage() {
   const isVideo = liveMode === 'video';
   const currentVideoTitle = screen?.video.title ?? settings.video?.title ?? null;
   const currentVideoUrl = settings.video?.url ?? settings.videoUrl ?? null;
-  const newerVideoAvailable = isVideo && latestVideo && latestVideo.url !== currentVideoUrl;
+  const activeSet = screen?.video.set ?? settings.videoSet ?? 'single';
+  const newerVideoAvailable = isVideo && activeSet === 'single' && latestVideo && latestVideo.url !== currentVideoUrl;
 
   const changeDisplayMode = async (mode: DisplaySettings['mode']) => {
     // Re-pressing Video while a newer upload exists switches to that upload.
     if (mode === liveMode && !(mode === 'video' && newerVideoAvailable)) return;
     setSavingMode(mode);
     try {
-      const saved = await updateDisplaySettings({ mode });
+      const saved = await updateDisplaySettings(mode === 'video' ? { mode, videoSet: activeSet } : { mode });
       setSettings(saved);
       toast.success(
         mode === 'video' ? `Playing "${saved.video?.title ?? 'video'}" on the big screen` : 'Big screen switched to Testimonials'
@@ -118,6 +131,20 @@ export function ControlPage() {
       toast.error(error instanceof Error ? error.message : 'Failed to switch display mode');
     } finally {
       setSavingMode(null);
+    }
+  };
+
+  const changeVideoSet = async (videoSet: 'single' | 'parts') => {
+    if (videoSet === activeSet && isVideo) return;
+    setSavingSet(videoSet);
+    try {
+      const saved = await updateDisplaySettings({ mode: 'video', videoSet });
+      setSettings(saved);
+      toast.success(videoSet === 'parts' ? `Playing Video 2 (${saved.playlist?.length ?? 0} parts)` : `Playing "${saved.video?.title ?? 'Video 1'}"`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to switch video');
+    } finally {
+      setSavingSet(null);
     }
   };
 
@@ -139,6 +166,8 @@ export function ControlPage() {
   const testimonialsPaused = screen?.testimonials.paused ?? false;
 
   const videoPlaying = screen?.video.playing ?? false;
+  const clipCount = screen?.video.count ?? 0;
+  const clipIndex = screen?.video.index ?? 0;
   const playbackDisabled = !hasScreen || connection !== 'live';
 
   const testimonialStatus = !screen
@@ -289,6 +318,26 @@ export function ControlPage() {
           <p className="mt-1 mb-3 min-h-5 truncate text-left text-sm font-medium text-ink" aria-live="polite">
             {currentVideoTitle ? `${videoPlaying ? 'Now playing' : 'Paused'}: ${currentVideoTitle}` : 'No video selected'}
           </p>
+          <div className="mb-3 grid grid-cols-2 gap-2 sm:gap-3" role="group" aria-label="Which video to play">
+            <ControlButton
+              tone="primary"
+              active={activeSet === 'single'}
+              disabled={savingSet !== null || (videosLoaded && !latestVideo)}
+              onClick={() => void changeVideoSet('single')}
+              icon={savingSet === 'single' ? <Loader2 className="animate-spin" /> : <Film />}
+              label="Video 1"
+              hint={latestVideo?.title ?? (videosLoaded ? 'No video uploaded' : undefined)}
+            />
+            <ControlButton
+              tone="primary"
+              active={activeSet === 'parts'}
+              disabled={savingSet !== null || !partCount}
+              onClick={() => void changeVideoSet('parts')}
+              icon={savingSet === 'parts' ? <Loader2 className="animate-spin" /> : <Film />}
+              label="Video 2"
+              hint={partCount ? `${partCount} short parts` : partCount === 0 ? 'Parts not uploaded' : undefined}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <ControlButton
               tone={videoPlaying ? 'neutral' : 'accent'}
@@ -309,6 +358,29 @@ export function ControlPage() {
               ariaLabel="Pause video"
             />
           </div>
+          {clipCount > 1 && (
+            <div className="mt-3">
+              <p className="mb-2 text-left text-sm font-medium text-ink" aria-live="polite">
+                Part {Math.min(clipIndex + 1, clipCount)} of {clipCount}
+              </p>
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                <ControlButton
+                  disabled={playbackDisabled}
+                  onClick={() => void send('video.previous')}
+                  icon={commandIcon('video.previous', <SkipBack />)}
+                  label="Previous part"
+                  ariaLabel="Previous video part"
+                />
+                <ControlButton
+                  disabled={playbackDisabled}
+                  onClick={() => void send('video.next')}
+                  icon={commandIcon('video.next', <SkipForward />)}
+                  label="Next part"
+                  ariaLabel="Next video part"
+                />
+              </div>
+            </div>
+          )}
           {screen && !screen.audioUnlocked && (
             <p className="mt-3 flex items-start gap-2 rounded-2xl border border-warning/25 bg-warning/10 px-3 py-2 text-left text-xs text-warning">
               <VolumeX className="mt-0.5 size-4 shrink-0" aria-hidden="true" />

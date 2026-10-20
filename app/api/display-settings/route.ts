@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
 import { publishModeChanged } from '@/server/realtime';
-import type { DisplayVideo } from '@/lib/realtime/protocol';
+import { PARTS_SET_NAME, type DisplayVideo } from '@/lib/realtime/protocol';
+import { buildModeChanged, loadPartsPlaylist, parseVideoSet, resolvePlaylist } from '@/server/display';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const defaults = {
   id: 'default', heading: 'Testimonials', subtitle: '', mode: 'testimonials',
-  videoUrl: null, videoAutoplay: true, videoLoop: true,
+  videoUrl: null, videoAutoplay: true, videoLoop: true, videoSet: 'single',
   testimonialAutoPlay: true, testimonialDurationMs: 5000,
 };
 
@@ -25,18 +26,12 @@ async function loadSettings() {
   }
 }
 
-async function videoForUrl(url: string | null): Promise<DisplayVideo | null> {
-  if (!url) return null;
-  const video = await prisma.video.findFirst({ where: { url }, select: { id: true, url: true, title: true } });
-  // A URL set before the video library existed still plays; it just has no title.
-  return video ?? { id: '', url, title: 'Video' };
-}
-
 // Read once by the display on load (and by the admin); live changes then arrive over Ably.
 export async function GET() {
   const settings = await loadSettings();
+  const playlist = await resolvePlaylist(settings);
   return NextResponse.json(
-    { ...settings, video: await videoForUrl(settings.videoUrl) },
+    { ...settings, video: playlist[0] ?? null, playlist },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }
@@ -57,20 +52,32 @@ export async function PATCH(request: NextRequest) {
       data.mode = body.mode;
     }
 
-    let chosenVideo: DisplayVideo | null = null;
+    let playlist: DisplayVideo[] | undefined;
     if (body.mode === 'video') {
-      const video =
-        typeof body.videoId === 'string' && body.videoId
-          ? await prisma.video.findUnique({ where: { id: body.videoId } })
-          : await prisma.video.findFirst({ orderBy: { createdAt: 'desc' } });
-      if (!video) {
-        return NextResponse.json(
-          { error: body.videoId ? 'That video no longer exists' : 'Upload a video first' },
-          { status: body.videoId ? 404 : 409 }
-        );
+      if (body.videoSet === 'parts') {
+        playlist = await loadPartsPlaylist();
+        if (playlist.length === 0) {
+          return NextResponse.json({ error: 'Upload the video parts first' }, { status: 409 });
+        }
+        data.videoSet = 'parts';
+      } else {
+        // Video 1 is the latest standalone upload unless a specific one is asked for.
+        const video =
+          typeof body.videoId === 'string' && body.videoId
+            ? await prisma.video.findUnique({ where: { id: body.videoId } })
+            : await prisma.video.findFirst({ where: { setName: null }, orderBy: { createdAt: 'desc' } });
+        if (!video) {
+          return NextResponse.json(
+            { error: body.videoId ? 'That video no longer exists' : 'Upload a video first' },
+            { status: body.videoId ? 404 : 409 }
+          );
+        }
+        data.videoUrl = video.url;
+        data.videoSet = 'single';
+        playlist = [{ id: video.id, url: video.url, title: video.title }];
       }
-      data.videoUrl = video.url;
-      chosenVideo = { id: video.id, url: video.url, title: video.title };
+    } else if (body.videoSet !== undefined) {
+      data.videoSet = parseVideoSet(body.videoSet);
     }
 
     if (typeof body.heading === 'string') data.heading = body.heading.trim() || 'Testimonials';
@@ -90,17 +97,12 @@ export async function PATCH(request: NextRequest) {
       if ((error as { code?: string })?.code !== 'P2025') throw error;
       settings = await prisma.displaySettings.create({ data: { ...defaults, ...data } });
     }
-    // Reuse the video we just looked up instead of querying for it again.
-    const video = chosenVideo ?? (await videoForUrl(settings.videoUrl));
+    // Only a mode switch to video already knows its playlist; anything else resolves it from the row.
+    const resolved = body.mode === 'video' ? playlist : undefined;
+    const payload = await buildModeChanged(settings, resolved);
+    await publishModeChanged(payload);
 
-    await publishModeChanged({
-      mode: settings.mode === 'video' ? 'video' : 'testimonials',
-      video,
-      testimonialAutoPlay: settings.testimonialAutoPlay,
-      testimonialDurationMs: settings.testimonialDurationMs,
-    });
-
-    return NextResponse.json({ ...settings, video });
+    return NextResponse.json({ ...settings, video: payload.video, playlist: payload.playlist });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to save display settings' },

@@ -15,6 +15,7 @@ import {
   type DisplayMode,
   type DisplayVideo,
   type ScreenState,
+  type VideoSetKind,
 } from '@/lib/realtime/protocol';
 import { useChannelMessages, useRealtimeClient, useScreenPresence } from '@/lib/realtime/client';
 
@@ -53,7 +54,11 @@ export function useBigScreen() {
 
   // Display settings (loaded once, then kept live via `mode.changed`).
   const [mode, setMode] = useState<DisplayMode>('testimonials');
-  const [video, setVideo] = useState<DisplayVideo | null>(null);
+  const [playlist, setPlaylist] = useState<DisplayVideo[]>([]);
+  const [videoIndex, setVideoIndex] = useState(0);
+  const [videoSet, setVideoSet] = useState<VideoSetKind>('single');
+  // Once a clip has been advanced or skipped, the next one must start itself even if autoplay is off.
+  const [continuePlayback, setContinuePlayback] = useState(false);
   const [testimonialAutoPlay, setTestimonialAutoPlay] = useState(true);
   const [testimonialDurationMs, setTestimonialDurationMs] = useState(TESTIMONIAL_DURATION);
   const [videoAutoplay, setVideoAutoplay] = useState(true);
@@ -72,6 +77,18 @@ export function useBigScreen() {
   // Initial load (the only API reads this screen makes) and resync after a long outage
   // ---------------------------------------------------------------------------
 
+  /** Swaps in a new playlist, restarting from the first clip only when its contents changed. */
+  const applyPlaylist = useCallback((next: DisplayVideo[], set: VideoSetKind) => {
+    setVideoSet(set);
+    setPlaylist((current) => {
+      const same = current.length === next.length && current.every((item, i) => item.url === next[i].url);
+      if (same) return current;
+      setVideoIndex(0);
+      setContinuePlayback(false);
+      return next;
+    });
+  }, []);
+
   const loadAll = useCallback(() => {
     const imagesRequest = fetchImages(true)
       .then(setImages)
@@ -84,7 +101,7 @@ export function useBigScreen() {
     const settingsRequest = fetchDisplaySettings()
       .then((settings) => {
         setMode(settings.mode === 'video' ? 'video' : 'testimonials');
-        setVideo(settings.video ?? null);
+        applyPlaylist(settings.playlist ?? (settings.video ? [settings.video] : []), settings.videoSet ?? 'single');
         setTestimonialAutoPlay(settings.testimonialAutoPlay);
         setTestimonialDurationMs(settings.testimonialDurationMs || TESTIMONIAL_DURATION);
         setVideoAutoplay(settings.videoAutoplay);
@@ -93,7 +110,7 @@ export function useBigScreen() {
       .catch((error) => console.error('Error loading display settings:', error));
 
     return Promise.all([imagesRequest, testimonialsRequest, settingsRequest]);
-  }, []);
+  }, [applyPlaylist]);
 
   useEffect(() => {
     loadAll().finally(() => setIsLoading(false));
@@ -134,6 +151,11 @@ export function useBigScreen() {
   const nextTestimonial =
     testimonials.length > 1 ? testimonials[(currentTestimonialIndex + 1) % testimonials.length] : null;
 
+  const clipCount = playlist.length;
+  const currentVideoIndex = clipCount ? Math.min(videoIndex, clipCount - 1) : 0;
+  const video = playlist[currentVideoIndex] ?? null;
+  const nextVideo = clipCount > 1 ? playlist[(currentVideoIndex + 1) % clipCount] : null;
+
   const showNextTestimonial = useCallback(() => setCurrentTestimonialIndex((index) => index + 1), []);
   const showPreviousTestimonial = useCallback(() => setCurrentTestimonialIndex((index) => index - 1), []);
 
@@ -161,6 +183,26 @@ export function useBigScreen() {
     resetProgress();
   };
 
+  const goToClip = (offset: 1 | -1, { wrap }: { wrap: boolean }) => {
+    if (clipCount <= 1) return;
+    const target = currentVideoIndex + offset;
+    if (!wrap && (target < 0 || target >= clipCount)) return;
+    setVideoIndex((target + clipCount) % clipCount);
+    setContinuePlayback(true);
+  };
+  const showNextClip = () => goToClip(1, { wrap: true });
+  const showPreviousClip = () => goToClip(-1, { wrap: true });
+
+  /** A clip finished: move to the next one, looping back to the first only when looping is on. */
+  const handleVideoEnded = () => {
+    if (clipCount <= 1) return;
+    if (currentVideoIndex + 1 < clipCount) goToClip(1, { wrap: false });
+    else if (videoLoop) {
+      setVideoIndex(0);
+      setContinuePlayback(true);
+    }
+  };
+
   // ---------------------------------------------------------------------------
   // Realtime: commands and mode changes
   // ---------------------------------------------------------------------------
@@ -170,7 +212,9 @@ export function useBigScreen() {
   useChannelMessages(client, CHANNELS.control, (message) => {
     if (message.name === MODE_CHANGED && isModeChangedData(message.data)) {
       setMode(message.data.mode);
-      setVideo(message.data.video);
+      applyPlaylist(message.data.playlist ?? (message.data.video ? [message.data.video] : []), message.data.videoSet ?? 'single');
+      if (typeof message.data.videoAutoplay === 'boolean') setVideoAutoplay(message.data.videoAutoplay);
+      if (typeof message.data.videoLoop === 'boolean') setVideoLoop(message.data.videoLoop);
       setTestimonialAutoPlay(message.data.testimonialAutoPlay);
       setTestimonialDurationMs(message.data.testimonialDurationMs || TESTIMONIAL_DURATION);
       return;
@@ -218,6 +262,12 @@ export function useBigScreen() {
         break;
       case 'video.pause':
         videoRef.current?.pause();
+        break;
+      case 'video.next':
+        showNextClip();
+        break;
+      case 'video.previous':
+        showPreviousClip();
         break;
     }
   });
@@ -274,7 +324,7 @@ export function useBigScreen() {
       }
       case 'video.deleted': {
         const { id } = message.data as ContentEvents['video.deleted'];
-        setVideo((current) => (current?.id === id ? null : current));
+        setPlaylist((current) => current.filter((item) => item.id !== id));
         break;
       }
     }
@@ -293,7 +343,14 @@ export function useBigScreen() {
       count: groupImages.length,
       groupName: currentImage?.groupName ?? null,
     },
-    video: { id: video?.id || null, title: video?.title ?? null, playing: isVideoPlaying },
+    video: {
+      id: video?.id || null,
+      title: video?.title ?? null,
+      playing: isVideoPlaying,
+      index: currentVideoIndex,
+      count: clipCount,
+      set: videoSet,
+    },
     audioUnlocked,
   };
   const presenceVersion = [
@@ -304,6 +361,8 @@ export function useBigScreen() {
     testimonials.length,
     groupImages.length,
     video?.url ?? '',
+    currentVideoIndex,
+    videoSet,
     isVideoPlaying,
     audioUnlocked,
   ].join('|');
@@ -395,9 +454,17 @@ export function useBigScreen() {
     nextTestimonial,
     // Video
     video,
+    nextVideo,
+    videoIndex: currentVideoIndex,
+    videoCount: clipCount,
+    videoSet,
+    showNextClip,
+    showPreviousClip,
+    handleVideoEnded,
     videoRef,
-    videoAutoplay,
-    videoLoop,
+    videoAutoplay: videoAutoplay || continuePlayback,
+    // A multi-clip playlist loops by returning to the first clip, so the element itself must not loop.
+    videoLoop: videoLoop && clipCount <= 1,
     audioUnlocked,
     isVideoPlaying,
     setIsVideoPlaying,

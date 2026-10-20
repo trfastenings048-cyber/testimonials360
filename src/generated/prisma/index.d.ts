@@ -3435,6 +3435,7 @@ export namespace Prisma {
     duration: number | null
     width: number | null
     height: number | null
+    position: number | null
   }
 
   export type VideoSumAggregateOutputType = {
@@ -3442,6 +3443,7 @@ export namespace Prisma {
     duration: number | null
     width: number | null
     height: number | null
+    position: number | null
   }
 
   export type VideoMinAggregateOutputType = {
@@ -3456,6 +3458,8 @@ export namespace Prisma {
     width: number | null
     height: number | null
     createdAt: Date | null
+    setName: string | null
+    position: number | null
   }
 
   export type VideoMaxAggregateOutputType = {
@@ -3470,6 +3474,8 @@ export namespace Prisma {
     width: number | null
     height: number | null
     createdAt: Date | null
+    setName: string | null
+    position: number | null
   }
 
   export type VideoCountAggregateOutputType = {
@@ -3484,6 +3490,8 @@ export namespace Prisma {
     width: number
     height: number
     createdAt: number
+    setName: number
+    position: number
     _all: number
   }
 
@@ -3493,6 +3501,7 @@ export namespace Prisma {
     duration?: true
     width?: true
     height?: true
+    position?: true
   }
 
   export type VideoSumAggregateInputType = {
@@ -3500,6 +3509,7 @@ export namespace Prisma {
     duration?: true
     width?: true
     height?: true
+    position?: true
   }
 
   export type VideoMinAggregateInputType = {
@@ -3514,6 +3524,8 @@ export namespace Prisma {
     width?: true
     height?: true
     createdAt?: true
+    setName?: true
+    position?: true
   }
 
   export type VideoMaxAggregateInputType = {
@@ -3528,6 +3540,8 @@ export namespace Prisma {
     width?: true
     height?: true
     createdAt?: true
+    setName?: true
+    position?: true
   }
 
   export type VideoCountAggregateInputType = {
@@ -3542,6 +3556,8 @@ export namespace Prisma {
     width?: true
     height?: true
     createdAt?: true
+    setName?: true
+    position?: true
     _all?: true
   }
 
@@ -3643,6 +3659,8 @@ export namespace Prisma {
     width: number | null
     height: number | null
     createdAt: Date
+    setName: string | null
+    position: number | null
     _count: VideoCountAggregateOutputType | null
     _avg: VideoAvgAggregateOutputType | null
     _sum: VideoSumAggregateOutputType | null
@@ -3676,6 +3694,8 @@ export namespace Prisma {
     width?: boolean
     height?: boolean
     createdAt?: boolean
+    setName?: boolean
+    position?: boolean
   }, ExtArgs["result"]["video"]>
 
   export type VideoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3690,6 +3710,8 @@ export namespace Prisma {
     width?: boolean
     height?: boolean
     createdAt?: boolean
+    setName?: boolean
+    position?: boolean
   }, ExtArgs["result"]["video"]>
 
   export type VideoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3704,6 +3726,8 @@ export namespace Prisma {
     width?: boolean
     height?: boolean
     createdAt?: boolean
+    setName?: boolean
+    position?: boolean
   }, ExtArgs["result"]["video"]>
 
   export type VideoSelectScalar = {
@@ -3718,9 +3742,11 @@ export namespace Prisma {
     width?: boolean
     height?: boolean
     createdAt?: boolean
+    setName?: boolean
+    position?: boolean
   }
 
-  export type VideoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "publicId" | "url" | "thumbnailUrl" | "format" | "bytes" | "duration" | "width" | "height" | "createdAt", ExtArgs["result"]["video"]>
+  export type VideoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "publicId" | "url" | "thumbnailUrl" | "format" | "bytes" | "duration" | "width" | "height" | "createdAt" | "setName" | "position", ExtArgs["result"]["video"]>
 
   export type $VideoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Video"
@@ -3737,6 +3763,12 @@ export namespace Prisma {
       width: number | null
       height: number | null
       createdAt: Date
+      /**
+       * Clips that belong to an ordered playlist share a setName and carry a 1-based position.
+       * Standalone uploads leave both null.
+       */
+      setName: string | null
+      position: number | null
     }, ExtArgs["result"]["video"]>
     composites: {}
   }
@@ -4171,6 +4203,8 @@ export namespace Prisma {
     readonly width: FieldRef<"Video", 'Int'>
     readonly height: FieldRef<"Video", 'Int'>
     readonly createdAt: FieldRef<"Video", 'DateTime'>
+    readonly setName: FieldRef<"Video", 'String'>
+    readonly position: FieldRef<"Video", 'Int'>
   }
     
 
@@ -5591,6 +5625,7 @@ export namespace Prisma {
     videoUrl: string | null
     videoAutoplay: boolean | null
     videoLoop: boolean | null
+    videoSet: string | null
     testimonialAutoPlay: boolean | null
     testimonialDurationMs: number | null
     updatedAt: Date | null
@@ -5604,6 +5639,7 @@ export namespace Prisma {
     videoUrl: string | null
     videoAutoplay: boolean | null
     videoLoop: boolean | null
+    videoSet: string | null
     testimonialAutoPlay: boolean | null
     testimonialDurationMs: number | null
     updatedAt: Date | null
@@ -5617,6 +5653,7 @@ export namespace Prisma {
     videoUrl: number
     videoAutoplay: number
     videoLoop: number
+    videoSet: number
     testimonialAutoPlay: number
     testimonialDurationMs: number
     updatedAt: number
@@ -5640,6 +5677,7 @@ export namespace Prisma {
     videoUrl?: true
     videoAutoplay?: true
     videoLoop?: true
+    videoSet?: true
     testimonialAutoPlay?: true
     testimonialDurationMs?: true
     updatedAt?: true
@@ -5653,6 +5691,7 @@ export namespace Prisma {
     videoUrl?: true
     videoAutoplay?: true
     videoLoop?: true
+    videoSet?: true
     testimonialAutoPlay?: true
     testimonialDurationMs?: true
     updatedAt?: true
@@ -5666,6 +5705,7 @@ export namespace Prisma {
     videoUrl?: true
     videoAutoplay?: true
     videoLoop?: true
+    videoSet?: true
     testimonialAutoPlay?: true
     testimonialDurationMs?: true
     updatedAt?: true
@@ -5766,6 +5806,7 @@ export namespace Prisma {
     videoUrl: string | null
     videoAutoplay: boolean
     videoLoop: boolean
+    videoSet: string
     testimonialAutoPlay: boolean
     testimonialDurationMs: number
     updatedAt: Date
@@ -5798,6 +5839,7 @@ export namespace Prisma {
     videoUrl?: boolean
     videoAutoplay?: boolean
     videoLoop?: boolean
+    videoSet?: boolean
     testimonialAutoPlay?: boolean
     testimonialDurationMs?: boolean
     updatedAt?: boolean
@@ -5811,6 +5853,7 @@ export namespace Prisma {
     videoUrl?: boolean
     videoAutoplay?: boolean
     videoLoop?: boolean
+    videoSet?: boolean
     testimonialAutoPlay?: boolean
     testimonialDurationMs?: boolean
     updatedAt?: boolean
@@ -5824,6 +5867,7 @@ export namespace Prisma {
     videoUrl?: boolean
     videoAutoplay?: boolean
     videoLoop?: boolean
+    videoSet?: boolean
     testimonialAutoPlay?: boolean
     testimonialDurationMs?: boolean
     updatedAt?: boolean
@@ -5837,12 +5881,13 @@ export namespace Prisma {
     videoUrl?: boolean
     videoAutoplay?: boolean
     videoLoop?: boolean
+    videoSet?: boolean
     testimonialAutoPlay?: boolean
     testimonialDurationMs?: boolean
     updatedAt?: boolean
   }
 
-  export type DisplaySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "heading" | "subtitle" | "mode" | "videoUrl" | "videoAutoplay" | "videoLoop" | "testimonialAutoPlay" | "testimonialDurationMs" | "updatedAt", ExtArgs["result"]["displaySettings"]>
+  export type DisplaySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "heading" | "subtitle" | "mode" | "videoUrl" | "videoAutoplay" | "videoLoop" | "videoSet" | "testimonialAutoPlay" | "testimonialDurationMs" | "updatedAt", ExtArgs["result"]["displaySettings"]>
 
   export type $DisplaySettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DisplaySettings"
@@ -5855,6 +5900,11 @@ export namespace Prisma {
       videoUrl: string | null
       videoAutoplay: boolean
       videoLoop: boolean
+      /**
+       * Which video the screen plays in video mode: the latest standalone upload ("single")
+       * or the ordered clip set ("parts").
+       */
+      videoSet: string
       testimonialAutoPlay: boolean
       testimonialDurationMs: number
       updatedAt: Date
@@ -6288,6 +6338,7 @@ export namespace Prisma {
     readonly videoUrl: FieldRef<"DisplaySettings", 'String'>
     readonly videoAutoplay: FieldRef<"DisplaySettings", 'Boolean'>
     readonly videoLoop: FieldRef<"DisplaySettings", 'Boolean'>
+    readonly videoSet: FieldRef<"DisplaySettings", 'String'>
     readonly testimonialAutoPlay: FieldRef<"DisplaySettings", 'Boolean'>
     readonly testimonialDurationMs: FieldRef<"DisplaySettings", 'Int'>
     readonly updatedAt: FieldRef<"DisplaySettings", 'DateTime'>
@@ -6716,7 +6767,9 @@ export namespace Prisma {
     duration: 'duration',
     width: 'width',
     height: 'height',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    setName: 'setName',
+    position: 'position'
   };
 
   export type VideoScalarFieldEnum = (typeof VideoScalarFieldEnum)[keyof typeof VideoScalarFieldEnum]
@@ -6740,6 +6793,7 @@ export namespace Prisma {
     videoUrl: 'videoUrl',
     videoAutoplay: 'videoAutoplay',
     videoLoop: 'videoLoop',
+    videoSet: 'videoSet',
     testimonialAutoPlay: 'testimonialAutoPlay',
     testimonialDurationMs: 'testimonialDurationMs',
     updatedAt: 'updatedAt'
@@ -7001,6 +7055,8 @@ export namespace Prisma {
     width?: IntNullableFilter<"Video"> | number | null
     height?: IntNullableFilter<"Video"> | number | null
     createdAt?: DateTimeFilter<"Video"> | Date | string
+    setName?: StringNullableFilter<"Video"> | string | null
+    position?: IntNullableFilter<"Video"> | number | null
   }
 
   export type VideoOrderByWithRelationInput = {
@@ -7015,6 +7071,8 @@ export namespace Prisma {
     width?: SortOrderInput | SortOrder
     height?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    setName?: SortOrderInput | SortOrder
+    position?: SortOrderInput | SortOrder
   }
 
   export type VideoWhereUniqueInput = Prisma.AtLeast<{
@@ -7032,6 +7090,8 @@ export namespace Prisma {
     width?: IntNullableFilter<"Video"> | number | null
     height?: IntNullableFilter<"Video"> | number | null
     createdAt?: DateTimeFilter<"Video"> | Date | string
+    setName?: StringNullableFilter<"Video"> | string | null
+    position?: IntNullableFilter<"Video"> | number | null
   }, "id" | "publicId">
 
   export type VideoOrderByWithAggregationInput = {
@@ -7046,6 +7106,8 @@ export namespace Prisma {
     width?: SortOrderInput | SortOrder
     height?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    setName?: SortOrderInput | SortOrder
+    position?: SortOrderInput | SortOrder
     _count?: VideoCountOrderByAggregateInput
     _avg?: VideoAvgOrderByAggregateInput
     _max?: VideoMaxOrderByAggregateInput
@@ -7068,6 +7130,8 @@ export namespace Prisma {
     width?: IntNullableWithAggregatesFilter<"Video"> | number | null
     height?: IntNullableWithAggregatesFilter<"Video"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Video"> | Date | string
+    setName?: StringNullableWithAggregatesFilter<"Video"> | string | null
+    position?: IntNullableWithAggregatesFilter<"Video"> | number | null
   }
 
   export type AdminLoginAttemptWhereInput = {
@@ -7130,6 +7194,7 @@ export namespace Prisma {
     videoUrl?: StringNullableFilter<"DisplaySettings"> | string | null
     videoAutoplay?: BoolFilter<"DisplaySettings"> | boolean
     videoLoop?: BoolFilter<"DisplaySettings"> | boolean
+    videoSet?: StringFilter<"DisplaySettings"> | string
     testimonialAutoPlay?: BoolFilter<"DisplaySettings"> | boolean
     testimonialDurationMs?: IntFilter<"DisplaySettings"> | number
     updatedAt?: DateTimeFilter<"DisplaySettings"> | Date | string
@@ -7143,6 +7208,7 @@ export namespace Prisma {
     videoUrl?: SortOrderInput | SortOrder
     videoAutoplay?: SortOrder
     videoLoop?: SortOrder
+    videoSet?: SortOrder
     testimonialAutoPlay?: SortOrder
     testimonialDurationMs?: SortOrder
     updatedAt?: SortOrder
@@ -7159,6 +7225,7 @@ export namespace Prisma {
     videoUrl?: StringNullableFilter<"DisplaySettings"> | string | null
     videoAutoplay?: BoolFilter<"DisplaySettings"> | boolean
     videoLoop?: BoolFilter<"DisplaySettings"> | boolean
+    videoSet?: StringFilter<"DisplaySettings"> | string
     testimonialAutoPlay?: BoolFilter<"DisplaySettings"> | boolean
     testimonialDurationMs?: IntFilter<"DisplaySettings"> | number
     updatedAt?: DateTimeFilter<"DisplaySettings"> | Date | string
@@ -7172,6 +7239,7 @@ export namespace Prisma {
     videoUrl?: SortOrderInput | SortOrder
     videoAutoplay?: SortOrder
     videoLoop?: SortOrder
+    videoSet?: SortOrder
     testimonialAutoPlay?: SortOrder
     testimonialDurationMs?: SortOrder
     updatedAt?: SortOrder
@@ -7193,6 +7261,7 @@ export namespace Prisma {
     videoUrl?: StringNullableWithAggregatesFilter<"DisplaySettings"> | string | null
     videoAutoplay?: BoolWithAggregatesFilter<"DisplaySettings"> | boolean
     videoLoop?: BoolWithAggregatesFilter<"DisplaySettings"> | boolean
+    videoSet?: StringWithAggregatesFilter<"DisplaySettings"> | string
     testimonialAutoPlay?: BoolWithAggregatesFilter<"DisplaySettings"> | boolean
     testimonialDurationMs?: IntWithAggregatesFilter<"DisplaySettings"> | number
     updatedAt?: DateTimeWithAggregatesFilter<"DisplaySettings"> | Date | string
@@ -7371,6 +7440,8 @@ export namespace Prisma {
     width?: number | null
     height?: number | null
     createdAt?: Date | string
+    setName?: string | null
+    position?: number | null
   }
 
   export type VideoUncheckedCreateInput = {
@@ -7385,6 +7456,8 @@ export namespace Prisma {
     width?: number | null
     height?: number | null
     createdAt?: Date | string
+    setName?: string | null
+    position?: number | null
   }
 
   export type VideoUpdateInput = {
@@ -7399,6 +7472,8 @@ export namespace Prisma {
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    setName?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type VideoUncheckedUpdateInput = {
@@ -7413,6 +7488,8 @@ export namespace Prisma {
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    setName?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type VideoCreateManyInput = {
@@ -7427,6 +7504,8 @@ export namespace Prisma {
     width?: number | null
     height?: number | null
     createdAt?: Date | string
+    setName?: string | null
+    position?: number | null
   }
 
   export type VideoUpdateManyMutationInput = {
@@ -7441,6 +7520,8 @@ export namespace Prisma {
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    setName?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type VideoUncheckedUpdateManyInput = {
@@ -7455,6 +7536,8 @@ export namespace Prisma {
     width?: NullableIntFieldUpdateOperationsInput | number | null
     height?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    setName?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type AdminLoginAttemptCreateInput = {
@@ -7514,6 +7597,7 @@ export namespace Prisma {
     videoUrl?: string | null
     videoAutoplay?: boolean
     videoLoop?: boolean
+    videoSet?: string
     testimonialAutoPlay?: boolean
     testimonialDurationMs?: number
     updatedAt?: Date | string
@@ -7527,6 +7611,7 @@ export namespace Prisma {
     videoUrl?: string | null
     videoAutoplay?: boolean
     videoLoop?: boolean
+    videoSet?: string
     testimonialAutoPlay?: boolean
     testimonialDurationMs?: number
     updatedAt?: Date | string
@@ -7540,6 +7625,7 @@ export namespace Prisma {
     videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     videoAutoplay?: BoolFieldUpdateOperationsInput | boolean
     videoLoop?: BoolFieldUpdateOperationsInput | boolean
+    videoSet?: StringFieldUpdateOperationsInput | string
     testimonialAutoPlay?: BoolFieldUpdateOperationsInput | boolean
     testimonialDurationMs?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7553,6 +7639,7 @@ export namespace Prisma {
     videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     videoAutoplay?: BoolFieldUpdateOperationsInput | boolean
     videoLoop?: BoolFieldUpdateOperationsInput | boolean
+    videoSet?: StringFieldUpdateOperationsInput | string
     testimonialAutoPlay?: BoolFieldUpdateOperationsInput | boolean
     testimonialDurationMs?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7566,6 +7653,7 @@ export namespace Prisma {
     videoUrl?: string | null
     videoAutoplay?: boolean
     videoLoop?: boolean
+    videoSet?: string
     testimonialAutoPlay?: boolean
     testimonialDurationMs?: number
     updatedAt?: Date | string
@@ -7579,6 +7667,7 @@ export namespace Prisma {
     videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     videoAutoplay?: BoolFieldUpdateOperationsInput | boolean
     videoLoop?: BoolFieldUpdateOperationsInput | boolean
+    videoSet?: StringFieldUpdateOperationsInput | string
     testimonialAutoPlay?: BoolFieldUpdateOperationsInput | boolean
     testimonialDurationMs?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7592,6 +7681,7 @@ export namespace Prisma {
     videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     videoAutoplay?: BoolFieldUpdateOperationsInput | boolean
     videoLoop?: BoolFieldUpdateOperationsInput | boolean
+    videoSet?: StringFieldUpdateOperationsInput | string
     testimonialAutoPlay?: BoolFieldUpdateOperationsInput | boolean
     testimonialDurationMs?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7838,6 +7928,8 @@ export namespace Prisma {
     width?: SortOrder
     height?: SortOrder
     createdAt?: SortOrder
+    setName?: SortOrder
+    position?: SortOrder
   }
 
   export type VideoAvgOrderByAggregateInput = {
@@ -7845,6 +7937,7 @@ export namespace Prisma {
     duration?: SortOrder
     width?: SortOrder
     height?: SortOrder
+    position?: SortOrder
   }
 
   export type VideoMaxOrderByAggregateInput = {
@@ -7859,6 +7952,8 @@ export namespace Prisma {
     width?: SortOrder
     height?: SortOrder
     createdAt?: SortOrder
+    setName?: SortOrder
+    position?: SortOrder
   }
 
   export type VideoMinOrderByAggregateInput = {
@@ -7873,6 +7968,8 @@ export namespace Prisma {
     width?: SortOrder
     height?: SortOrder
     createdAt?: SortOrder
+    setName?: SortOrder
+    position?: SortOrder
   }
 
   export type VideoSumOrderByAggregateInput = {
@@ -7880,6 +7977,7 @@ export namespace Prisma {
     duration?: SortOrder
     width?: SortOrder
     height?: SortOrder
+    position?: SortOrder
   }
 
   export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8017,6 +8115,7 @@ export namespace Prisma {
     videoUrl?: SortOrder
     videoAutoplay?: SortOrder
     videoLoop?: SortOrder
+    videoSet?: SortOrder
     testimonialAutoPlay?: SortOrder
     testimonialDurationMs?: SortOrder
     updatedAt?: SortOrder
@@ -8034,6 +8133,7 @@ export namespace Prisma {
     videoUrl?: SortOrder
     videoAutoplay?: SortOrder
     videoLoop?: SortOrder
+    videoSet?: SortOrder
     testimonialAutoPlay?: SortOrder
     testimonialDurationMs?: SortOrder
     updatedAt?: SortOrder
@@ -8047,6 +8147,7 @@ export namespace Prisma {
     videoUrl?: SortOrder
     videoAutoplay?: SortOrder
     videoLoop?: SortOrder
+    videoSet?: SortOrder
     testimonialAutoPlay?: SortOrder
     testimonialDurationMs?: SortOrder
     updatedAt?: SortOrder

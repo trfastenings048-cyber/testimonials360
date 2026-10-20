@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
 import { publishContent, publishModeChanged } from '@/server/realtime';
 import { deleteVideoResource } from '@/server/videos';
+import { buildModeChanged } from '@/server/display';
 
 export const runtime = 'nodejs';
 
@@ -49,15 +50,11 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
       data: { videoUrl: null },
     });
     await publishContent('video.deleted', { id: video.id });
-    if (cleared.count > 0) {
+    // Deleting a clip also changes the playlist the screen is holding.
+    if (cleared.count > 0 || video.setName) {
       const settings = await prisma.displaySettings.findUnique({ where: { id: 'default' } });
       if (settings) {
-        await publishModeChanged({
-          mode: settings.mode === 'video' ? 'video' : 'testimonials',
-          video: null,
-          testimonialAutoPlay: settings.testimonialAutoPlay,
-          testimonialDurationMs: settings.testimonialDurationMs,
-        });
+        await publishModeChanged(await buildModeChanged(settings));
       }
     }
 

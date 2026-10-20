@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/prisma';
+import { PARTS_SET_NAME } from '@/lib/realtime/protocol';
 import { publishContent } from '@/server/realtime';
 import {
   CloudinaryNotConfiguredError,
@@ -15,7 +16,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const { page, pageSize, sort, order, q } = parseVideoListQuery(request.nextUrl.searchParams);
-    const where = q
+    const standalone = request.nextUrl.searchParams.get('standalone') === '1';
+    const search = q
       ? {
           OR: [
             { title: { contains: q, mode: 'insensitive' as const } },
@@ -23,6 +25,9 @@ export async function GET(request: NextRequest) {
           ],
         }
       : {};
+    // Clips that belong to a playlist are hidden when only standalone uploads are wanted.
+    const partsOnly = request.nextUrl.searchParams.get('set') === 'parts';
+    const where = partsOnly ? { ...search, setName: PARTS_SET_NAME } : standalone ? { ...search, setName: null } : search;
 
     const [total, items] = await Promise.all([
       prisma.video.count({ where }),

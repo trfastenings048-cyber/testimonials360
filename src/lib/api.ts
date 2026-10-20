@@ -282,6 +282,10 @@ export type DisplaySettings = {
   videoAutoplay: boolean; videoLoop: boolean; testimonialAutoPlay: boolean; testimonialDurationMs: number;
   /** The video the screen plays in video mode (resolved by the server). */
   video?: { id: string; url: string; title: string } | null;
+  /** "single" = latest standalone upload, "parts" = the ordered clip set. */
+  videoSet?: 'single' | 'parts';
+  /** What video mode plays, in order (resolved by the server). */
+  playlist?: { id: string; url: string; title: string }[];
 };
 
 export const fetchDisplaySettings = async (): Promise<DisplaySettings> => {
@@ -298,6 +302,8 @@ export type DisplaySettingsUpdate = Partial<
 > & {
   /** With mode 'video': play this video instead of the latest upload. */
   videoId?: string;
+  /** With mode 'video': which video to play. */
+  videoSet?: 'single' | 'parts';
 };
 
 /** Partial update; switching to video mode plays the latest upload unless videoId is given. */
@@ -327,6 +333,8 @@ export type VideoRecord = {
   width: number | null;
   height: number | null;
   createdAt: string;
+  setName?: string | null;
+  position?: number | null;
 };
 
 export type VideoSortField = 'title' | 'createdAt' | 'duration' | 'bytes' | 'format';
@@ -337,6 +345,10 @@ export type VideoListQuery = {
   sort: VideoSortField;
   order: 'asc' | 'desc';
   q: string;
+  /** Only videos that aren't part of a clip set (what "Video 1" plays). */
+  standalone?: boolean;
+  /** Only the clips of the ordered playlist ("Video 2"). */
+  set?: 'parts';
 };
 
 export type VideoListResponse = VideoListQuery & {
@@ -358,6 +370,8 @@ export const fetchVideos = async (query: VideoListQuery, signal?: AbortSignal): 
     order: query.order,
   });
   if (query.q) params.set('q', query.q);
+  if (query.standalone) params.set('standalone', '1');
+  if (query.set) params.set('set', query.set);
   const response = await fetch(`/api/videos?${params}`, { cache: 'no-store', signal });
   if (!response.ok) throw await readError(response, 'Failed to load videos');
   return response.json();

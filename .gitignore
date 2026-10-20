@@ -44,3 +44,7 @@ public/*.json
 next-env.d.ts
 
 src/generated/*
+
+# local source video and encoded clips (too big for git; clips live on Cloudinary)
+/public/*.mp4
+/video-parts/

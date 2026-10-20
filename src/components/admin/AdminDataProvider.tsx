@@ -14,7 +14,7 @@ import {
 import type * as Ably from 'ably';
 import { toast } from 'sonner';
 import { fetchCertificates, fetchDisplaySettings, fetchImages, type DisplaySettings } from '@/lib/api';
-import { CHANNELS, randomId, type CommandName, type ContentEvents, type ScreenPresence } from '@/lib/realtime/protocol';
+import { CHANNELS, randomId, type CommandName, type ContentEvents, type ModeChangedData, type ScreenPresence } from '@/lib/realtime/protocol';
 import { useChannelMessages, useRealtimeClient, useScreens, type RealtimeConnection } from '@/lib/realtime/client';
 import type { CertificateRecord, EventImage } from '@/types';
 
@@ -33,6 +33,8 @@ export const defaultDisplaySettings: DisplaySettings = {
   testimonialAutoPlay: true,
   testimonialDurationMs: 5000,
   video: null,
+  videoSet: 'single',
+  playlist: [],
 };
 
 type AdminData = {
@@ -152,8 +154,15 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   // Keep this tab's copy of the settings in step with mode changes made elsewhere.
   useChannelMessages(realtime, CHANNELS.control, (message) => {
     if (message.name !== 'mode.changed') return;
-    const data = message.data as { mode: DisplaySettings['mode']; video: DisplaySettings['video'] };
-    setSettings((current) => ({ ...current, mode: data.mode, video: data.video, videoUrl: data.video?.url ?? null }));
+    const data = message.data as ModeChangedData;
+    setSettings((current) => ({
+      ...current,
+      mode: data.mode,
+      video: data.video,
+      playlist: data.playlist ?? current.playlist,
+      videoSet: data.videoSet ?? current.videoSet,
+      videoUrl: data.videoSet === 'parts' ? current.videoUrl : (data.video?.url ?? null),
+    }));
   });
 
   const publishCommand = useCallback(

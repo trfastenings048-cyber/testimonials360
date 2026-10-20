@@ -27,6 +27,8 @@ export const COMMANDS = [
   'banner.play',
   'video.play',
   'video.pause',
+  'video.next',
+  'video.previous',
 ] as const;
 export type CommandName = (typeof COMMANDS)[number];
 
@@ -39,9 +41,21 @@ export type DisplayMode = 'testimonials' | 'video';
 
 export type DisplayVideo = { id: string; url: string; title: string };
 
+/** "single" plays the latest standalone upload; "parts" plays the ordered clip set. */
+export type VideoSetKind = 'single' | 'parts';
+
+/** Videos that belong to the clip playlist share this `setName`. */
+export const PARTS_SET_NAME = 'tr-fastening-parts';
+
 export type ModeChangedData = {
   mode: DisplayMode;
+  /** First item of `playlist`; kept so screens running an older build still play something. */
   video: DisplayVideo | null;
+  /** What video mode plays, in order: one item for "single", the clips for "parts". */
+  playlist: DisplayVideo[];
+  videoSet: VideoSetKind;
+  videoAutoplay: boolean;
+  videoLoop: boolean;
   testimonialAutoPlay: boolean;
   testimonialDurationMs: number;
 };
@@ -63,7 +77,15 @@ export type ScreenState = {
   testimonials: { paused: boolean; index: number; count: number };
   /** The group-photo slideshow behind the testimonial card. Optional: older screens don't report it. */
   banner?: { paused: boolean; index: number; count: number; groupName: string | null };
-  video: { id: string | null; title: string | null; playing: boolean };
+  video: {
+    id: string | null;
+    title: string | null;
+    playing: boolean;
+    /** Position in the playlist. Optional: older screens don't report it. */
+    index?: number;
+    count?: number;
+    set?: VideoSetKind;
+  };
   /** False until someone interacts with the screen once; browsers mute autoplay until then. */
   audioUnlocked: boolean;
 };

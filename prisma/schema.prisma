@@ -45,8 +45,13 @@ model Video {
   width        Int?
   height       Int?
   createdAt    DateTime @default(now())
+  /// Clips that belong to an ordered playlist share a setName and carry a 1-based position.
+  /// Standalone uploads leave both null.
+  setName      String?
+  position     Int?
 
   @@index([createdAt])
+  @@index([setName, position])
 }
 
 /// Failed admin sign-in counters, keyed by "ip:<address>" or "global". Makes a short PIN safe
@@ -66,6 +71,9 @@ model DisplaySettings {
   videoUrl               String?
   videoAutoplay          Boolean  @default(true)
   videoLoop              Boolean  @default(true)
+  /// Which video the screen plays in video mode: the latest standalone upload ("single")
+  /// or the ordered clip set ("parts").
+  videoSet               String   @default("single")
   testimonialAutoPlay    Boolean  @default(true)
   testimonialDurationMs  Int      @default(5000)
   updatedAt              DateTime @updatedAt
