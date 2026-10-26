@@ -59,6 +59,20 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   const toggleCollapsed = () => writeCollapsed(!collapsed);
 
+  const isOverview = pathname === '/admin/overview';
+
+  if (isOverview) {
+    return (
+      <AdminDataProvider>
+        <TooltipProvider>
+          <div className="min-h-screen w-full bg-[#0a0e1c] text-white">
+            {children}
+          </div>
+        </TooltipProvider>
+      </AdminDataProvider>
+    );
+  }
+
   return (
     <AdminDataProvider>
       <TooltipProvider>
