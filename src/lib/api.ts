@@ -279,7 +279,7 @@ export const bulkDeleteCertificates = async (ids?: string[]): Promise<void> => {
 
 export type DisplaySettings = {
   id: string; heading: string; subtitle: string; mode: 'video' | 'testimonials'; videoUrl?: string | null;
-  videoAutoplay: boolean; videoLoop: boolean; testimonialAutoPlay: boolean; testimonialDurationMs: number;
+  videoAutoplay: boolean; videoLoop: boolean; videoMuted: boolean; videoVolume: number; testimonialAutoPlay: boolean; testimonialDurationMs: number;
   /** The video the screen plays in video mode (resolved by the server). */
   video?: { id: string; url: string; title: string } | null;
   /** "single" = latest standalone upload, "parts" = the ordered clip set. */
@@ -297,7 +297,7 @@ export const fetchDisplaySettings = async (): Promise<DisplaySettings> => {
 export type DisplaySettingsUpdate = Partial<
   Pick<
     DisplaySettings,
-    'mode' | 'heading' | 'subtitle' | 'videoAutoplay' | 'videoLoop' | 'testimonialAutoPlay' | 'testimonialDurationMs'
+    'mode' | 'heading' | 'subtitle' | 'videoAutoplay' | 'videoLoop' | 'videoMuted' | 'videoVolume' | 'testimonialAutoPlay' | 'testimonialDurationMs'
   >
 > & {
   /** With mode 'video': play this video instead of the latest upload. */

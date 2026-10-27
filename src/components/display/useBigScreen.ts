@@ -26,6 +26,10 @@ const PROGRESS_STEP = 50;
 const COMMAND_MAX_AGE_MS = 10_000;
 const SYSTEM_INTRO_EMAIL = 'system-intro@gates.com';
 
+/** Older servers can omit new audio fields; media.volume rejects NaN and Infinity. */
+const normalizeVolume = (value: unknown) =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : 68;
+
 const isDisplayableTestimonial = (certificate: Partial<CertificateRecord> | null | undefined) =>
   Boolean(certificate?.showOnDisplay) &&
   certificate?.userEmail !== SYSTEM_INTRO_EMAIL &&
@@ -63,6 +67,8 @@ export function useBigScreen() {
   const [testimonialDurationMs, setTestimonialDurationMs] = useState(TESTIMONIAL_DURATION);
   const [videoAutoplay, setVideoAutoplay] = useState(true);
   const [videoLoop, setVideoLoop] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(false);
+  const [videoVolume, setVideoVolume] = useState(68);
 
   const [isTestimonialPaused, setIsTestimonialPaused] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -106,6 +112,8 @@ export function useBigScreen() {
         setTestimonialDurationMs(settings.testimonialDurationMs || TESTIMONIAL_DURATION);
         setVideoAutoplay(settings.videoAutoplay);
         setVideoLoop(settings.videoLoop);
+        setVideoMuted(settings.videoMuted === true);
+        setVideoVolume(normalizeVolume(settings.videoVolume));
       })
       .catch((error) => console.error('Error loading display settings:', error));
 
@@ -215,6 +223,8 @@ export function useBigScreen() {
       applyPlaylist(message.data.playlist ?? (message.data.video ? [message.data.video] : []), message.data.videoSet ?? 'single');
       if (typeof message.data.videoAutoplay === 'boolean') setVideoAutoplay(message.data.videoAutoplay);
       if (typeof message.data.videoLoop === 'boolean') setVideoLoop(message.data.videoLoop);
+      if (typeof message.data.videoMuted === 'boolean') setVideoMuted(message.data.videoMuted);
+      setVideoVolume(normalizeVolume(message.data.videoVolume));
       setTestimonialAutoPlay(message.data.testimonialAutoPlay);
       setTestimonialDurationMs(message.data.testimonialDurationMs || TESTIMONIAL_DURATION);
       return;
@@ -352,6 +362,8 @@ export function useBigScreen() {
       set: videoSet,
     },
     audioUnlocked,
+    audioMuted: videoMuted || !audioUnlocked,
+    audioVolume: normalizeVolume(videoVolume),
   };
   const presenceVersion = [
     mode,
@@ -365,6 +377,8 @@ export function useBigScreen() {
     videoSet,
     isVideoPlaying,
     audioUnlocked,
+    videoMuted,
+    videoVolume,
   ].join('|');
   useScreenPresence(client, screenState, presenceVersion);
 
@@ -385,8 +399,10 @@ export function useBigScreen() {
 
   // React doesn't reliably reflect `muted` changes to the DOM, so set it directly.
   useEffect(() => {
-    if (videoRef.current) videoRef.current.muted = !audioUnlocked;
-  }, [audioUnlocked, video?.url, mode]);
+    if (!videoRef.current) return;
+    videoRef.current.muted = videoMuted || !audioUnlocked;
+    videoRef.current.volume = normalizeVolume(videoVolume) / 100;
+  }, [audioUnlocked, videoMuted, videoVolume, video?.url, mode]);
 
   // ---------------------------------------------------------------------------
   // Local timers (no network)
@@ -465,6 +481,8 @@ export function useBigScreen() {
     videoAutoplay: videoAutoplay || continuePlayback,
     // A multi-clip playlist loops by returning to the first clip, so the element itself must not loop.
     videoLoop: videoLoop && clipCount <= 1,
+    videoMuted,
+    videoVolume: normalizeVolume(videoVolume),
     audioUnlocked,
     isVideoPlaying,
     setIsVideoPlaying,

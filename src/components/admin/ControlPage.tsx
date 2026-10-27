@@ -14,6 +14,7 @@ import {
   MonitorOff,
   Pause,
   Play,
+  Volume2,
   VolumeX,
 } from 'lucide-react';
 import { fetchVideos, updateDisplaySettings, type DisplaySettings, type VideoRecord } from '@/lib/api';
@@ -71,13 +72,22 @@ function ControlButton({
 }
 
 export function ControlPage({ embedded = false }: { embedded?: boolean }) {
-  const { settings, setSettings, screens, connection, realtime, publishCommand } = useAdminData();
+  const {
+    settings, setSettings, screens, connection, realtime, publishCommand,
+    screenControlConnected, screenControlSecondsRemaining, connectScreenControls, disconnectScreenControls,
+  } = useAdminData();
   const [savingMode, setSavingMode] = useState<DisplaySettings['mode'] | null>(null);
   const [pendingCommand, setPendingCommand] = useState<CommandName | null>(null);
   const [latestVideo, setLatestVideo] = useState<VideoRecord | null>(null);
   const [videosLoaded, setVideosLoaded] = useState(false);
   const [partCount, setPartCount] = useState<number | null>(null);
   const [savingSet, setSavingSet] = useState<'single' | 'parts' | null>(null);
+  const [savingSound, setSavingSound] = useState(false);
+  const [volumeDraft, setVolumeDraft] = useState(68);
+
+  // A display running an older build may omit the new audio fields from its live update.
+  // Always retain a concrete number so this remains a controlled range input.
+  useEffect(() => setVolumeDraft(settings.videoVolume ?? 68), [settings.videoVolume]);
 
   // One read to know what "Video" will play; uploads and deletes then arrive over Ably.
   useEffect(() => {
@@ -160,6 +170,19 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
     }
   };
 
+  const saveSound = async (update: Pick<DisplaySettings, 'videoMuted' | 'videoVolume'>) => {
+    setSavingSound(true);
+    try {
+      const saved = await updateDisplaySettings(update);
+      setSettings(saved);
+    } catch (error) {
+      setVolumeDraft(settings.videoVolume ?? 68);
+      toast.error(error instanceof Error ? error.message : 'Failed to save sound settings');
+    } finally {
+      setSavingSound(false);
+    }
+  };
+
   const commandIcon = (command: CommandName, icon: ReactNode) =>
     pendingCommand === command ? <Loader2 className="animate-spin" /> : icon;
 
@@ -168,7 +191,19 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
   const videoPlaying = screen?.video.playing ?? false;
   const clipCount = screen?.video.count ?? 0;
   const clipIndex = screen?.video.index ?? 0;
-  const playbackDisabled = !hasScreen || connection !== 'live';
+  const playbackDisabled = !hasScreen || connection !== 'live' || !screenControlConnected;
+  const controlsDisabled = connection !== 'live' || !screenControlConnected;
+  const remainingLabel = `${Math.floor(screenControlSecondsRemaining / 60)}:${String(screenControlSecondsRemaining % 60).padStart(2, '0')}`;
+
+  const toggleScreenConnection = () => {
+    if (screenControlConnected) {
+      disconnectScreenControls();
+      toast.info('Screen controls disconnected');
+      return;
+    }
+    if (connectScreenControls()) toast.success(`Connected to ${screens.length} screen${screens.length === 1 ? '' : 's'} for 5 minutes`);
+    else toast.error('No live screen found. Open /display on the screen, then try again.');
+  };
 
   const testimonialStatus = !screen
     ? null
@@ -277,6 +312,27 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
         </p>
       )}
 
+      <section className="mt-4 flex w-full items-center justify-between gap-3 rounded-2xl border border-border bg-muted/30 p-3 text-left" aria-label="Screen connection">
+        <div>
+          <p className="text-sm font-medium text-ink">Screen connection</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {screenControlConnected
+              ? `${screens.length} live screen${screens.length === 1 ? '' : 's'} found · disconnects in ${remainingLabel}`
+              : 'Connect to discover a live display and enable controls for 5 minutes.'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={toggleScreenConnection}
+          className={cn(
+            'shrink-0 rounded-xl px-3 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40',
+            screenControlConnected ? 'bg-warning/15 text-warning hover:bg-warning/25' : 'bg-ink text-white hover:bg-ink/90'
+          )}
+        >
+          {screenControlConnected ? `Disconnect ${remainingLabel}` : 'Connect'}
+        </button>
+      </section>
+
       {/* Mode */}
       <section className={cn('w-full', embedded ? 'mt-0' : 'mt-6')} aria-labelledby="mode-heading">
         <h2 id="mode-heading" className="mb-2 text-eyebrow text-muted-foreground">
@@ -286,7 +342,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
           <ControlButton
             tone="primary"
             active={!isVideo}
-            disabled={savingMode !== null}
+            disabled={savingMode !== null || controlsDisabled}
             onClick={() => void changeDisplayMode('testimonials')}
             icon={savingMode === 'testimonials' ? <Loader2 className="animate-spin" /> : <MessageSquareQuote />}
             label="Testimonials"
@@ -294,7 +350,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
           <ControlButton
             tone="primary"
             active={isVideo}
-            disabled={savingMode !== null || (videosLoaded && !latestVideo)}
+            disabled={savingMode !== null || controlsDisabled || (videosLoaded && !latestVideo)}
             onClick={() => void changeDisplayMode('video')}
             icon={savingMode === 'video' ? <Loader2 className="animate-spin" /> : <Film />}
             label={newerVideoAvailable ? 'Play latest video' : 'Video'}
@@ -324,7 +380,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
             <ControlButton
               tone="primary"
               active={activeSet === 'single'}
-              disabled={savingSet !== null || (videosLoaded && !latestVideo)}
+              disabled={savingSet !== null || controlsDisabled || (videosLoaded && !latestVideo)}
               onClick={() => void changeVideoSet('single')}
               icon={savingSet === 'single' ? <Loader2 className="animate-spin" /> : <Film />}
               label="Video 1"
@@ -333,7 +389,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
             <ControlButton
               tone="primary"
               active={activeSet === 'parts'}
-              disabled={savingSet !== null || !partCount}
+              disabled={savingSet !== null || controlsDisabled || !partCount}
               onClick={() => void changeVideoSet('parts')}
               icon={savingSet === 'parts' ? <Loader2 className="animate-spin" /> : <Film />}
               label="Video 2"
@@ -383,11 +439,60 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
               </div>
             </div>
           )}
+          <section className="mt-3 rounded-2xl border border-border bg-muted/30 p-3 text-left" aria-labelledby="sound-heading">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 id="sound-heading" className="text-sm font-medium text-ink">Sound</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {settings.videoMuted ? 'Muted on all screens' : `${volumeDraft ?? 68}% volume on all screens`}
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={savingSound || controlsDisabled}
+                onClick={() => void saveSound({ videoMuted: !settings.videoMuted, videoVolume: volumeDraft })}
+                aria-pressed={!settings.videoMuted}
+                className={cn(
+                  'inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40 disabled:opacity-50',
+                  settings.videoMuted ? 'bg-warning/15 text-warning hover:bg-warning/20' : 'bg-ink text-white hover:bg-ink/90'
+                )}
+              >
+                {savingSound ? <Loader2 className="size-4 animate-spin" /> : settings.videoMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+                {settings.videoMuted ? 'Unmute' : 'Mute'}
+              </button>
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <VolumeX className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={volumeDraft ?? 68}
+                disabled={savingSound || controlsDisabled}
+                onChange={(event) => setVolumeDraft(Number(event.target.value))}
+                onPointerUp={() => {
+                  if (volumeDraft !== settings.videoVolume) void saveSound({ videoMuted: false, videoVolume: volumeDraft ?? 68 });
+                }}
+                onKeyUp={() => {
+                  if (volumeDraft !== settings.videoVolume) void saveSound({ videoMuted: false, videoVolume: volumeDraft ?? 68 });
+                }}
+                className="h-2 w-full cursor-pointer accent-ink disabled:cursor-not-allowed"
+                aria-label="Big screen volume"
+              />
+              <Volume2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <output className="w-9 text-right text-xs font-medium tabular-nums text-ink" aria-live="polite">{volumeDraft ?? 68}%</output>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {screen?.audioUnlocked
+                ? 'Sound is ready on this screen.'
+                : 'A person must tap or press a key on each screen once before its browser can play sound.'}
+            </p>
+          </section>
           {screen && !screen.audioUnlocked && (
             <p className="mt-3 flex items-start gap-2 rounded-2xl border border-warning/25 bg-warning/10 px-3 py-2 text-left text-xs text-warning">
               <VolumeX className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-              The screen plays muted until someone taps it once (a browser autoplay rule). Tap the big screen to turn on
-              sound.
+              Audio settings are saved, but the browser keeps this screen muted until someone taps it once.
             </p>
           )}
         </section>

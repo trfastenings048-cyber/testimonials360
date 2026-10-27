@@ -42,6 +42,8 @@ export async function buildModeChanged(settings: DisplaySettings, playlist?: Dis
     videoSet: parseVideoSet(settings.videoSet),
     videoAutoplay: settings.videoAutoplay,
     videoLoop: settings.videoLoop,
+    videoMuted: settings.videoMuted,
+    videoVolume: settings.videoVolume,
     testimonialAutoPlay: settings.testimonialAutoPlay,
     testimonialDurationMs: settings.testimonialDurationMs,
   };

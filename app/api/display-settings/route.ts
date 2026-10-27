@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 const defaults = {
   id: 'default', heading: 'Testimonials', subtitle: '', mode: 'testimonials',
-  videoUrl: null, videoAutoplay: true, videoLoop: true, videoSet: 'single',
+  videoUrl: null, videoAutoplay: true, videoLoop: true, videoMuted: false, videoVolume: 68, videoSet: 'single',
   testimonialAutoPlay: true, testimonialDurationMs: 5000,
 };
 
@@ -84,6 +84,10 @@ export async function PATCH(request: NextRequest) {
     if (typeof body.subtitle === 'string') data.subtitle = body.subtitle.trim();
     if (typeof body.videoAutoplay === 'boolean') data.videoAutoplay = body.videoAutoplay;
     if (typeof body.videoLoop === 'boolean') data.videoLoop = body.videoLoop;
+    if (typeof body.videoMuted === 'boolean') data.videoMuted = body.videoMuted;
+    if (body.videoVolume !== undefined) {
+      data.videoVolume = Math.max(0, Math.min(100, Math.round(Number(body.videoVolume) || 0)));
+    }
     if (typeof body.testimonialAutoPlay === 'boolean') data.testimonialAutoPlay = body.testimonialAutoPlay;
     if (body.testimonialDurationMs !== undefined) {
       data.testimonialDurationMs = Math.max(1000, Math.min(60000, Number(body.testimonialDurationMs) || 5000));

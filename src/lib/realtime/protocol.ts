@@ -56,6 +56,10 @@ export type ModeChangedData = {
   videoSet: VideoSetKind;
   videoAutoplay: boolean;
   videoLoop: boolean;
+  /** The admin's preferred sound state. A browser gesture is still needed before it can unmute. */
+  videoMuted: boolean;
+  /** Integer percentage from 0 to 100. */
+  videoVolume: number;
   testimonialAutoPlay: boolean;
   testimonialDurationMs: number;
 };
@@ -88,6 +92,9 @@ export type ScreenState = {
   };
   /** False until someone interacts with the screen once; browsers mute autoplay until then. */
   audioUnlocked: boolean;
+  /** Effective sound state reported by current display builds. */
+  audioMuted?: boolean;
+  audioVolume?: number;
 };
 
 export type ScreenPresence = ScreenState & { clientId: string };

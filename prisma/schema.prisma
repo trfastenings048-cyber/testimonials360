@@ -71,6 +71,9 @@ model DisplaySettings {
   videoUrl               String?
   videoAutoplay          Boolean  @default(true)
   videoLoop              Boolean  @default(true)
+  /// The preferred sound level for video playback. Browsers still require a gesture before audio can start.
+  videoMuted             Boolean  @default(false)
+  videoVolume            Int      @default(68)
   /// Which video the screen plays in video mode: the latest standalone upload ("single")
   /// or the ordered clip set ("parts").
   videoSet               String   @default("single")

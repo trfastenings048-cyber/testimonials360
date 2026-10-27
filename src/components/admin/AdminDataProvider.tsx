@@ -21,6 +21,7 @@ import type { CertificateRecord, EventImage } from '@/types';
 export type ConnectionStatus = RealtimeConnection;
 
 export const SYSTEM_INTRO_EMAIL = 'system-intro@gates.com';
+const SCREEN_CONTROL_SESSION_MS = 5 * 60 * 1000;
 
 export const defaultDisplaySettings: DisplaySettings = {
   id: 'default',
@@ -30,6 +31,8 @@ export const defaultDisplaySettings: DisplaySettings = {
   videoUrl: null,
   videoAutoplay: true,
   videoLoop: true,
+  videoMuted: false,
+  videoVolume: 68,
   testimonialAutoPlay: true,
   testimonialDurationMs: 5000,
   video: null,
@@ -55,6 +58,11 @@ type AdminData = {
   refresh: () => Promise<void>;
   /** Sends a playback command straight to the screens over Ably (no API call). */
   publishCommand: (name: CommandName) => Promise<void>;
+  /** A short-lived local admin session that intentionally gates display controls. */
+  screenControlConnected: boolean;
+  screenControlSecondsRemaining: number;
+  connectScreenControls: () => boolean;
+  disconnectScreenControls: () => void;
 };
 
 const AdminDataContext = createContext<AdminData | null>(null);
@@ -75,9 +83,36 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   const [certificatesLoading, setCertificatesLoading] = useState(true);
   const [settings, setSettings] = useState<DisplaySettings>(defaultDisplaySettings);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [screenControlExpiresAt, setScreenControlExpiresAt] = useState<number | null>(null);
+  const [controlClock, setControlClock] = useState(() => Date.now());
 
   const { client: realtime, connection } = useRealtimeClient('admin');
   const screens = useScreens(realtime);
+
+  useEffect(() => {
+    if (!screenControlExpiresAt) return;
+    const timer = window.setInterval(() => setControlClock(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [screenControlExpiresAt]);
+
+  const screenControlConnected = Boolean(screenControlExpiresAt && screenControlExpiresAt > controlClock);
+  const screenControlSecondsRemaining = screenControlConnected
+    ? Math.ceil((screenControlExpiresAt! - controlClock) / 1000)
+    : 0;
+
+  useEffect(() => {
+    if (screenControlExpiresAt && screenControlExpiresAt <= controlClock) setScreenControlExpiresAt(null);
+  }, [screenControlExpiresAt, controlClock]);
+
+  const connectScreenControls = useCallback(() => {
+    if (connection !== 'live' || screens.length === 0) return false;
+    const now = Date.now();
+    setControlClock(now);
+    setScreenControlExpiresAt(now + SCREEN_CONTROL_SESSION_MS);
+    return true;
+  }, [connection, screens.length]);
+
+  const disconnectScreenControls = useCallback(() => setScreenControlExpiresAt(null), []);
 
   const loadAll = useCallback(() => {
     const imagesRequest = fetchImages()
@@ -162,6 +197,10 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
       playlist: data.playlist ?? current.playlist,
       videoSet: data.videoSet ?? current.videoSet,
       videoUrl: data.videoSet === 'parts' ? current.videoUrl : (data.video?.url ?? null),
+      // Older display tabs can still publish mode updates without sound fields.
+      // Keep the last known values so the range input remains controlled.
+      videoMuted: typeof data.videoMuted === 'boolean' ? data.videoMuted : current.videoMuted,
+      videoVolume: typeof data.videoVolume === 'number' ? data.videoVolume : current.videoVolume,
     }));
   });
 
@@ -189,6 +228,10 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
       isRefreshing,
       refresh,
       publishCommand,
+      screenControlConnected,
+      screenControlSecondsRemaining,
+      connectScreenControls,
+      disconnectScreenControls,
     }),
     [
       images,
@@ -202,6 +245,10 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
       isRefreshing,
       refresh,
       publishCommand,
+      screenControlConnected,
+      screenControlSecondsRemaining,
+      connectScreenControls,
+      disconnectScreenControls,
     ]
   );
 

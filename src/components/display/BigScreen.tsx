@@ -86,7 +86,7 @@ export default function BigScreen() {
           videoRef={screen.videoRef}
           autoPlay={screen.videoAutoplay}
           loop={screen.videoLoop}
-          muted={!screen.audioUnlocked}
+          muted={screen.videoMuted || !screen.audioUnlocked}
           nextVideo={screen.nextVideo}
           onPlayingChange={screen.setIsVideoPlaying}
           onEnded={screen.handleVideoEnded}
