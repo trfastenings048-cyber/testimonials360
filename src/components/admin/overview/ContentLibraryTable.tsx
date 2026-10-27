@@ -396,7 +396,7 @@ export function ContentLibraryTable({
                 type="button"
                 onClick={() => setSearch('')}
                 aria-label="Clear search"
-                className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-slate-100 hover:text-ink"
+                className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-white/10 hover:text-ink"
               >
                 <X className="size-3.5" />
               </button>
@@ -475,7 +475,7 @@ export function ContentLibraryTable({
                       checked={liveSelected.has(image.id)}
                       onCheckedChange={() => toggleRow(image.id)}
                       aria-label={`Select ${image.groupName}`}
-                      className="absolute top-3 left-3 size-5 bg-white"
+                      className="absolute top-3 left-3 size-5 bg-[#16213e]"
                     />
                   </div>
                   <div className="flex items-start justify-between gap-3">

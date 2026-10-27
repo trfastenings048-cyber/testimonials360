@@ -52,7 +52,7 @@ function ControlButton({
       aria-label={ariaLabel}
       aria-pressed={tone === 'primary' ? active : undefined}
       className={cn(
-        'flex h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl px-2 text-sm font-medium outline-none transition-all active:scale-[0.97] focus-visible:ring-4 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-45 sm:h-[76px] [&_svg]:size-5 sm:[&_svg]:size-6',
+        'flex h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl px-2 text-sm font-medium outline-none transition-all active:scale-[0.97] focus-visible:ring-4 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:cursor-not-allowed disabled:border disabled:border-slate-700/70 disabled:bg-[#16213e] disabled:text-slate-500 disabled:shadow-none disabled:opacity-100 disabled:[&_svg]:text-slate-500 sm:h-[76px] [&_svg]:size-5 sm:[&_svg]:size-6',
         tone === 'primary' &&
           (active
             ? 'bg-ink text-white shadow-lg shadow-ink/25'
@@ -326,7 +326,9 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
           onClick={toggleScreenConnection}
           className={cn(
             'shrink-0 rounded-xl px-3 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40',
-            screenControlConnected ? 'bg-warning/15 text-warning hover:bg-warning/25' : 'bg-ink text-white hover:bg-ink/90'
+            screenControlConnected
+              ? 'border border-amber-400/25 bg-amber-400/10 text-amber-200 hover:bg-amber-400/20'
+              : 'border border-[#5475d6] bg-[#3150a7] text-white shadow-sm shadow-[#3150a7]/30 hover:bg-[#3d61c2]'
           )}
         >
           {screenControlConnected ? `Disconnect ${remainingLabel}` : 'Connect'}

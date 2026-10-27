@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   ArrowUpRight,
@@ -33,7 +34,6 @@ import { PhotosDrawer } from './overview/PhotosDrawer';
 import { TestimonialsDrawer } from './overview/TestimonialsDrawer';
 import { VideosDrawer } from './overview/VideosDrawer';
 import { ControlPage } from './ControlPage';
-import { ContentLibraryTable } from './overview/ContentLibraryTable';
 
 /** Accessible toggle switch */
 function PrototypeSwitch({
@@ -86,7 +86,7 @@ function StatCard({
   unit,
   description,
   footerLeft,
-  onLabelClick,
+  onOpen,
   actionLabel,
   actionIcon,
   onAction,
@@ -98,7 +98,7 @@ function StatCard({
   unit: string;
   description: string;
   footerLeft: string;
-  onLabelClick: () => void;
+  onOpen: () => void;
   actionLabel: string;
   actionIcon: React.ReactNode;
   onAction: () => void;
@@ -106,21 +106,24 @@ function StatCard({
 }) {
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
+      aria-label={`Open ${label} details`}
       className={cn(
-        'flex flex-col justify-between py-6 sm:py-0',
-        divider && 'border-t border-slate-800/70 md:border-t-0 md:border-l md:border-slate-800/70 md:pl-8'
+        'group flex min-h-[218px] cursor-pointer flex-col justify-between rounded-3xl border border-[#1d2c4a] bg-[#0d1527] p-6 shadow-[0_16px_38px_-26px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.035)] outline-none transition duration-200 hover:-translate-y-0.5 hover:border-[#35538a] hover:bg-[#111c33] hover:shadow-[0_22px_42px_-26px_rgba(0,0,0,1),0_0_0_1px_rgba(100,137,220,0.08)] focus-visible:ring-2 focus-visible:ring-[#9bb3ff]'
       )}
     >
       <div>
         {/* Label row */}
         <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <button
-            type="button"
-            onClick={onLabelClick}
-            className="text-sm font-medium text-slate-300 hover:text-white cursor-pointer underline-offset-2 hover:underline transition-colors text-left"
-          >
-            {label}
-          </button>
+          <span className="text-sm font-medium text-slate-300">{label}</span>
           <span className="text-slate-500">{icon}</span>
         </div>
 
@@ -143,7 +146,10 @@ function StatCard({
         <span className="text-xs text-slate-500 font-normal">{footerLeft}</span>
         <button
           type="button"
-          onClick={onAction}
+          onClick={(event) => {
+            event.stopPropagation();
+            onAction();
+          }}
           className="rounded-full bg-[#121a30] border border-slate-700/70 hover:bg-[#1a2544] hover:border-slate-600 px-3.5 py-1.5 text-xs font-medium text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm active:scale-95 shrink-0"
         >
           {actionIcon}
@@ -167,6 +173,10 @@ export function OverviewPage() {
     refresh,
     isRefreshing,
     publishCommand,
+    screenControlConnected,
+    screenControlSecondsRemaining,
+    connectScreenControls,
+    disconnectScreenControls,
   } = useAdminData();
 
   // Modal / drawer open states
@@ -177,7 +187,6 @@ export function OverviewPage() {
   const [photosDrawerOpen, setPhotosDrawerOpen] = useState(false);
   const [testimonialsDrawerOpen, setTestimonialsDrawerOpen] = useState(false);
   const [videosDrawerOpen, setVideosDrawerOpen] = useState(false);
-  const [activeLibrary, setActiveLibrary] = useState<'photos' | 'testimonials' | 'videos' | null>(null);
 
   // Control state
   const [screenShows, setScreenShows] = useState<'testimonials' | 'video'>('video');
@@ -291,20 +300,39 @@ export function OverviewPage() {
     catch { toast.error('Failed to refresh'); }
   };
 
+  const toggleScreenConnection = () => {
+    if (screenControlConnected) {
+      disconnectScreenControls();
+      toast.info('Screen controls disconnected');
+      return;
+    }
+    if (connectScreenControls()) toast.success(`Connected to ${screens.length} screen${screens.length === 1 ? '' : 's'} for 5 minutes`);
+    else toast.error('No live screen found. Open /display on the screen, then try again.');
+  };
+
+  const sessionTime = `${Math.floor(screenControlSecondsRemaining / 60)}:${String(screenControlSecondsRemaining % 60).padStart(2, '0')}`;
+
   return (
-    <div className={cn('min-h-screen w-full bg-[#0a0e1c] text-white flex flex-col justify-between selection:bg-[#9bb3ff] selection:text-[#0b1228]', !activeLibrary && 'lg:h-screen lg:overflow-hidden')}>
+    <div className="min-h-screen w-full bg-[#0a0e1c] text-white flex flex-col justify-between selection:bg-[#9bb3ff] selection:text-[#0b1228] lg:h-screen lg:overflow-hidden">
 
       {/* ------------------------------------------------------------------ */}
       {/* Main scrollable content                                             */}
       {/* ------------------------------------------------------------------ */}
-      <div className={cn('w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-5 sm:py-6 flex-1', activeLibrary ? 'pb-10' : 'pb-8 lg:py-4')}>
+      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-5 sm:py-6 flex-1 pb-8 lg:py-4">
 
         {/* ── Top Header Bar ─────────────────────────────────────────────── */}
         <header className="flex items-center justify-between gap-3 py-2">
           {/* Brand */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="size-9 sm:size-10 rounded-full bg-[#131b32] border border-[#223156] flex items-center justify-center shrink-0 shadow-inner">
-              <span className="text-xs sm:text-sm font-bold tracking-wider text-[#5a7bb5]">TR</span>
+            <div className="size-10 overflow-hidden rounded-full border border-[#516fab] bg-white p-1 shadow-[0_4px_14px_rgba(0,0,0,0.32)] sm:size-11">
+              <Image
+                src="/tr-fastenings-logo.jpg"
+                alt="TR Fastenings"
+                width={44}
+                height={44}
+                className="size-full object-contain"
+                priority
+              />
             </div>
             <div className="hidden xs:flex flex-col min-w-0">
               <span className="text-[11px] text-slate-400 leading-tight">TR Fastenings</span>
@@ -314,13 +342,13 @@ export function OverviewPage() {
             </div>
           </div>
 
-          {/* Nav links — hidden on very small screens */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Quick links — left-aligned action buttons beside the brand. */}
+          <div className="hidden md:flex flex-1 items-center justify-start gap-2">
             <Link
               href="/display"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 rounded-xl border border-[#30456f] bg-[#131b32] px-3 py-2 text-xs font-medium text-slate-200 shadow-sm transition-colors hover:border-[#5274ad] hover:bg-[#1a2542] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9bb3ff]"
             >
               Big screen <ArrowUpRight className="size-3" />
             </Link>
@@ -328,7 +356,7 @@ export function OverviewPage() {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 rounded-xl border border-[#30456f] bg-[#131b32] px-3 py-2 text-xs font-medium text-slate-200 shadow-sm transition-colors hover:border-[#5274ad] hover:bg-[#1a2542] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9bb3ff]"
             >
               Participant portal <ArrowUpRight className="size-3" />
             </Link>
@@ -376,7 +404,8 @@ export function OverviewPage() {
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8 mt-6 sm:mt-8 mb-6 sm:mb-8 lg:my-4">
 
           {/* Left: Blue status card */}
-          <div className="bg-[#284297] rounded-2xl sm:rounded-3xl p-5 sm:p-7 flex flex-col justify-between shadow-xl shadow-[#284297]/15 min-h-[220px] sm:min-h-[260px] lg:min-h-0 lg:h-[340px]">
+          <div className="relative overflow-hidden rounded-2xl border border-[#4663ba]/55 bg-[#284297] p-5 shadow-[0_24px_46px_-24px_rgba(17,42,122,0.9),inset_0_1px_0_rgba(255,255,255,0.14)] sm:rounded-3xl sm:p-7 min-h-[220px] sm:min-h-[260px] lg:h-[340px] lg:min-h-0">
+            <div className="relative z-10 flex h-full flex-col justify-between">
             <div>
               <p className="text-xs text-blue-200/80 font-normal mb-1.5">Now on the big screen</p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-white mb-1.5">
@@ -389,6 +418,21 @@ export function OverviewPage() {
                   ? liveScreen?.video.title ?? settings.video?.title ?? 'No video selected'
                   : liveScreen ? `Auto-cycling ${liveScreen.testimonials.count} attendee quotes on display` : 'Waiting for a display connection'}
               </p>
+            </div>
+
+            <div className="flex flex-1 items-center justify-center py-4">
+              <button
+                type="button"
+                onClick={toggleScreenConnection}
+                className={cn(
+                  'inline-flex min-h-11 items-center justify-center rounded-full border px-6 text-sm font-semibold shadow-lg transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/35 active:scale-[0.98]',
+                  screenControlConnected
+                    ? 'border-amber-300/35 bg-amber-400/15 text-amber-100 hover:bg-amber-400/25'
+                    : 'border-[#9bb3ff]/80 bg-[#4569cf] text-white shadow-[#162e7a]/50 hover:bg-[#5578dc]'
+                )}
+              >
+                {screenControlConnected ? `Disconnect · ${sessionTime}` : 'Connect to screen'}
+              </button>
             </div>
 
             {/* Alert banner */}
@@ -406,12 +450,14 @@ export function OverviewPage() {
                 )}
               </p>
             </div>
+            </div>
+            <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[#6688ed]/20 blur-3xl" aria-hidden="true" />
           </div>
 
           {/* Right: Controls */}
-          <div className="flex flex-col gap-4 sm:gap-5 lg:max-h-[340px] lg:overflow-y-auto lg:pr-1">
-            <div className="rounded-2xl bg-white p-4 text-[#0b1228] shadow-xl sm:p-5">
-              <p className="mb-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Display controls</p>
+          <div className="display-controls-scroll flex flex-col gap-4 sm:gap-5 lg:max-h-[340px] lg:overflow-y-auto lg:pr-2">
+            <div className="theme-modal-dark rounded-2xl border border-[#2a3d63] bg-[#0e1628] p-4 text-slate-100 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.035)] sm:p-5">
+              <p className="mb-3 text-left text-xs font-medium uppercase tracking-wide text-slate-400">Display controls</p>
               <ControlPage embedded />
             </div>
 
@@ -536,7 +582,7 @@ export function OverviewPage() {
             unit="groups"
             description={`${photoStats.onScreen} showing on the big screen, ${photoStats.hidden} hidden.`}
             footerLeft={photoStats.lastUploadText}
-            onLabelClick={() => setActiveLibrary((current) => current === 'photos' ? null : 'photos')}
+            onOpen={() => setPhotosDrawerOpen(true)}
             actionLabel="Upload photos"
             actionIcon={<Upload className="size-3.5" />}
             onAction={() => setUploadPhotosOpen(true)}
@@ -549,7 +595,7 @@ export function OverviewPage() {
             unit="submissions"
             description={testimonialStats.latestText}
             footerLeft={testimonialStats.todayText}
-            onLabelClick={() => setActiveLibrary((current) => current === 'testimonials' ? null : 'testimonials')}
+            onOpen={() => setTestimonialsDrawerOpen(true)}
             actionLabel="Export CSV"
             actionIcon={<Download className="size-3.5" />}
             onAction={() => setExportCsvOpen(true)}
@@ -563,7 +609,7 @@ export function OverviewPage() {
             unit="videos"
             description="In 2 sets: Grant sub Safety kiosk, and TR Fastening in 10 short parts."
             footerLeft="Last upload 20 Oct 2026"
-            onLabelClick={() => setActiveLibrary((current) => current === 'videos' ? null : 'videos')}
+            onOpen={() => setVideosDrawerOpen(true)}
             actionLabel="Upload video"
             actionIcon={<Upload className="size-3.5" />}
             onAction={() => setUploadVideoOpen(true)}
@@ -571,17 +617,6 @@ export function OverviewPage() {
           />
         </section>
 
-        {activeLibrary && (
-          <section className="mt-6 overflow-hidden rounded-3xl border border-slate-700/80 bg-[#0e1628] shadow-2xl" aria-label={`${activeLibrary} library`}>
-            <header className="flex items-center justify-between gap-4 border-b border-slate-800 px-5 py-4 sm:px-6">
-              <div><h2 className="text-lg font-semibold text-white capitalize">{activeLibrary} library</h2><p className="mt-0.5 text-xs text-slate-400">Manage your event {activeLibrary} without leaving the dashboard.</p></div>
-              <button type="button" onClick={() => setActiveLibrary(null)} aria-label={`Close ${activeLibrary} library`} className="size-10 rounded-full border border-slate-700 bg-[#16213e] text-lg text-slate-300 hover:bg-[#223158] hover:text-white">×</button>
-            </header>
-            {activeLibrary === 'photos' && <ContentLibraryTable images={images} setImages={setImages} loading={false} highlightId={null} onUploadClick={() => setUploadPhotosOpen(true)} />}
-            {activeLibrary === 'testimonials' && <div className="p-6 text-sm text-slate-300">Open the testimonials manager to review, edit and export submissions.<button type="button" onClick={() => setTestimonialsDrawerOpen(true)} className="ml-3 rounded-full bg-[#9bb3ff] px-4 py-2 text-xs font-semibold text-[#0b1228]">Open testimonials table</button></div>}
-            {activeLibrary === 'videos' && <div className="p-6 text-sm text-slate-300">Open the videos manager to search, preview and select videos for the display.<button type="button" onClick={() => setVideosDrawerOpen(true)} className="ml-3 rounded-full bg-[#9bb3ff] px-4 py-2 text-xs font-semibold text-[#0b1228]">Open videos table</button></div>}
-          </section>
-        )}
       </div>
 
       {/* ── Fixed Bottom Prototype Bar ────────────────────────────────────── */}

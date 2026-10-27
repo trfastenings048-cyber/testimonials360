@@ -26,6 +26,13 @@ export function PhotosDrawer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [open, uploadOpen, onOpenChange]);
 
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [open]);
+
   const onUploaded = (image: EventImage) => {
     setImages((prev) => [image, ...prev.filter((item) => item.id !== image.id)]);
     setHighlightId(image.id);
@@ -40,12 +47,12 @@ export function PhotosDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Photos library"
-        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+        className="fixed inset-0 z-50 flex min-h-dvh items-center justify-center overflow-hidden bg-black/75 p-3 backdrop-blur-sm animate-in fade-in duration-200 sm:p-6"
         onClick={(e) => {
           if (e.target === e.currentTarget) onOpenChange(false);
         }}
       >
-        <div className="theme-tr theme-admin relative w-full max-w-5xl max-h-[90vh] rounded-3xl bg-[#0e1628] border border-slate-700/80 shadow-2xl flex flex-col overflow-hidden">
+        <div className="theme-tr theme-admin relative flex h-[calc(100dvh-1.5rem)] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-700/80 bg-[#0e1628] shadow-2xl sm:h-[min(88dvh,52rem)]">
           {/* Header */}
           <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-slate-800 shrink-0">
             <div>
@@ -73,7 +80,7 @@ export function PhotosDrawer({
           </div>
 
           {/* Body — the real ContentLibraryTable */}
-          <div className="flex-1 overflow-auto">
+          <div className="theme-modal-dark modal-scrollbar-hidden min-h-0 flex-1 overflow-auto">
             <ContentLibraryTable
               images={images}
               setImages={setImages}

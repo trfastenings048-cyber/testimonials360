@@ -1,4 +1,41 @@
 @import "tailwindcss";
+
+/* Scrollable modal content remains usable without adding a second visual scrollbar. */
+.modal-scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.modal-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Slim, high-contrast scrollbar for the embedded dashboard control panel. */
+.display-controls-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #5272c8 #0b1222;
+}
+
+.display-controls-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.display-controls-scroll::-webkit-scrollbar-track {
+  margin-block: 10px;
+  border-radius: 9999px;
+  background: #0b1222;
+}
+
+.display-controls-scroll::-webkit-scrollbar-thumb {
+  min-height: 42px;
+  border: 2px solid #0b1222;
+  border-radius: 9999px;
+  background: #5272c8;
+}
+
+.display-controls-scroll::-webkit-scrollbar-thumb:hover {
+  background: #7192ed;
+}
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -308,6 +345,21 @@
   box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.18);
 }
 
+/* The photo library is also shown inside the dark dashboard modal. Re-map its shared
+ * admin tokens so it keeps the same surface, typography and controls as the video modal. */
+.theme-admin .theme-modal-dark {
+  --surface-card: #0e1628;
+  --surface-page: #101a30;
+  --ink: #f8fafc;
+  --ink-muted: #94a3b8;
+  --muted: #16213e;
+  --muted-foreground: #94a3b8;
+  --accent-blue-soft: #1a2b50;
+  --accent-blue-strong: #9bb3ff;
+  --border: #263656;
+  --input: #304361;
+}
+
 .theme-tr .admin-button {
   min-height: 2.5rem;
   border-radius: 0.5rem;
@@ -462,6 +514,15 @@
 .theme-admin [data-slot='sheet-content'] {
     background-color: var(--surface-card);
     font-family: var(--font-display);
+}
+
+.theme-admin .theme-modal-dark [data-slot='button'][data-variant='secondary'],
+.theme-admin .theme-modal-dark [data-slot='button'][data-variant='outline'],
+.theme-admin .theme-modal-dark [data-slot='input'],
+.theme-admin .theme-modal-dark [data-slot='textarea'],
+.theme-admin .theme-modal-dark [data-slot='select-trigger'] {
+    background: var(--surface-card);
+    color: var(--ink);
 }
 
 /* `font-heading` / `font-sans` compile to Geist; inside the admin they follow Outfit. */
