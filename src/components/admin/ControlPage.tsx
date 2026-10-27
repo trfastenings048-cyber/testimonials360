@@ -70,7 +70,7 @@ function ControlButton({
   );
 }
 
-export function ControlPage() {
+export function ControlPage({ embedded = false }: { embedded?: boolean }) {
   const { settings, setSettings, screens, connection, realtime, publishCommand } = useAdminData();
   const [savingMode, setSavingMode] = useState<DisplaySettings['mode'] | null>(null);
   const [pendingCommand, setPendingCommand] = useState<CommandName | null>(null);
@@ -250,12 +250,14 @@ export function ControlPage() {
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col items-center py-2 text-center sm:py-4">
-      <p className="text-eyebrow text-muted-foreground">Live control</p>
-      <h1 className="mt-1 text-xl font-normal tracking-tight text-ink sm:text-2xl">Control the Testimonials Display page</h1>
-      <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-        Choose what the big screen shows, then control playback. Changes reach every connected screen instantly.
-      </p>
+    <div id={embedded ? 'live-control' : undefined} className={cn('flex w-full flex-col items-center text-center', embedded ? 'py-0' : 'mx-auto max-w-md py-2 sm:py-4')}>
+      {!embedded && <>
+        <p className="text-eyebrow text-muted-foreground">Live control</p>
+        <h1 className="mt-1 text-xl font-normal tracking-tight text-ink sm:text-2xl">Control the Testimonials Display page</h1>
+        <p className="mt-1 max-w-sm text-xs text-muted-foreground">
+          Choose what the big screen shows, then control playback. Changes reach every connected screen instantly.
+        </p>
+      </>}
 
       {!hasScreen && (
         <div className="mt-4 flex w-full items-start gap-3 rounded-2xl border border-warning/25 bg-warning/10 p-3 text-left text-xs text-warning">
@@ -276,7 +278,7 @@ export function ControlPage() {
       )}
 
       {/* Mode */}
-      <section className="mt-6 w-full" aria-labelledby="mode-heading">
+      <section className={cn('w-full', embedded ? 'mt-0' : 'mt-6')} aria-labelledby="mode-heading">
         <h2 id="mode-heading" className="mb-2 text-eyebrow text-muted-foreground">
           Screen mode
         </h2>

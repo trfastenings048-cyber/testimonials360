@@ -32,6 +32,8 @@ import { UploadVideoModal } from './overview/UploadVideoModal';
 import { PhotosDrawer } from './overview/PhotosDrawer';
 import { TestimonialsDrawer } from './overview/TestimonialsDrawer';
 import { VideosDrawer } from './overview/VideosDrawer';
+import { ControlPage } from './ControlPage';
+import { ContentLibraryTable } from './overview/ContentLibraryTable';
 
 /** Accessible toggle switch */
 function PrototypeSwitch({
@@ -175,6 +177,7 @@ export function OverviewPage() {
   const [photosDrawerOpen, setPhotosDrawerOpen] = useState(false);
   const [testimonialsDrawerOpen, setTestimonialsDrawerOpen] = useState(false);
   const [videosDrawerOpen, setVideosDrawerOpen] = useState(false);
+  const [activeLibrary, setActiveLibrary] = useState<'photos' | 'testimonials' | 'videos' | null>(null);
 
   // Control state
   const [screenShows, setScreenShows] = useState<'testimonials' | 'video'>('video');
@@ -216,6 +219,9 @@ export function OverviewPage() {
   );
 
   const isConnected = mockScreenConnected || (screens.length > 0 && connection === 'live');
+  const liveScreen = screens[0];
+  const liveMode = liveScreen?.mode ?? settings.mode;
+  const livePlaying = liveMode === 'video' ? (liveScreen?.video.playing ?? false) : !(liveScreen?.testimonials.paused ?? false);
 
   // Derived stats
   const photoStats = useMemo(() => {
@@ -286,12 +292,12 @@ export function OverviewPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#0a0e1c] text-white flex flex-col justify-between selection:bg-[#9bb3ff] selection:text-[#0b1228]">
+    <div className={cn('min-h-screen w-full bg-[#0a0e1c] text-white flex flex-col justify-between selection:bg-[#9bb3ff] selection:text-[#0b1228]', !activeLibrary && 'lg:h-screen lg:overflow-hidden')}>
 
       {/* ------------------------------------------------------------------ */}
       {/* Main scrollable content                                             */}
       {/* ------------------------------------------------------------------ */}
-      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-5 sm:py-6 flex-1 pb-24">
+      <div className={cn('w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-5 sm:py-6 flex-1', activeLibrary ? 'pb-10' : 'pb-8 lg:py-4')}>
 
         {/* ── Top Header Bar ─────────────────────────────────────────────── */}
         <header className="flex items-center justify-between gap-3 py-2">
@@ -367,21 +373,21 @@ export function OverviewPage() {
         </header>
 
         {/* ── Top Section: Blue card + Controls ──────────────────────────── */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8 mt-6 sm:mt-8 mb-6 sm:mb-8">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8 mt-6 sm:mt-8 mb-6 sm:mb-8 lg:my-4">
 
           {/* Left: Blue status card */}
-          <div className="bg-[#284297] rounded-2xl sm:rounded-3xl p-5 sm:p-7 flex flex-col justify-between shadow-xl shadow-[#284297]/15 min-h-[220px] sm:min-h-[260px]">
+          <div className="bg-[#284297] rounded-2xl sm:rounded-3xl p-5 sm:p-7 flex flex-col justify-between shadow-xl shadow-[#284297]/15 min-h-[220px] sm:min-h-[260px] lg:min-h-0 lg:h-[340px]">
             <div>
               <p className="text-xs text-blue-200/80 font-normal mb-1.5">Now on the big screen</p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-white mb-1.5">
-                {screenShows === 'video'
-                  ? isPlaying ? 'Video, playing' : 'Video, paused'
-                  : 'Testimonials, rotating'}
+                {liveMode === 'video'
+                  ? livePlaying ? 'Video, playing' : 'Video, paused'
+                  : livePlaying ? 'Testimonials, rotating' : 'Testimonials, paused'}
               </h2>
               <p className="text-xs sm:text-sm text-blue-100/80 font-normal">
-                {screenShows === 'video'
-                  ? videoSet === 'parts' ? 'TR Fastening, part 1 of 10' : 'Grant sub Safety kiosk'
-                  : 'Auto-cycling attendee quotes on display'}
+                {liveMode === 'video'
+                  ? liveScreen?.video.title ?? settings.video?.title ?? 'No video selected'
+                  : liveScreen ? `Auto-cycling ${liveScreen.testimonials.count} attendee quotes on display` : 'Waiting for a display connection'}
               </p>
             </div>
 
@@ -403,7 +409,13 @@ export function OverviewPage() {
           </div>
 
           {/* Right: Controls */}
-          <div className="flex flex-col gap-4 sm:gap-5">
+          <div className="flex flex-col gap-4 sm:gap-5 lg:max-h-[340px] lg:overflow-y-auto lg:pr-1">
+            <div className="rounded-2xl bg-white p-4 text-[#0b1228] shadow-xl sm:p-5">
+              <p className="mb-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Display controls</p>
+              <ControlPage embedded />
+            </div>
+
+            <div className="hidden">
 
             {/* Screen shows toggle */}
             <div>
@@ -503,6 +515,7 @@ export function OverviewPage() {
                 Saved. The screen uses this level when it connects.
               </p>
             </div>
+            </div>
           </div>
         </section>
 
@@ -515,7 +528,7 @@ export function OverviewPage() {
           Tablet:   2 columns (Photos | Testimonials) then Videos below
           Desktop:  3 columns side-by-side with left-border dividers
         */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 mt-0 mb-24 sm:mb-28">
+        <section className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2 lg:grid-cols-3 lg:pt-4">
           <StatCard
             label="Photos"
             icon={<ImageIcon className="size-4" />}
@@ -523,7 +536,7 @@ export function OverviewPage() {
             unit="groups"
             description={`${photoStats.onScreen} showing on the big screen, ${photoStats.hidden} hidden.`}
             footerLeft={photoStats.lastUploadText}
-            onLabelClick={() => setPhotosDrawerOpen(true)}
+            onLabelClick={() => setActiveLibrary((current) => current === 'photos' ? null : 'photos')}
             actionLabel="Upload photos"
             actionIcon={<Upload className="size-3.5" />}
             onAction={() => setUploadPhotosOpen(true)}
@@ -536,7 +549,7 @@ export function OverviewPage() {
             unit="submissions"
             description={testimonialStats.latestText}
             footerLeft={testimonialStats.todayText}
-            onLabelClick={() => setTestimonialsDrawerOpen(true)}
+            onLabelClick={() => setActiveLibrary((current) => current === 'testimonials' ? null : 'testimonials')}
             actionLabel="Export CSV"
             actionIcon={<Download className="size-3.5" />}
             onAction={() => setExportCsvOpen(true)}
@@ -550,17 +563,29 @@ export function OverviewPage() {
             unit="videos"
             description="In 2 sets: Grant sub Safety kiosk, and TR Fastening in 10 short parts."
             footerLeft="Last upload 20 Oct 2026"
-            onLabelClick={() => setVideosDrawerOpen(true)}
+            onLabelClick={() => setActiveLibrary((current) => current === 'videos' ? null : 'videos')}
             actionLabel="Upload video"
             actionIcon={<Upload className="size-3.5" />}
             onAction={() => setUploadVideoOpen(true)}
             divider
           />
         </section>
+
+        {activeLibrary && (
+          <section className="mt-6 overflow-hidden rounded-3xl border border-slate-700/80 bg-[#0e1628] shadow-2xl" aria-label={`${activeLibrary} library`}>
+            <header className="flex items-center justify-between gap-4 border-b border-slate-800 px-5 py-4 sm:px-6">
+              <div><h2 className="text-lg font-semibold text-white capitalize">{activeLibrary} library</h2><p className="mt-0.5 text-xs text-slate-400">Manage your event {activeLibrary} without leaving the dashboard.</p></div>
+              <button type="button" onClick={() => setActiveLibrary(null)} aria-label={`Close ${activeLibrary} library`} className="size-10 rounded-full border border-slate-700 bg-[#16213e] text-lg text-slate-300 hover:bg-[#223158] hover:text-white">×</button>
+            </header>
+            {activeLibrary === 'photos' && <ContentLibraryTable images={images} setImages={setImages} loading={false} highlightId={null} onUploadClick={() => setUploadPhotosOpen(true)} />}
+            {activeLibrary === 'testimonials' && <div className="p-6 text-sm text-slate-300">Open the testimonials manager to review, edit and export submissions.<button type="button" onClick={() => setTestimonialsDrawerOpen(true)} className="ml-3 rounded-full bg-[#9bb3ff] px-4 py-2 text-xs font-semibold text-[#0b1228]">Open testimonials table</button></div>}
+            {activeLibrary === 'videos' && <div className="p-6 text-sm text-slate-300">Open the videos manager to search, preview and select videos for the display.<button type="button" onClick={() => setVideosDrawerOpen(true)} className="ml-3 rounded-full bg-[#9bb3ff] px-4 py-2 text-xs font-semibold text-[#0b1228]">Open videos table</button></div>}
+          </section>
+        )}
       </div>
 
       {/* ── Fixed Bottom Prototype Bar ────────────────────────────────────── */}
-      <footer className="fixed bottom-0 inset-x-0 z-40 bg-[#080d1b]/95 border-t border-slate-800/80 backdrop-blur-md shadow-2xl">
+      <footer className="hidden">
         <div className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap px-4 py-3">
           <span className="text-xs text-slate-500 font-normal shrink-0">Prototype only</span>
           <PrototypeSwitch id="proto-screen-conn" checked={mockScreenConnected} onChange={setMockScreenConnected} label="Big screen connected" />
