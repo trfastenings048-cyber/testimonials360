@@ -34,6 +34,7 @@ function ControlButton({
   tone = 'neutral',
   disabled = false,
   ariaLabel,
+  size = 'large',
 }: {
   icon: ReactNode;
   label: string;
@@ -43,6 +44,7 @@ function ControlButton({
   tone?: 'neutral' | 'primary' | 'accent';
   disabled?: boolean;
   ariaLabel?: string;
+  size?: 'large' | 'medium' | 'small';
 }) {
   return (
     <button
@@ -52,16 +54,19 @@ function ControlButton({
       aria-label={ariaLabel}
       aria-pressed={tone === 'primary' ? active : undefined}
       className={cn(
-        'flex h-16 w-full flex-col items-center justify-center gap-1 rounded-2xl px-2 text-sm font-medium outline-none transition-all active:scale-[0.97] focus-visible:ring-4 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:cursor-not-allowed disabled:border disabled:border-slate-700/70 disabled:bg-[#16213e] disabled:text-slate-500 disabled:shadow-none disabled:opacity-100 disabled:[&_svg]:text-slate-500 sm:h-[76px] [&_svg]:size-5 sm:[&_svg]:size-6',
+        'flex w-full flex-col items-center justify-center gap-1 rounded-2xl px-2 font-medium outline-none transition-all active:scale-[0.97] focus-visible:ring-4 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:cursor-not-allowed disabled:border disabled:border-slate-700/70 disabled:bg-[#16213e] disabled:text-slate-500 disabled:shadow-none disabled:opacity-100 disabled:[&_svg]:text-slate-500',
+        size === 'large' && 'h-16 text-sm sm:h-[76px] [&_svg]:size-5 sm:[&_svg]:size-6',
+        size === 'medium' && 'h-[58px] rounded-xl text-xs [&_svg]:size-4',
+        size === 'small' && 'h-[52px] rounded-xl text-xs [&_svg]:size-4',
         tone === 'primary' &&
           (active
-            ? 'bg-ink text-white shadow-lg shadow-ink/25'
-            : 'surface-shadow bg-card text-ink hover:bg-accent-blue-soft'),
-        tone === 'accent' && 'bg-ink text-white shadow-lg shadow-ink/25 hover:bg-ink/90',
+            ? 'border border-[#6284ea] bg-[#3150a7] text-white shadow-lg shadow-[#14275f]/55'
+            : 'border border-[#2a3d63] bg-[#141f38] text-slate-100 shadow-[0_10px_22px_-16px_rgba(0,0,0,0.9)] hover:border-[#4567b1] hover:bg-[#1a2948]'),
+        tone === 'accent' && 'border border-[#6284ea] bg-[#3150a7] text-white shadow-lg shadow-[#14275f]/55 hover:bg-[#3d61c2]',
         tone === 'neutral' &&
           (active
-            ? 'bg-accent-blue-soft text-ink ring-1 ring-accent-blue/40'
-            : 'surface-shadow bg-card text-ink hover:bg-accent-blue-soft')
+            ? 'border border-[#4567b1] bg-[#1e315b] text-white shadow-[0_10px_22px_-16px_rgba(0,0,0,0.9)]'
+            : 'border border-[#2a3d63] bg-[#141f38] text-slate-100 shadow-[0_10px_22px_-16px_rgba(0,0,0,0.9)] hover:border-[#4567b1] hover:bg-[#1a2948]')
       )}
     >
       {icon}
@@ -260,6 +265,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <ControlButton
           disabled={disabled}
+          size="small"
           onClick={() => void send(commands.previous)}
           icon={commandIcon(commands.previous, <ChevronLeft />)}
           label="Left"
@@ -268,6 +274,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
         <ControlButton
           tone="accent"
           disabled={disabled}
+          size="small"
           onClick={() => void send(paused ? commands.play : commands.pause)}
           icon={commandIcon(paused ? commands.play : commands.pause, paused ? <Play /> : <Pause />)}
           label={paused ? 'Play' : 'Pause'}
@@ -275,6 +282,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
         />
         <ControlButton
           disabled={disabled}
+          size="small"
           onClick={() => void send(commands.next)}
           icon={commandIcon(commands.next, <ChevronRight />)}
           label="Right"
@@ -386,6 +394,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
               onClick={() => void changeVideoSet('single')}
               icon={savingSet === 'single' ? <Loader2 className="animate-spin" /> : <Film />}
               label="Video 1"
+              size="medium"
               hint={latestVideo?.title ?? (videosLoaded ? 'No video uploaded' : undefined)}
             />
             <ControlButton
@@ -395,6 +404,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
               onClick={() => void changeVideoSet('parts')}
               icon={savingSet === 'parts' ? <Loader2 className="animate-spin" /> : <Film />}
               label="Video 2"
+              size="medium"
               hint={partCount ? `${partCount} short parts` : partCount === 0 ? 'Parts not uploaded' : undefined}
             />
           </div>
@@ -407,6 +417,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
               icon={commandIcon('video.play', <Play />)}
               label={videoPlaying ? 'Playing' : 'Play'}
               ariaLabel="Play video"
+              size="small"
             />
             <ControlButton
               tone={videoPlaying ? 'accent' : 'neutral'}
@@ -416,6 +427,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
               icon={commandIcon('video.pause', <Pause />)}
               label={hasScreen && !videoPlaying ? 'Paused' : 'Pause'}
               ariaLabel="Pause video"
+              size="small"
             />
           </div>
           {clipCount > 1 && (
@@ -430,6 +442,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
                   icon={commandIcon('video.previous', <SkipBack />)}
                   label="Previous part"
                   ariaLabel="Previous video part"
+                  size="small"
                 />
                 <ControlButton
                   disabled={playbackDisabled}
@@ -437,6 +450,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
                   icon={commandIcon('video.next', <SkipForward />)}
                   label="Next part"
                   ariaLabel="Next video part"
+                  size="small"
                 />
               </div>
             </div>
@@ -454,13 +468,17 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
                 disabled={savingSound || controlsDisabled}
                 onClick={() => void saveSound({ videoMuted: !settings.videoMuted, videoVolume: volumeDraft })}
                 aria-pressed={!settings.videoMuted}
+                aria-label={settings.videoMuted ? 'Unmute big screen sound' : 'Mute big screen sound'}
+                title={settings.videoMuted ? 'Unmute big screen sound' : 'Mute big screen sound'}
                 className={cn(
                   'inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40 disabled:opacity-50',
-                  settings.videoMuted ? 'bg-warning/15 text-warning hover:bg-warning/20' : 'bg-ink text-white hover:bg-ink/90'
+                  settings.videoMuted
+                    ? 'border border-amber-400/30 bg-amber-400/10 text-amber-200 hover:bg-amber-400/20'
+                    : 'border border-[#5475d6] bg-[#1e315b] text-white shadow-sm shadow-[#14275f]/40 hover:bg-[#294274]'
                 )}
               >
                 {savingSound ? <Loader2 className="size-4 animate-spin" /> : settings.videoMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-                {settings.videoMuted ? 'Unmute' : 'Mute'}
+                {settings.videoMuted ? 'Muted' : 'Sound on'}
               </button>
             </div>
             <div className="mt-3 flex items-center gap-3">
@@ -479,7 +497,7 @@ export function ControlPage({ embedded = false }: { embedded?: boolean }) {
                 onKeyUp={() => {
                   if (volumeDraft !== settings.videoVolume) void saveSound({ videoMuted: false, videoVolume: volumeDraft ?? 68 });
                 }}
-                className="h-2 w-full cursor-pointer accent-ink disabled:cursor-not-allowed"
+                className="h-2 w-full cursor-pointer accent-[#6386eb] disabled:cursor-not-allowed"
                 aria-label="Big screen volume"
               />
               <Volume2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />

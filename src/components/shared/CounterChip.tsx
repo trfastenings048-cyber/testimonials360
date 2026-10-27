@@ -8,7 +8,7 @@ export function CounterChip({ index, count, className }: { index: number; count:
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center rounded-full bg-ink px-[0.8em] py-[0.25em] font-display-mono text-white tabular-nums',
+        'inline-flex shrink-0 items-center rounded-full border border-[#2b467a] bg-[#14213b] px-[0.8em] py-[0.25em] font-display-mono text-[#c8d7fb] tabular-nums',
         className
       )}
     >
